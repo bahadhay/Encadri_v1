@@ -2,13 +2,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copy everything first
-COPY . ./
-
-# Restore dependencies
+# Copy csproj and restore dependencies (this is cached unless dependencies change)
+COPY *.csproj ./
 RUN dotnet restore
 
-# Build and publish
+# Copy everything else and build
+COPY . ./
 RUN dotnet publish -c Release -o out
 
 # Build runtime image
