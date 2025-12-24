@@ -169,14 +169,43 @@ using (var scope = app.Services.CreateScope())
         logger.LogInformation($"Can connect to database: {canConnect}");
         Console.WriteLine($"Can connect to database: {canConnect}");
 
-        // Apply pending migrations
-        logger.LogInformation("Applying database migrations...");
-        Console.WriteLine("Applying database migrations...");
+        // Check pending migrations
+        var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+        var appliedMigrations = await context.Database.GetAppliedMigrationsAsync();
 
-        await context.Database.MigrateAsync();
+        logger.LogInformation($"Applied migrations: {appliedMigrations.Count()}");
+        logger.LogInformation($"Pending migrations: {pendingMigrations.Count()}");
+        Console.WriteLine($"Applied migrations: {appliedMigrations.Count()}");
+        Console.WriteLine($"Pending migrations: {pendingMigrations.Count()}");
 
-        logger.LogInformation("Migrations applied successfully!");
-        Console.WriteLine("Migrations applied successfully!");
+        foreach (var migration in pendingMigrations)
+        {
+            Console.WriteLine($"  - Pending: {migration}");
+        }
+
+        // Force delete and recreate database if migrations table is corrupted
+        if (!appliedMigrations.Any() && !pendingMigrations.Any())
+        {
+            logger.LogWarning("Migration history is empty but migrations exist. Recreating database...");
+            Console.WriteLine("Migration history is empty. Recreating database schema...");
+
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
+
+            logger.LogInformation("Database recreated successfully!");
+            Console.WriteLine("Database recreated successfully!");
+        }
+        else
+        {
+            // Apply pending migrations
+            logger.LogInformation("Applying database migrations...");
+            Console.WriteLine("Applying database migrations...");
+
+            await context.Database.MigrateAsync();
+
+            logger.LogInformation("Migrations applied successfully!");
+            Console.WriteLine("Migrations applied successfully!");
+        }
 
         // Seed the database with test data
         logger.LogInformation("Seeding database...");
