@@ -79,17 +79,17 @@ Thumbs.db
 .temp
 
 # Documentation files (exclude from repo)
-*.md
 *.pdf
 *.docx
 *.zip
-*.sh
 *.rtf
 
-# Keep only essential README and deployment files
-!Encadri-Frontend/README.md
-!Encadri-Backend/README.md
-!DEPLOYMENT_GUIDE.md
+# Keep README files
+!README.md
+!**/README.md
+
+# Exclude shell scripts
+*.sh
 
 # Exclude rapport folder
 rapport-pfa-encadri/
