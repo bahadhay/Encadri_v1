@@ -17,7 +17,9 @@ COPY --from=build /app/out .
 
 # Expose port (Railway will set PORT environment variable)
 EXPOSE 8080
-ENV ASPNETCORE_URLS=http://+:8080
+
+# Set ASP.NET to listen on the PORT environment variable provided by Railway
+ENV ASPNETCORE_URLS=http://+:${PORT:-8080}
 
 # Run the application
 ENTRYPOINT ["dotnet", "Encadri-Backend.dll"]
