@@ -35,8 +35,10 @@ export class ProjectDetailComponent {
   project = signal<Project | null>(null);
   loading = signal<boolean>(true);
   error = signal<string>('');
-  activeTab = signal<'overview' | 'submissions' | 'meetings' | 'evaluations' | 'milestones' | 'documents' | 'messages'>(this.getSavedTab());
+  activeTab = signal<'overview' | 'submissions' | 'meetings' | 'evaluations' | 'milestones' | 'documents' | 'messages'>('overview');
   milestoneProgress = signal<number>(0);
+
+  private currentProjectId: string | null = null;
 
   // Invite Modal State
   showInviteModal = false;
@@ -52,9 +54,20 @@ export class ProjectDetailComponent {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
-        // Reset to overview tab when navigating to project
-        this.activeTab.set('overview');
-        this.saveActiveTab('overview');
+        // Check if this is a different project or same project (refresh)
+        const isDifferentProject = this.currentProjectId !== id;
+        this.currentProjectId = id;
+
+        if (isDifferentProject) {
+          // New project - reset to overview
+          this.activeTab.set('overview');
+          this.saveActiveTab('overview', id);
+        } else {
+          // Same project (refresh) - restore saved tab
+          const savedTab = this.getSavedTab(id);
+          this.activeTab.set(savedTab);
+        }
+
         this.loadProject(id);
       }
     });
@@ -63,15 +76,17 @@ export class ProjectDetailComponent {
       const tab = params.get('tab');
       if (tab && ['submissions', 'meetings', 'evaluations', 'milestones', 'documents', 'messages', 'overview'].includes(tab)) {
         this.activeTab.set(tab as any);
-        this.saveActiveTab(tab as any);
+        if (this.currentProjectId) {
+          this.saveActiveTab(tab as any, this.currentProjectId);
+        }
       }
     });
   }
 
-  // Get saved tab from localStorage
-  private getSavedTab(): 'overview' | 'submissions' | 'meetings' | 'evaluations' | 'milestones' | 'documents' | 'messages' {
+  // Get saved tab from localStorage for specific project
+  private getSavedTab(projectId: string): 'overview' | 'submissions' | 'meetings' | 'evaluations' | 'milestones' | 'documents' | 'messages' {
     try {
-      const savedTab = localStorage.getItem('project-detail-active-tab');
+      const savedTab = localStorage.getItem(`project-${projectId}-active-tab`);
       if (savedTab && ['overview', 'submissions', 'meetings', 'evaluations', 'milestones', 'documents', 'messages'].includes(savedTab)) {
         return savedTab as any;
       }
@@ -81,10 +96,10 @@ export class ProjectDetailComponent {
     return 'overview';
   }
 
-  // Save active tab to localStorage
-  private saveActiveTab(tab: string) {
+  // Save active tab to localStorage for specific project
+  private saveActiveTab(tab: string, projectId: string) {
     try {
-      localStorage.setItem('project-detail-active-tab', tab);
+      localStorage.setItem(`project-${projectId}-active-tab`, tab);
     } catch (e) {
       console.error('Error saving to localStorage:', e);
     }
@@ -93,7 +108,9 @@ export class ProjectDetailComponent {
   // Set active tab and save to localStorage
   setActiveTab(tab: 'overview' | 'submissions' | 'meetings' | 'evaluations' | 'milestones' | 'documents' | 'messages') {
     this.activeTab.set(tab);
-    this.saveActiveTab(tab);
+    if (this.currentProjectId) {
+      this.saveActiveTab(tab, this.currentProjectId);
+    }
   }
 
   loadProject(id: string) {
