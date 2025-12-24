@@ -52,6 +52,9 @@ export class ProjectDetailComponent {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
+        // Reset to overview tab when navigating to project
+        this.activeTab.set('overview');
+        this.saveActiveTab('overview');
         this.loadProject(id);
       }
     });
