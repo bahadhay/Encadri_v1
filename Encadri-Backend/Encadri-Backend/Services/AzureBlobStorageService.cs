@@ -12,16 +12,25 @@ namespace Encadri_Backend.Services
 
         public AzureBlobStorageService(IConfiguration configuration, ILogger<AzureBlobStorageService> logger)
         {
-            var connectionString = configuration["AzureStorage:ConnectionString"];
-            _containerName = configuration["AzureStorage:ContainerName"] ?? "encadri-documents";
+            // Check environment variable first, then fall back to appsettings.json
+            var connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING")
+                                ?? configuration["AzureStorage:ConnectionString"];
+
+            _containerName = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONTAINER_NAME")
+                          ?? configuration["AzureStorage:ContainerName"]
+                          ?? "encadri-documents";
 
             if (string.IsNullOrEmpty(connectionString))
             {
-                throw new InvalidOperationException("Azure Storage connection string is not configured");
+                _logger.LogWarning("Azure Storage connection string is not configured. File upload features will not work.");
+                _logger.LogWarning("Set AZURE_STORAGE_CONNECTION_STRING environment variable or AzureStorage:ConnectionString in appsettings.json");
+                // Don't throw exception - allow app to run without Azure Storage
+                return;
             }
 
             _blobServiceClient = new BlobServiceClient(connectionString);
             _logger = logger;
+            _logger.LogInformation($"Azure Blob Storage initialized with container: {_containerName}");
 
             // Ensure container exists
             EnsureContainerExistsAsync().Wait();
