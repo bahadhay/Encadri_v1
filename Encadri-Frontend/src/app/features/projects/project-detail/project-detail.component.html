@@ -74,7 +74,16 @@
             <div class="person-email">{{ p.studentEmail }}</div>
           </div>
           <ng-template #noStudent>
-            <div class="info-empty">No student assigned</div>
+            <div class="info-empty">
+              <span>No student assigned</span>
+              <app-ui-button
+                *ngIf="canInviteStudent"
+                variant="primary"
+                size="small"
+                (click)="openInviteModal('student')">
+                + Invite Student
+              </app-ui-button>
+            </div>
           </ng-template>
         </div>
 
@@ -89,7 +98,16 @@
             <div class="person-email">{{ p.supervisorEmail }}</div>
           </div>
           <ng-template #noSupervisor>
-            <div class="info-empty">No supervisor assigned</div>
+            <div class="info-empty">
+              <span>No supervisor assigned</span>
+              <app-ui-button
+                *ngIf="canInviteSupervisor"
+                variant="primary"
+                size="small"
+                (click)="openInviteModal('supervisor')">
+                + Invite Supervisor
+              </app-ui-button>
+            </div>
           </ng-template>
         </div>
 

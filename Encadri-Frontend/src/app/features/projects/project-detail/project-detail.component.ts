@@ -319,6 +319,16 @@ export class ProjectDetailComponent {
     return p.studentEmail === user.email || p.supervisorEmail === user.email;
   }
 
+  // Check if can invite student
+  get canInviteStudent(): boolean {
+    return this.canInvite('student');
+  }
+
+  // Check if can invite supervisor
+  get canInviteSupervisor(): boolean {
+    return this.canInvite('supervisor');
+  }
+
   // Delete project (owner only)
   deleteProject() {
     const p = this.project();
