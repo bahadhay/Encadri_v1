@@ -86,9 +86,10 @@ Thumbs.db
 *.sh
 *.rtf
 
-# Keep only essential README files
+# Keep only essential README and deployment files
 !Encadri-Frontend/README.md
 !Encadri-Backend/README.md
+!DEPLOYMENT_GUIDE.md
 
 # Exclude rapport folder
 rapport-pfa-encadri/
