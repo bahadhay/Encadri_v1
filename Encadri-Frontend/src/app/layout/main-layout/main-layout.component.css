@@ -241,12 +241,12 @@
 
 .logout-btn {
   width: 100%;
-  padding: var(--spacing-2) var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
   border: 1px solid var(--slate-300);
   background: white;
   border-radius: var(--radius-md);
   cursor: pointer;
-  font-size: var(--text-sm);
+  font-size: 1rem;
   font-weight: var(--font-medium);
   color: var(--danger);
   transition: all var(--transition-base);
@@ -254,6 +254,9 @@
   align-items: center;
   justify-content: center;
   gap: var(--spacing-2);
+  min-height: 48px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .logout-btn:hover {
@@ -261,6 +264,21 @@
   border-color: var(--danger);
   transform: translateY(-1px);
   box-shadow: var(--shadow-xs);
+}
+
+.logout-btn:active {
+  transform: scale(0.98);
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Make logout button more prominent on mobile */
+@media (max-width: 1023px) {
+  .logout-btn {
+    font-size: 1.125rem;
+    padding: var(--spacing-4);
+    min-height: 56px;
+    font-weight: 600;
+  }
 }
 
 /* Main Content */
@@ -292,34 +310,39 @@
 }
 
 .mobile-menu-toggle {
-  background: none;
+  background: var(--primary-600);
   border: none;
   cursor: pointer;
-  color: var(--slate-700);
+  color: white;
   padding: var(--spacing-2);
-  border-radius: var(--radius);
+  border-radius: var(--radius-md);
   transition: all var(--transition-base);
   display: none; /* Hidden by default on desktop */
   align-items: center;
   justify-content: center;
   min-width: 44px;
   min-height: 44px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .mobile-menu-toggle:hover {
-  background-color: var(--slate-100);
-  color: var(--primary-600);
+  background-color: var(--primary-700);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
 
 .mobile-menu-toggle:active {
-  background-color: var(--slate-200);
+  background-color: var(--primary-800);
   transform: scale(0.95);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Show mobile menu toggle only on mobile */
 @media (max-width: 1023px) {
   .mobile-menu-toggle {
-    display: flex;
+    display: flex !important;
   }
 }
 
