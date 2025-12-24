@@ -136,5 +136,46 @@ namespace Encadri_Backend.Controllers
 
             return Ok(user);
         }
+
+        /// <summary>
+        /// Get all supervisors
+        /// </summary>
+        [HttpGet("supervisors")]
+        public async Task<ActionResult<List<User>>> GetSupervisors()
+        {
+            var supervisors = await _context.Users
+                .Where(u => u.UserRole == "Supervisor")
+                .OrderBy(u => u.FullName)
+                .ToListAsync();
+
+            return Ok(supervisors);
+        }
+
+        /// <summary>
+        /// Get all students
+        /// </summary>
+        [HttpGet("students")]
+        public async Task<ActionResult<List<User>>> GetStudents()
+        {
+            var students = await _context.Users
+                .Where(u => u.UserRole == "Student")
+                .OrderBy(u => u.FullName)
+                .ToListAsync();
+
+            return Ok(students);
+        }
+
+        /// <summary>
+        /// Get all users
+        /// </summary>
+        [HttpGet("users")]
+        public async Task<ActionResult<List<User>>> GetUsers()
+        {
+            var users = await _context.Users
+                .OrderBy(u => u.FullName)
+                .ToListAsync();
+
+            return Ok(users);
+        }
     }
 }
