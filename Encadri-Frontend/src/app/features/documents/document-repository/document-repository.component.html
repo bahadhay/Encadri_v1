@@ -1,0 +1,462 @@
+<div class="document-repository">
+  <!-- Header -->
+  <div class="repo-header">
+    <div class="header-info">
+      <h2>📁 Project Documents</h2>
+      <p>Organize and manage all project files in one place</p>
+    </div>
+    <div class="header-actions">
+      <button class="upload-btn" (click)="isUploadModalOpen.set(true)">
+        <span class="icon">📤</span> Upload Files
+      </button>
+    </div>
+  </div>
+
+  <!-- Storage Info -->
+  <div class="storage-info">
+    <div class="storage-stats">
+      <span class="stat-label">Storage Used</span>
+      <span class="stat-value">{{ formatFileSize(storageInfo().totalSize) }} / {{ formatFileSize(1073741824) }}</span>
+    </div>
+    <div class="storage-bar">
+      <div class="storage-fill" [style.width.%]="storagePercentage"></div>
+    </div>
+    <div class="storage-meta">
+      <span>{{ storageInfo().documentCount }} files</span>
+      <span>{{ storagePercentage }}% used</span>
+    </div>
+  </div>
+
+  <!-- Filters and View Controls -->
+  <div class="controls-bar">
+    <div class="filters">
+      <!-- Search -->
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          placeholder="Search files..."
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="searchTerm.set($event)">
+      </div>
+
+      <!-- Category Filter -->
+      <select class="category-filter" [(ngModel)]="selectedCategory" (ngModelChange)="selectedCategory.set($event)">
+        <option value="all">All Categories</option>
+        <option *ngFor="let cat of categories" [value]="cat.key">
+          {{ cat.icon }} {{ cat.label }}
+        </option>
+      </select>
+    </div>
+
+    <!-- View Mode Toggle -->
+    <div class="view-toggle">
+      <button
+        class="view-btn"
+        [class.active]="viewMode() === 'list'"
+        (click)="viewMode.set('list')"
+        title="List view">
+        ☰
+      </button>
+      <button
+        class="view-btn"
+        [class.active]="viewMode() === 'grid'"
+        (click)="viewMode.set('grid')"
+        title="Grid view">
+        ▦
+      </button>
+    </div>
+  </div>
+
+  <!-- Upload Progress -->
+  <div class="upload-progress-container" *ngIf="uploadingFiles().length > 0">
+    <div class="upload-item" *ngFor="let upload of uploadingFiles()">
+      <div class="upload-info">
+        <span class="upload-icon">{{ getFileIcon(upload.file.name.split('.').pop() || '') }}</span>
+        <span class="upload-name">{{ upload.file.name }}</span>
+        <span class="upload-status" [class]="upload.status">
+          {{ upload.status === 'completed' ? '✓' : upload.status === 'error' ? '✗' : upload.progress + '%' }}
+        </span>
+      </div>
+      <div class="upload-bar">
+        <div class="upload-fill" [style.width.%]="upload.progress"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drag and Drop Zone -->
+  <div
+    class="drop-zone"
+    [class.dragging]="isDragging()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)"
+    *ngIf="filteredDocuments.length === 0 && !loading()">
+    <div class="drop-zone-content">
+      <span class="drop-icon">📁</span>
+      <h3>Drag & Drop Files Here</h3>
+      <p>or</p>
+      <label class="file-input-label">
+        <input
+          type="file"
+          multiple
+          (change)="onFileInputChange($event)"
+          style="display: none;">
+        <span class="browse-btn">Browse Files</span>
+      </label>
+      <p class="drop-hint">Supported: PDF, DOC, DOCX, PPT, PPTX, Images, ZIP (Max 100 MB per file)</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <app-skeleton-table *ngIf="loading()" [rowCount]="6"></app-skeleton-table>
+
+  <!-- Category Accordion View (when showing all categories) -->
+  <div class="categories-accordion" *ngIf="!loading() && selectedCategory() === 'all' && filteredDocuments.length > 0">
+    <!-- Expand/Collapse All -->
+    <div class="accordion-controls">
+      <button class="control-btn" (click)="expandAllCategories()">
+        ⊕ Expand All
+      </button>
+      <button class="control-btn" (click)="collapseAllCategories()">
+        ⊖ Collapse All
+      </button>
+    </div>
+
+    <!-- Category Sections -->
+    <div class="category-section" *ngFor="let cat of categories">
+      <div
+        class="category-header"
+        *ngIf="getCategoryDocumentCount(cat.key) > 0"
+        (click)="toggleCategory(cat.key)"
+        [class.expanded]="isCategoryExpanded(cat.key)">
+        <div class="header-left">
+          <span class="toggle-icon">{{ isCategoryExpanded(cat.key) ? '▼' : '▶' }}</span>
+          <span class="category-icon">{{ cat.icon }}</span>
+          <h3 class="category-title">{{ cat.label }}</h3>
+          <span class="category-count">{{ getCategoryDocumentCount(cat.key) }} file{{ getCategoryDocumentCount(cat.key) !== 1 ? 's' : '' }}</span>
+        </div>
+        <span class="category-description">{{ cat.description }}</span>
+      </div>
+
+      <!-- Category Documents -->
+      <div class="category-content" *ngIf="isCategoryExpanded(cat.key) && getCategoryDocumentCount(cat.key) > 0">
+        <table class="docs-table">
+          <thead>
+            <tr>
+              <th>File</th>
+              <th>Size</th>
+              <th>Uploaded By</th>
+              <th>Upload Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let doc of documentsByCategory[cat.key]">
+              <td class="file-cell">
+                <div class="file-preview-thumb"
+                     (click)="previewDocument(doc)"
+                     title="Click to preview">
+                  <ng-container [ngSwitch]="getFilePreviewType(doc)">
+                    <img *ngSwitchCase="'image'"
+                         [src]="doc.blobUrl"
+                         [alt]="doc.originalFileName"
+                         class="thumb-image"
+                         (error)="$event.target && ($any($event.target).src = '')" />
+                    <span *ngSwitchDefault class="thumb-icon">
+                      {{ getFileIcon(doc.fileExtension) }}
+                    </span>
+                  </ng-container>
+                  <span class="file-type-badge">
+                    {{ doc.fileExtension.replace('.', '').toUpperCase() }}
+                  </span>
+                </div>
+                <div class="file-info">
+                  <span class="file-name">{{ doc.originalFileName }}</span>
+                  <span class="file-desc" *ngIf="doc.description">{{ doc.description }}</span>
+                </div>
+              </td>
+              <td data-label="Size">{{ formatFileSize(doc.fileSize) }}</td>
+              <td data-label="Uploaded By">{{ doc.uploadedByName || doc.uploadedBy }}</td>
+              <td data-label="Upload Date">{{ doc.uploadDate | date:'short' }}</td>
+              <td class="actions-cell">
+                <button class="action-btn" (click)="previewDocument(doc)" title="Preview">
+                  👁️
+                </button>
+                <button class="action-btn" (click)="downloadDocument(doc)" title="Download">
+                  📥
+                </button>
+                <button
+                  class="action-btn delete"
+                  *ngIf="isSupervisor"
+                  (click)="openDeleteDialog(doc)"
+                  title="Delete">
+                  🗑️
+                </button>
+                <button
+                  class="mobile-menu-toggle"
+                  [class.active]="activeMobileMenu === doc.id"
+                  (click)="toggleMobileMenu(doc.id || '')"
+                  title="More actions">
+                  ⋮
+                </button>
+                <div class="mobile-actions-menu" [class.hidden]="activeMobileMenu !== doc.id" (click)="$event.stopPropagation()">
+                  <button class="mobile-action-item" (click)="previewDocument(doc); closeMobileMenu()">
+                    <span class="icon">👁️</span>
+                    <span class="label">Preview</span>
+                  </button>
+                  <button class="mobile-action-item" (click)="downloadDocument(doc); closeMobileMenu()">
+                    <span class="icon">📥</span>
+                    <span class="label">Download</span>
+                  </button>
+                  <button
+                    class="mobile-action-item delete"
+                    *ngIf="isSupervisor"
+                    (click)="openDeleteDialog(doc); closeMobileMenu()">
+                    <span class="icon">🗑️</span>
+                    <span class="label">Delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Single Category List View (when filter is active) -->
+  <div class="documents-list" *ngIf="!loading() && selectedCategory() !== 'all' && filteredDocuments.length > 0">
+    <table class="docs-table">
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Size</th>
+          <th>Uploaded By</th>
+          <th>Upload Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let doc of filteredDocuments">
+          <td class="file-cell">
+            <div class="file-preview-thumb"
+                 (click)="previewDocument(doc)"
+                 title="Click to preview">
+              <ng-container [ngSwitch]="getFilePreviewType(doc)">
+                <img *ngSwitchCase="'image'"
+                     [src]="doc.blobUrl"
+                     [alt]="doc.originalFileName"
+                     class="thumb-image"
+                     (error)="$event.target && ($any($event.target).src = '')" />
+                <span *ngSwitchDefault class="thumb-icon">
+                  {{ getFileIcon(doc.fileExtension) }}
+                </span>
+              </ng-container>
+              <span class="file-type-badge">
+                {{ doc.fileExtension.replace('.', '').toUpperCase() }}
+              </span>
+            </div>
+            <div class="file-info">
+              <span class="file-name">{{ doc.originalFileName }}</span>
+              <span class="file-desc" *ngIf="doc.description">{{ doc.description }}</span>
+            </div>
+          </td>
+          <td data-label="Size">{{ formatFileSize(doc.fileSize) }}</td>
+          <td data-label="Uploaded By">{{ doc.uploadedByName || doc.uploadedBy }}</td>
+          <td data-label="Upload Date">{{ doc.uploadDate | date:'short' }}</td>
+          <td class="actions-cell">
+            <button class="action-btn" (click)="previewDocument(doc)" title="Preview">
+              👁️
+            </button>
+            <button class="action-btn" (click)="downloadDocument(doc)" title="Download">
+              📥
+            </button>
+            <button
+              class="action-btn delete"
+              *ngIf="isSupervisor"
+              (click)="openDeleteDialog(doc)"
+              title="Delete">
+              🗑️
+            </button>
+            <button
+              class="mobile-menu-toggle"
+              [class.active]="activeMobileMenu === doc.id"
+              (click)="toggleMobileMenu(doc.id || '')"
+              title="More actions">
+              ⋮
+            </button>
+            <div class="mobile-actions-menu" [class.hidden]="activeMobileMenu !== doc.id" (click)="$event.stopPropagation()">
+              <button class="mobile-action-item" (click)="previewDocument(doc); closeMobileMenu()">
+                <span class="icon">👁️</span>
+                <span class="label">Preview</span>
+              </button>
+              <button class="mobile-action-item" (click)="downloadDocument(doc); closeMobileMenu()">
+                <span class="icon">📥</span>
+                <span class="label">Download</span>
+              </button>
+              <button
+                class="mobile-action-item delete"
+                *ngIf="isSupervisor"
+                (click)="openDeleteDialog(doc); closeMobileMenu()">
+                <span class="icon">🗑️</span>
+                <span class="label">Delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Documents Grid View -->
+  <div class="documents-grid" *ngIf="!loading() && viewMode() === 'grid' && filteredDocuments.length > 0">
+    <div class="doc-card" *ngFor="let doc of filteredDocuments">
+      <div class="doc-card-preview"
+           (click)="previewDocument(doc)">
+        <ng-container [ngSwitch]="getFilePreviewType(doc)">
+          <img *ngSwitchCase="'image'"
+               [src]="doc.blobUrl"
+               [alt]="doc.originalFileName"
+               class="card-preview-image"
+               (error)="$event.target && ($any($event.target).style.display = 'none')" />
+          <div *ngSwitchDefault class="card-preview-icon">
+            <span class="large-icon">
+              {{ getFileIcon(doc.fileExtension) }}
+            </span>
+          </div>
+        </ng-container>
+        <span class="card-file-type-badge">
+          {{ doc.fileExtension.replace('.', '').toUpperCase() }}
+        </span>
+        <span class="card-category-badge">{{ getCategoryIcon(doc.category) }}</span>
+      </div>
+      <div class="doc-card-body" (click)="previewDocument(doc)" style="cursor: pointer;">
+        <h4 class="doc-title">{{ doc.originalFileName }}</h4>
+        <p class="doc-meta">{{ formatFileSize(doc.fileSize) }}</p>
+        <p class="doc-meta">{{ doc.uploadDate | date:'short' }}</p>
+        <p class="doc-desc" *ngIf="doc.description">{{ doc.description }}</p>
+      </div>
+      <div class="doc-card-actions">
+        <button class="card-action-btn" (click)="previewDocument(doc)">
+          👁️ Preview
+        </button>
+        <button class="card-action-btn" (click)="downloadDocument(doc)">
+          📥 Download
+        </button>
+        <button
+          class="card-action-btn delete"
+          *ngIf="isSupervisor"
+          (click)="openDeleteDialog(doc)">
+          🗑️ Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Upload Modal -->
+<app-modal
+  [isOpen]="isUploadModalOpen()"
+  title="Upload Documents"
+  size="medium"
+  (close)="isUploadModalOpen.set(false)">
+  <form (submit)="uploadDocuments(); $event.preventDefault()">
+    <div class="upload-form">
+      <!-- Drag & Drop Zone -->
+      <div class="modal-drop-zone"
+           [class.dragging]="isDragging()"
+           (dragover)="onDragOver($event)"
+           (dragleave)="onDragLeave($event)"
+           (drop)="onDrop($event)">
+        <div class="drop-zone-icon">📁</div>
+        <h3>Drag & Drop Files Here</h3>
+        <p class="drop-zone-divider">or</p>
+        <label class="file-select-btn">
+          <input
+            type="file"
+            multiple
+            #fileInput
+            (change)="onFileInputChange($event)"
+            style="display: none;">
+          <span class="btn-content">
+            📁 Choose Files
+          </span>
+        </label>
+        <p class="file-hint">You can select multiple files at once</p>
+      </div>
+
+      <!-- Selected Files -->
+      <div class="selected-files" *ngIf="uploadForm().files.length > 0">
+        <div class="selected-files-header">
+          <h4>Selected Files ({{ uploadForm().files.length }})</h4>
+          <button type="button" class="clear-files-btn" (click)="clearSelectedFiles()" title="Clear all files">
+            ✕ Clear All
+          </button>
+        </div>
+        <div class="file-list">
+          <div class="file-item" *ngFor="let file of uploadForm().files; let i = index">
+            <span class="file-icon">{{ getFileIcon(file.name.split('.').pop() || '') }}</span>
+            <span class="file-name">{{ file.name }}</span>
+            <span class="file-size">{{ formatFileSize(file.size) }}</span>
+            <button type="button" class="remove-file-btn" (click)="removeFile(i)" title="Remove file">
+              ✕
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Selection -->
+      <div class="form-group">
+        <label>Category *</label>
+        <select [(ngModel)]="uploadForm().category" name="category" required>
+          <option *ngFor="let cat of categories" [value]="cat.key">
+            {{ cat.icon }} {{ cat.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label>Description (Optional)</label>
+        <textarea
+          [(ngModel)]="uploadForm().description"
+          name="description"
+          rows="3"
+          placeholder="Add a description for these files..."></textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="modal-actions">
+        <app-ui-button type="button" variant="outline" (click)="isUploadModalOpen.set(false)">
+          Cancel
+        </app-ui-button>
+        <app-ui-button type="submit" variant="primary">
+          Upload {{ uploadForm().files.length }} File(s)
+        </app-ui-button>
+      </div>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Delete Confirmation Dialog -->
+<app-confirm-dialog
+  [isOpen]="isDeleteDialogOpen()"
+  title="Delete Document"
+  [message]="'Are you sure you want to delete &quot;' + (documentToDelete?.originalFileName || 'this document') + '&quot;? This action cannot be undone.'"
+  confirmText="Delete"
+  cancelText="Cancel"
+  variant="danger"
+  [loading]="deleteLoading()"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDeleteDialog()"
+></app-confirm-dialog>
+
+<!-- File Preview Modal -->
+<app-file-preview
+  *ngIf="documentToPreview"
+  [document]="documentToPreview"
+  [isOpen]="isPreviewOpen()"
+  (close)="closePreview()"
+></app-file-preview>

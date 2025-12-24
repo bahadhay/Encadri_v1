@@ -1,0 +1,245 @@
+<div class="chat-container">
+  <!-- Chat Header -->
+  <div class="chat-header">
+    <div class="header-info">
+      <h2>{{ recipientName || recipientEmail || 'Chat' }}</h2>
+      <span class="connection-status" [class.connected]="isConnected" [class.disconnected]="!isConnected">
+        {{ isConnected ? 'Connected' : 'Disconnected' }}
+      </span>
+    </div>
+    <div class="online-users">
+      <span class="online-count">{{ onlineUsers.length }} online</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading">
+    <div class="spinner"></div>
+    <p>Connecting to chat...</p>
+  </div>
+
+  <!-- Messages Container -->
+  <div #messageContainer class="messages-container" *ngIf="!isLoading">
+    <!-- Message List -->
+    <div *ngFor="let message of messages"
+         class="message"
+         [class.own-message]="isOwnMessage(message)"
+         [class.other-message]="!isOwnMessage(message)">
+
+      <div class="message-bubble"
+           (mouseenter)="hoveredMessageId = message.id"
+           (mouseleave)="hoveredMessageId = null">
+
+        <!-- Reply Preview -->
+        <div class="reply-preview" *ngIf="message.replyToMessageId">
+          <div class="reply-bar"></div>
+          <div class="reply-content">
+            <span class="reply-sender">{{ message.replyToSenderName }}</span>
+            <span class="reply-text">{{ message.replyToContent }}</span>
+          </div>
+        </div>
+
+        <div class="message-header">
+          <span class="sender-name">{{ message.senderName || message.senderEmail }}</span>
+          <span class="message-time">{{ formatTime(message.createdDate) }}</span>
+        </div>
+
+        <!-- Message Content -->
+        <div class="message-content">
+          <!-- Image Preview -->
+          <div class="image-preview" *ngIf="message.messageType === 'image' && message.fileUrl">
+            <img [src]="message.fileUrl" [alt]="message.fileName || 'Image'" />
+          </div>
+
+          <!-- File Attachment -->
+          <div class="file-attachment" *ngIf="message.messageType === 'file' && message.fileUrl">
+            <svg class="file-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" stroke="currentColor" stroke-width="2"/>
+              <polyline points="13 2 13 9 20 9" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <div class="file-info">
+              <span class="file-name">{{ message.fileName }}</span>
+              <span class="file-size">{{ formatFileSize(message.fileSize) }}</span>
+            </div>
+            <a [href]="message.fileUrl" download class="file-download">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2"/>
+                <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2"/>
+                <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </a>
+          </div>
+
+          <!-- Text Content -->
+          <div class="text-content" *ngIf="message.messageType === 'text'">
+            {{ message.content }}
+          </div>
+        </div>
+
+        <!-- Reactions Display -->
+        <div class="reactions-display" *ngIf="message.reactions && message.reactions.length > 0">
+          <span
+            *ngFor="let reaction of getGroupedReactions(message.reactions)"
+            class="reaction-chip"
+            [class.own-reaction]="hasUserReacted(message.reactions, reaction.emoji)"
+            (click)="toggleReaction(message, reaction.emoji)"
+            [title]="getReactionTooltip(message.reactions, reaction.emoji)">
+            {{ reaction.emoji }} {{ reaction.count }}
+          </span>
+        </div>
+
+        <!-- Message Actions (shown on hover) -->
+        <div class="message-actions" *ngIf="hoveredMessageId === message.id">
+          <!-- Reaction Button -->
+          <button class="action-btn" (click)="toggleEmojiPicker(message.id)" title="React">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="currentColor" stroke-width="2"/>
+              <circle cx="9" cy="9" r="1" fill="currentColor"/>
+              <circle cx="15" cy="9" r="1" fill="currentColor"/>
+            </svg>
+          </button>
+
+          <!-- Reply Button -->
+          <button class="action-btn" (click)="startReply(message)" title="Reply">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <polyline points="9 14 4 9 9 4" stroke="currentColor" stroke-width="2"/>
+              <path d="M20 20v-7a4 4 0 0 0-4-4H4" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Emoji Picker -->
+        <div class="emoji-picker" *ngIf="showEmojiPickerForMessage === message.id">
+          <span
+            *ngFor="let emoji of quickEmojis"
+            class="emoji-option"
+            (click)="toggleReaction(message, emoji)">
+            {{ emoji }}
+          </span>
+        </div>
+
+        <div class="message-footer" *ngIf="isOwnMessage(message)">
+          <span class="read-status" *ngIf="message.isRead">
+            ✓✓ Read
+          </span>
+          <span class="read-status sent" *ngIf="!message.isRead">
+            ✓ Sent
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Typing Indicator -->
+    <div *ngIf="typingUsers.size > 0" class="typing-indicator">
+      <div class="typing-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <span class="typing-text">{{ getTypingText() }}</span>
+    </div>
+  </div>
+
+  <!-- Message Input -->
+  <div class="message-input-container" *ngIf="!isLoading">
+    <!-- Reply Preview in Input -->
+    <div class="input-reply-preview" *ngIf="replyingTo">
+      <div class="reply-preview-content">
+        <div class="reply-bar"></div>
+        <div class="reply-info">
+          <span class="replying-to">Replying to {{ replyingTo.senderName || replyingTo.senderEmail }}</span>
+          <span class="reply-message">{{ replyingTo.content }}</span>
+        </div>
+      </div>
+      <button class="cancel-reply-btn" (click)="cancelReply()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
+          <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="input-wrapper">
+      <!-- File Input (hidden) -->
+      <input
+        #fileInput
+        type="file"
+        (change)="onFileSelected($event)"
+        style="display: none"
+        accept="*/*" />
+
+      <!-- Image Input (hidden) -->
+      <input
+        #imageInput
+        type="file"
+        (change)="onImageSelected($event)"
+        style="display: none"
+        accept="image/*" />
+
+      <!-- Attachment Buttons -->
+      <div class="attachment-buttons">
+        <button class="attach-btn" (click)="imageInput.click()" title="Send image" [disabled]="!isConnected">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
+            <polyline points="21 15 16 10 5 21" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </button>
+
+        <button class="attach-btn" (click)="fileInput.click()" title="Send file" [disabled]="!isConnected">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </button>
+      </div>
+
+      <textarea
+        [(ngModel)]="newMessage"
+        (keyup)="onTyping()"
+        (keydown.enter)="$event.preventDefault(); sendMessage()"
+        [disabled]="!isConnected"
+        placeholder="Type a message..."
+        class="message-input"
+        rows="1"></textarea>
+
+      <button
+        (click)="sendMessage()"
+        [disabled]="(!newMessage.trim() && !selectedFile && !selectedImage) || !isConnected"
+        class="send-button">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- File Upload Preview -->
+    <div class="file-upload-preview" *ngIf="selectedFile">
+      <div class="preview-content">
+        <svg class="file-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" stroke="currentColor" stroke-width="2"/>
+          <polyline points="13 2 13 9 20 9" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>{{ selectedFile.name }}</span>
+      </div>
+      <button class="cancel-upload-btn" (click)="cancelFileUpload()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
+          <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Image Upload Preview -->
+    <div class="image-upload-preview" *ngIf="selectedImage">
+      <img [src]="imagePreview" alt="Preview" />
+      <button class="cancel-upload-btn" (click)="cancelImageUpload()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2"/>
+          <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

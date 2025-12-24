@@ -1,0 +1,31 @@
+<div class="toast-container">
+  <div
+    *ngFor="let toast of toasts"
+    class="toast"
+    [class]="getPriorityClass(toast.priority)"
+    [@slideIn]
+    (click)="onToastClick(toast)">
+
+    <!-- Icon -->
+    <div class="toast-icon">
+      {{ getNotificationIcon(toast.type) }}
+    </div>
+
+    <!-- Content -->
+    <div class="toast-content">
+      <div class="toast-title">{{ toast.title }}</div>
+      <div class="toast-message">{{ toast.message }}</div>
+    </div>
+
+    <!-- Close Button -->
+    <button
+      class="toast-close"
+      (click)="onCloseClick($event, toast.toastId)"
+      title="Dismiss">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,147 @@
+<div class="project-form-container">
+  <div class="header">
+    <h2>{{ isEditMode ? 'Edit Project' : 'New Project' }}</h2>
+    <app-ui-button variant="outline" routerLink="/projects">Cancel</app-ui-button>
+  </div>
+
+  <app-ui-card>
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <app-ui-input
+          label="Title *"
+          placeholder="Project Title"
+          [(ngModel)]="project.title"
+          name="title"
+          [disabled]="loading">
+        </app-ui-input>
+
+        <div class="form-group">
+          <label class="label">Project Type</label>
+          <select [(ngModel)]="project.type" name="type" class="native-select" [disabled]="loading">
+            <option value="PFE">PFE</option>
+            <option value="PFA">PFA</option>
+            <option value="Internship">Internship</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="label">Description *</label>
+          <textarea 
+            class="textarea" 
+            [(ngModel)]="project.description" 
+            name="description" 
+            rows="4" 
+            placeholder="Detailed description of the project..."
+            [disabled]="loading">
+          </textarea>
+        </div>
+
+
+
+        <div class="form-group full-width">
+          <label class="label">Technologies</label>
+          <div class="tech-input-group">
+            <input 
+              type="text" 
+              class="input" 
+              placeholder="Add technology (e.g. Angular) and press Enter" 
+              [(ngModel)]="techInput" 
+              name="techInput"
+              (keydown.enter)="$event.preventDefault(); addTechnology()"
+              [disabled]="loading">
+            <button type="button" class="add-btn" (click)="addTechnology()" [disabled]="!techInput">Add</button>
+          </div>
+          
+          <div class="tech-chips">
+            <div *ngFor="let tech of technologies; let i = index" class="chip">
+              <span>{{ tech }}</span>
+              <button type="button" class="remove-chip" (click)="removeTechnology(i)">×</button>
+            </div>
+          </div>
+        </div>
+
+        <app-ui-input
+          label="Company / Organization"
+          placeholder="e.g. Tech Solutions Inc."
+          [(ngModel)]="project.company"
+          name="company"
+          [disabled]="loading">
+        </app-ui-input>
+
+        <div class="form-group">
+          <label class="label">Start Date</label>
+          <input 
+            type="date" 
+            class="native-input" 
+            [(ngModel)]="project.startDate" 
+            name="startDate"
+            [disabled]="loading">
+        </div>
+
+        <div class="form-group">
+          <label class="label">End Date</label>
+          <input 
+            type="date" 
+            class="native-input" 
+            [(ngModel)]="project.endDate" 
+            name="endDate"
+            [disabled]="loading">
+        </div>
+
+        <div class="form-group full-width">
+          <label class="label">Objectives</label>
+          <div class="tech-input-group">
+            <input 
+              type="text" 
+              class="input" 
+              placeholder="Add objective and press Enter" 
+              [(ngModel)]="objectiveInput" 
+              name="objectiveInput"
+              (keydown.enter)="$event.preventDefault(); addObjective()"
+              [disabled]="loading">
+            <button type="button" class="add-btn" (click)="addObjective()" [disabled]="!objectiveInput">Add</button>
+          </div>
+          
+          <div class="tech-chips">
+            <div *ngFor="let obj of objectives; let i = index" class="chip">
+              <span>{{ obj }}</span>
+              <button type="button" class="remove-chip" (click)="removeObjective(i)">×</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="isEditMode">
+          <label class="label">Status</label>
+          <select [(ngModel)]="project.status" name="status" class="native-select" [disabled]="loading">
+            <option value="proposed">Proposed</option>
+            <option value="in_progress">In Progress</option>
+            <option value="under_review">Under Review</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="isEditMode">
+          <label class="label">Progress ({{ project.progressPercentage }}%)</label>
+          <input 
+            type="range" 
+            min="0" 
+            max="100" 
+            [(ngModel)]="project.progressPercentage" 
+            name="progress"
+            class="range-slider"
+            [disabled]="loading">
+        </div>
+      </div>
+
+      <div *ngIf="error" class="error-banner">
+        {{ error }}
+      </div>
+
+      <div class="actions">
+        <app-ui-button type="submit" variant="primary" [loading]="loading">
+          {{ isEditMode ? 'Update Project' : 'Create Project' }}
+        </app-ui-button>
+      </div>
+    </form>
+  </app-ui-card>
+</div>

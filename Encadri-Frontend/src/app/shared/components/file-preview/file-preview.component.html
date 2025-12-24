@@ -1,0 +1,179 @@
+<div class="preview-modal" *ngIf="isOpen" (keydown)="onKeyDown($event)" tabindex="0">
+  <div class="preview-overlay" (click)="closePreview()"></div>
+
+  <div class="preview-container" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="preview-header">
+      <div class="file-info">
+        <span class="file-icon">{{ fileIcon }}</span>
+        <div class="file-details">
+          <h3 class="file-name">{{ document.originalFileName }}</h3>
+          <p class="file-meta">
+            <span>{{ formatFileSize(document.fileSize) }}</span>
+            <span class="separator">•</span>
+            <span>{{ document.uploadDate | date:'short' }}</span>
+            <span class="separator">•</span>
+            <span>Uploaded by {{ document.uploadedByName || document.uploadedBy }}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Zoom controls (for PDFs and images) -->
+        <div class="zoom-controls" *ngIf="previewType === 'pdf' || previewType === 'image'">
+          <button class="icon-btn" (click)="zoomOut()" title="Zoom out (Ctrl -)">
+            🔍−
+          </button>
+          <span class="zoom-level">{{ zoomLevel() }}%</span>
+          <button class="icon-btn" (click)="zoomIn()" title="Zoom in (Ctrl +)">
+            🔍+
+          </button>
+          <button class="icon-btn" (click)="resetZoom()" title="Reset zoom (Ctrl 0)">
+            ↺
+          </button>
+        </div>
+
+        <!-- Action buttons -->
+        <button class="icon-btn" (click)="printFile()" title="Print" *ngIf="previewType === 'pdf' || previewType === 'image'">
+          🖨️
+        </button>
+        <button class="icon-btn" (click)="shareFile()" title="Copy link">
+          🔗
+        </button>
+        <button class="icon-btn" (click)="downloadFile()" title="Download">
+          📥
+        </button>
+        <button class="icon-btn" (click)="toggleFullscreen()" title="Fullscreen">
+          ⛶
+        </button>
+        <button class="icon-btn close-btn" (click)="closePreview()" title="Close (Esc)">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="preview-loading" *ngIf="loading()">
+      <div class="spinner"></div>
+      <p>Loading preview...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="preview-error" *ngIf="error() && !loading()">
+      <span class="error-icon">⚠️</span>
+      <h3>Preview Unavailable</h3>
+      <p>{{ error() }}</p>
+      <button class="download-btn" (click)="downloadFile()">
+        📥 Download File Instead
+      </button>
+    </div>
+
+    <!-- Preview Content -->
+    <div class="preview-content" *ngIf="!loading() && !error()">
+      <!-- PDF Preview -->
+      <div class="pdf-preview" *ngIf="previewType === 'pdf'">
+        <object
+          [data]="safeUrl()"
+          type="application/pdf"
+          [style.transform]="'scale(' + (zoomLevel() / 100) + ')'"
+          [style.transform-origin]="'top left'"
+          class="pdf-iframe">
+          <iframe
+            [src]="safeUrl()"
+            [style.transform]="'scale(' + (zoomLevel() / 100) + ')'"
+            [style.transform-origin]="'top left'"
+            frameborder="0"
+            class="pdf-iframe">
+            <p>Your browser does not support PDF preview.
+              <a [href]="document.blobUrl" target="_blank">Click here to download</a>
+            </p>
+          </iframe>
+        </object>
+
+        <!-- PDF Navigation -->
+        <div class="pdf-nav" *ngIf="totalPages() > 1">
+          <button
+            class="nav-btn"
+            (click)="previousPage()"
+            [disabled]="currentPage() === 1"
+            title="Previous page (←)">
+            ←
+          </button>
+          <span class="page-info">
+            Page {{ currentPage() }} of {{ totalPages() }}
+          </span>
+          <button
+            class="nav-btn"
+            (click)="nextPage()"
+            [disabled]="currentPage() === totalPages()"
+            title="Next page (→)">
+            →
+          </button>
+        </div>
+      </div>
+
+      <!-- Image Preview -->
+      <div class="image-preview" *ngIf="previewType === 'image'">
+        <img
+          [src]="document.blobUrl"
+          [alt]="document.originalFileName"
+          [style.transform]="'scale(' + (zoomLevel() / 100) + ')'"
+          class="preview-image">
+      </div>
+
+      <!-- Video Preview -->
+      <div class="video-preview" *ngIf="previewType === 'video'">
+        <video
+          [src]="document.blobUrl"
+          controls
+          class="preview-video">
+          Your browser does not support video playback.
+        </video>
+        <p class="video-info">
+          {{ document.originalFileName }}
+        </p>
+      </div>
+
+      <!-- Text/Code Preview -->
+      <div class="text-preview" *ngIf="previewType === 'text' || previewType === 'code'">
+        <div class="text-header">
+          <span class="language-badge" *ngIf="previewType === 'code'">
+            {{ codeLanguage }}
+          </span>
+          <button class="copy-btn" (click)="shareFile()">
+            📋 Copy Content
+          </button>
+        </div>
+        <pre class="text-content" [class.code-content]="previewType === 'code'"><code [class]="'language-' + codeLanguage">{{ textContent() }}</code></pre>
+      </div>
+
+      <!-- Unsupported File Type -->
+      <div class="unsupported-preview" *ngIf="previewType === 'unsupported'">
+        <span class="unsupported-icon">📄</span>
+        <h3>Preview Not Available</h3>
+        <p>Preview is not supported for {{ document.fileExtension }} files</p>
+        <button class="download-btn" (click)="downloadFile()">
+          📥 Download File
+        </button>
+        <div class="file-info-box">
+          <p><strong>File Name:</strong> {{ document.originalFileName }}</p>
+          <p><strong>File Type:</strong> {{ document.fileType }}</p>
+          <p><strong>File Size:</strong> {{ formatFileSize(document.fileSize) }}</p>
+          <p *ngIf="document.description"><strong>Description:</strong> {{ document.description }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer with file description -->
+    <div class="preview-footer" *ngIf="document.description && !loading()">
+      <div class="description-box">
+        <strong>Description:</strong> {{ document.description }}
+      </div>
+    </div>
+
+    <!-- Keyboard shortcuts hint -->
+    <div class="shortcuts-hint">
+      <span>💡 Tip: Use <kbd>Esc</kbd> to close, <kbd>←</kbd> <kbd>→</kbd> to navigate, <kbd>Ctrl +/-</kbd> to zoom</span>
+    </div>
+  </div>
+</div>

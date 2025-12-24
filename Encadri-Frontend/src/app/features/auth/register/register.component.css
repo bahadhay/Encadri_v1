@@ -1,0 +1,124 @@
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-50) 0%, var(--slate-50) 100%);
+  padding: var(--spacing-4);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 450px;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: var(--spacing-6);
+}
+
+.auth-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--slate-900);
+  margin-bottom: var(--spacing-2);
+}
+
+.auth-header p {
+  color: var(--slate-500);
+  margin: 0;
+}
+
+.form-group {
+  margin-bottom: var(--spacing-4);
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--slate-700);
+  margin-bottom: var(--spacing-2);
+}
+
+.role-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-4);
+}
+
+.role-option {
+  cursor: pointer;
+  position: relative;
+}
+
+.role-option input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.role-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-4);
+  background: white;
+  border: 2px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+  color: var(--slate-600);
+  font-weight: 500;
+}
+
+.role-icon {
+  font-size: 1.5rem;
+  margin-bottom: var(--spacing-2);
+}
+
+.role-option:hover .role-content {
+  border-color: var(--primary-300);
+  background-color: var(--primary-50);
+}
+
+.role-option.selected .role-content {
+  border-color: var(--primary-600);
+  background-color: var(--primary-50);
+  color: var(--primary-700);
+}
+
+.error-banner {
+  background-color: #fef2f2;
+  color: var(--danger);
+  padding: var(--spacing-3);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-4);
+  font-size: 0.875rem;
+  border: 1px solid #fecaca;
+}
+
+.auth-footer {
+  margin-top: var(--spacing-6);
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--slate-600);
+}
+
+.auth-footer a {
+  color: var(--primary-600);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.w-full {
+  width: 100%;
+}
+
+::ng-deep app-ui-button.w-full button {
+  width: 100%;
+}

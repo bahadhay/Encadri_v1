@@ -1,0 +1,239 @@
+<div class="projects-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h2>Projects</h2>
+      <p>Manage and track academic projects</p>
+    </div>
+    <app-ui-button variant="primary" (click)="openCreateModal()">
+      <span class="icon">+</span> New Project
+    </app-ui-button>
+  </div>
+
+  <div class="filters">
+    <div class="search-box">
+      <app-ui-input 
+        placeholder="Search projects..." 
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)">
+      </app-ui-input>
+    </div>
+  </div>
+
+  <div class="projects-grid" *ngIf="loading()">
+    <app-skeleton-card *ngFor="let i of [1,2,3,4,5,6]"></app-skeleton-card>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading() && filteredProjects.length === 0">
+    <div class="empty-icon">📁</div>
+    <h3>No projects found</h3>
+    <p>Get started by creating a new project.</p>
+    <app-ui-button variant="outline" (click)="openCreateModal()">Create Project</app-ui-button>
+  </div>
+
+  <div class="projects-grid" *ngIf="!loading() && filteredProjects.length > 0">
+    <app-ui-card *ngFor="let project of filteredProjects" class="project-card-wrapper" [hover]="true">
+      <div class="project-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <span class="badge" [ngClass]="getStatusColor(project.status)">
+              {{ getStatusLabel(project.status) }}
+            </span>
+            <span class="type-badge">{{ project.type }}</span>
+          </div>
+          <button class="delete-icon-btn" (click)="openDeleteDialog(project)" title="Delete project">
+            🗑️
+          </button>
+        </div>
+        
+        <h3>{{ project.title }}</h3>
+        <p class="description">{{ project.description }}</p>
+        
+        <div class="meta-info">
+          <div class="meta-item">
+            <span class="label">Student:</span> {{ project.studentName }}
+          </div>
+          <div class="meta-item">
+            <span class="label">Technologies:</span>
+            <div class="tech-tags">
+              <span *ngFor="let tech of project.technologies.slice(0, 3)" class="tech-tag">{{ tech }}</span>
+              <span *ngIf="project.technologies.length > 3" class="more-tag">+{{ project.technologies.length - 3 }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-bar-container">
+          <div class="progress-info">
+            <span>Progress</span>
+            <span>{{ project.progressPercentage }}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="project.progressPercentage"></div>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <app-ui-button variant="secondary" size="sm" (click)="openEditModal(project)">
+            ✏️ Edit
+          </app-ui-button>
+          <app-ui-button variant="outline" [routerLink]="['/projects', project.id]">
+            View Details
+          </app-ui-button>
+        </div>
+      </div>
+    </app-ui-card>
+  </div>
+</div>
+
+<!-- Project Modal -->
+<app-modal
+  [isOpen]="isModalOpen()"
+  [title]="isEditMode() ? 'Edit Project' : 'Create New Project'"
+  size="large"
+  (close)="closeModal()">
+
+  <form (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <app-ui-input
+        label="Title *"
+        placeholder="Project Title"
+        [(ngModel)]="project.title"
+        name="title"
+        [disabled]="formLoading()">
+      </app-ui-input>
+
+      <div class="form-group">
+        <label class="label">Project Type</label>
+        <select [(ngModel)]="project.type" name="type" class="native-select" [disabled]="formLoading()">
+          <option value="PFE">PFE</option>
+          <option value="PFA">PFA</option>
+          <option value="Internship">Internship</option>
+        </select>
+      </div>
+
+      <div class="form-group full-width">
+        <label class="label">Description *</label>
+        <textarea
+          class="textarea"
+          [(ngModel)]="project.description"
+          name="description"
+          rows="4"
+          placeholder="Detailed description of the project..."
+          [disabled]="formLoading()">
+        </textarea>
+      </div>
+
+      <div class="form-group full-width">
+        <label class="label">Technologies</label>
+        <div class="tech-input-group">
+          <input
+            type="text"
+            class="input"
+            placeholder="Add technology (e.g. Angular) and press Enter"
+            [(ngModel)]="techInput"
+            name="techInput"
+            (keydown.enter)="$event.preventDefault(); addTechnology()"
+            [disabled]="formLoading()">
+          <button type="button" class="add-btn" (click)="addTechnology()" [disabled]="!techInput">Add</button>
+        </div>
+
+        <div class="tech-chips">
+          <div *ngFor="let tech of technologies; let i = index" class="chip">
+            <span>{{ tech }}</span>
+            <button type="button" class="remove-chip" (click)="removeTechnology(i)">×</button>
+          </div>
+        </div>
+      </div>
+
+      <app-ui-input
+        label="Company / Organization"
+        placeholder="e.g. Tech Solutions Inc."
+        [(ngModel)]="project.company"
+        name="company"
+        [disabled]="formLoading()">
+      </app-ui-input>
+
+      <div class="form-group">
+        <label class="label">Start Date</label>
+        <input
+          type="date"
+          class="native-input"
+          [(ngModel)]="project.startDate"
+          name="startDate"
+          [disabled]="formLoading()">
+      </div>
+
+      <div class="form-group">
+        <label class="label">End Date</label>
+        <input
+          type="date"
+          class="native-input"
+          [(ngModel)]="project.endDate"
+          name="endDate"
+          [disabled]="formLoading()">
+      </div>
+
+      <div class="form-group full-width">
+        <label class="label">Objectives</label>
+        <div class="tech-input-group">
+          <input
+            type="text"
+            class="input"
+            placeholder="Add objective and press Enter"
+            [(ngModel)]="objectiveInput"
+            name="objectiveInput"
+            (keydown.enter)="$event.preventDefault(); addObjective()"
+            [disabled]="formLoading()">
+          <button type="button" class="add-btn" (click)="addObjective()" [disabled]="!objectiveInput">Add</button>
+        </div>
+
+        <div class="tech-chips">
+          <div *ngFor="let obj of objectives; let i = index" class="chip">
+            <span>{{ obj }}</span>
+            <button type="button" class="remove-chip" (click)="removeObjective(i)">×</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="isEditMode()">
+        <label class="label">Status</label>
+        <select [(ngModel)]="project.status" name="status" class="native-select" [disabled]="formLoading()">
+          <option value="proposed">Proposed</option>
+          <option value="in_progress">In Progress</option>
+          <option value="under_review">Under Review</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+    </div>
+
+    <div *ngIf="isEditMode()" class="info-banner">
+      <span class="info-icon">ℹ️</span>
+      <p>Project progress is automatically calculated from milestone completion.</p>
+    </div>
+
+    <div *ngIf="formError()" class="error-banner">
+      {{ formError() }}
+    </div>
+
+    <div class="modal-actions">
+      <app-ui-button type="button" variant="outline" (click)="closeModal()" [disabled]="formLoading()">
+        Cancel
+      </app-ui-button>
+      <app-ui-button type="submit" variant="primary" [loading]="formLoading()">
+        {{ isEditMode() ? 'Update Project' : 'Create Project' }}
+      </app-ui-button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Delete Confirmation Dialog -->
+<app-confirm-dialog
+  [isOpen]="isDeleteDialogOpen()"
+  title="Delete Project"
+  [message]="'Are you sure you want to delete &quot;' + (projectToDelete?.title || 'this project') + '&quot;? This action cannot be undone.'"
+  confirmText="Delete"
+  cancelText="Cancel"
+  variant="danger"
+  [loading]="deleteLoading()"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDeleteDialog()"
+></app-confirm-dialog>

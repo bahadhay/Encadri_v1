@@ -1,0 +1,82 @@
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-50) 0%, var(--slate-50) 100%);
+  padding: clamp(1rem, 3vw, var(--spacing-4));
+}
+
+.auth-card {
+  width: 100%;
+  max-width: min(400px, 95vw);
+}
+
+@media (max-width: 639px) {
+  .auth-card {
+    max-width: 100%;
+  }
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: clamp(1rem, 3vw, var(--spacing-6));
+}
+
+.auth-header h2 {
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  font-weight: 700;
+  color: var(--slate-900);
+  margin-bottom: var(--spacing-2);
+  line-height: 1.2;
+}
+
+.auth-header p {
+  color: var(--slate-500);
+  margin: 0;
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
+}
+
+.error-banner {
+  background-color: #fef2f2;
+  color: var(--danger);
+  padding: var(--spacing-3);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-4);
+  font-size: 0.875rem;
+  border: 1px solid #fecaca;
+}
+
+.auth-footer {
+  margin-top: var(--spacing-6);
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--slate-600);
+}
+
+.auth-footer a {
+  color: var(--primary-600);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.dev-hint {
+  margin-top: var(--spacing-4);
+  padding-top: var(--spacing-4);
+  border-top: 1px dashed var(--slate-200);
+  color: var(--slate-400);
+}
+
+.w-full {
+  width: 100%;
+  display: flex;
+}
+
+/* Deep selector to make the button inside ui-button full width */
+::ng-deep app-ui-button.w-full button {
+  width: 100%;
+}

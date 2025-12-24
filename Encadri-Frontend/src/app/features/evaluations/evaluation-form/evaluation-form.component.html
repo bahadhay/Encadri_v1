@@ -1,0 +1,113 @@
+<div class="evaluation-form-container">
+  <div class="header">
+    <h2>{{ isEditMode ? 'Edit Evaluation' : 'Submit Evaluation' }}</h2>
+    <app-ui-button variant="outline" [routerLink]="['/projects', projectId]">Cancel</app-ui-button>
+  </div>
+
+  <app-ui-card>
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <div class="form-group">
+          <div class="label-row">
+            <label class="label">Report Quality</label>
+            <span class="value-display">{{ evaluation.reportQualityScore }}/5</span>
+          </div>
+          <input 
+            type="range" 
+            min="0" max="5" 
+            step="0.5"
+            class="range-input" 
+            [(ngModel)]="evaluation.reportQualityScore" 
+            (ngModelChange)="calculateGrade()"
+            name="reportQualityScore"
+            [disabled]="loading">
+        </div>
+
+        <div class="form-group">
+          <div class="label-row">
+            <label class="label">Technical Implementation</label>
+            <span class="value-display">{{ evaluation.technicalImplementationScore }}/5</span>
+          </div>
+          <input 
+            type="range" 
+            min="0" max="5" 
+            step="0.5"
+            class="range-input" 
+            [(ngModel)]="evaluation.technicalImplementationScore" 
+            (ngModelChange)="calculateGrade()"
+            name="technicalImplementationScore"
+            [disabled]="loading">
+        </div>
+
+        <div class="form-group">
+          <div class="label-row">
+            <label class="label">Presentation</label>
+            <span class="value-display">{{ evaluation.presentationScore }}/5</span>
+          </div>
+          <input 
+            type="range" 
+            min="0" max="5" 
+            step="0.5"
+            class="range-input" 
+            [(ngModel)]="evaluation.presentationScore" 
+            (ngModelChange)="calculateGrade()"
+            name="presentationScore"
+            [disabled]="loading">
+        </div>
+
+        <div class="form-group">
+          <div class="label-row">
+            <label class="label">Professional Conduct</label>
+            <span class="value-display">{{ evaluation.professionalConductScore }}/5</span>
+          </div>
+          <input 
+            type="range" 
+            min="0" max="5" 
+            step="0.5"
+            class="range-input" 
+            [(ngModel)]="evaluation.professionalConductScore" 
+            (ngModelChange)="calculateGrade()"
+            name="professionalConductScore"
+            [disabled]="loading">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Defense Date</label>
+          <input 
+            type="date" 
+            class="native-input" 
+            [(ngModel)]="evaluation.defenseDate" 
+            name="defenseDate"
+            [disabled]="loading">
+        </div>
+
+        <div class="form-group full-width grade-display">
+          <label class="label">Total Grade: </label>
+          <span class="total-grade">{{ evaluation.finalGrade }} / 20</span>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="label">Comments</label>
+          <textarea 
+            class="textarea" 
+            [(ngModel)]="evaluation.comments" 
+            name="comments" 
+            rows="4" 
+            placeholder="Feedback for the student..."
+            [disabled]="loading">
+          </textarea>
+        </div>
+      </div>
+
+      <div *ngIf="error" class="error-banner">
+        {{ error }}
+      </div>
+
+      <div class="actions">
+        <app-ui-button type="submit" variant="primary" [loading]="loading">
+          Submit Evaluation
+        </app-ui-button>
+      </div>
+    </form>
+  </app-ui-card>
+</div>

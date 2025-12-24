@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 25.0.1706.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Encadri-Backend", "Encadri-Backend\Encadri-Backend.csproj", "{71566F72-A5EE-462B-90DE-8C69485CB23F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{71566F72-A5EE-462B-90DE-8C69485CB23F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71566F72-A5EE-462B-90DE-8C69485CB23F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71566F72-A5EE-462B-90DE-8C69485CB23F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71566F72-A5EE-462B-90DE-8C69485CB23F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {823D239A-2257-4637-B664-78717479EE39}
+	EndGlobalSection
+EndGlobal

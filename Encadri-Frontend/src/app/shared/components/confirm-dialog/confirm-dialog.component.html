@@ -1,0 +1,31 @@
+<div class="dialog-overlay" *ngIf="isOpen" (click)="onBackdropClick($event)">
+  <div class="dialog-container" [ngClass]="'dialog-' + variant">
+    <div class="dialog-icon">
+      <span *ngIf="variant === 'danger'">⚠️</span>
+      <span *ngIf="variant === 'warning'">⚡</span>
+      <span *ngIf="variant === 'info'">ℹ️</span>
+    </div>
+
+    <div class="dialog-content">
+      <h3 class="dialog-title">{{ title }}</h3>
+      <p class="dialog-message">{{ message }}</p>
+    </div>
+
+    <div class="dialog-actions">
+      <app-ui-button
+        type="button"
+        variant="outline"
+        (click)="onCancel()"
+        [disabled]="loading">
+        {{ cancelText }}
+      </app-ui-button>
+      <app-ui-button
+        type="button"
+        [variant]="variant === 'danger' ? 'primary' : 'primary'"
+        (click)="onConfirm()"
+        [loading]="loading">
+        {{ confirmText }}
+      </app-ui-button>
+    </div>
+  </div>
+</div>

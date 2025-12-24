@@ -1,0 +1,154 @@
+<div class="submissions-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h2>Submissions</h2>
+      <p>Review and manage project submissions</p>
+    </div>
+    <app-ui-button variant="primary" (click)="openCreateModal()" *ngIf="projectId">
+      <span class="icon">+</span> New Submission
+    </app-ui-button>
+  </div>
+
+  <div class="filters">
+    <div class="search-box">
+      <app-ui-input 
+        placeholder="Search submissions..." 
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)">
+      </app-ui-input>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="loading()">
+    <div class="spinner"></div>
+    <p>Loading submissions...</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading() && filteredSubmissions.length === 0">
+    <div class="empty-icon">📝</div>
+    <h3>No submissions found</h3>
+    <p>Submissions from students will appear here.</p>
+  </div>
+
+  <div class="submissions-list" *ngIf="!loading() && filteredSubmissions.length > 0">
+    <app-ui-card *ngFor="let sumbission of filteredSubmissions" class="submission-card-wrapper">
+      <div class="submission-card">
+        <div class="card-icon">📄</div>
+        
+        <div class="card-content">
+          <div class="content-header">
+            <h3>{{ sumbission.title }}</h3>
+            <span class="badge" [ngClass]="getStatusColor(sumbission.status)">
+              {{ getStatusLabel(sumbission.status) }}
+            </span>
+          </div>
+          
+          <div class="meta-info">
+            <span class="meta-item">Type: {{ sumbission.type }}</span>
+            <span class="meta-separator">•</span>
+            <span class="meta-item">By: {{ sumbission.submittedBy }}</span>
+            <span class="meta-separator">•</span>
+            <span class="meta-item">Due: {{ sumbission.dueDate | date:'mediumDate' }}</span>
+          </div>
+        </div>
+
+        <div class="card-actions">
+           <app-ui-button variant="outline" size="sm" [routerLink]="['/submissions', sumbission.id]">
+            View
+          </app-ui-button>
+        </div>
+      </div>
+    </app-ui-card>
+  </div>
+</div>
+
+<!-- Submission Modal -->
+<app-modal
+  [isOpen]="isModalOpen()"
+  title="New Submission"
+  size="large"
+  (close)="closeModal()">
+
+  <form (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <app-ui-input
+        label="Title *"
+        placeholder="Submission Title"
+        [(ngModel)]="submission.title"
+        name="title"
+        [disabled]="formLoading()">
+      </app-ui-input>
+
+      <div class="form-group">
+        <label class="label">Submission Type</label>
+        <select [(ngModel)]="submission.type" name="type" class="native-select" [disabled]="formLoading()">
+          <option value="report">Report</option>
+          <option value="presentation">Presentation</option>
+          <option value="code">Code</option>
+          <option value="documentation">Documentation</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group full-width">
+        <label class="label">Description *</label>
+        <textarea
+          class="textarea"
+          [(ngModel)]="submission.description"
+          name="description"
+          rows="4"
+          placeholder="Describe what you are submitting..."
+          [disabled]="formLoading()">
+        </textarea>
+      </div>
+
+      <div class="form-group full-width">
+        <label class="label">File Upload</label>
+        <div
+          class="drop-zone"
+          [class.active]="isDragging"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)">
+
+          <div *ngIf="!submission.fileUrl && !uploading">
+            <p class="drop-text">Drag & Drop your file here</p>
+            <p class="drop-subtext">or</p>
+            <input
+              type="file"
+              #fileInput
+              (change)="onFileSelected($event)"
+              style="display: none">
+            <app-ui-button type="button" variant="secondary" (click)="fileInput.click()">
+              Browse File
+            </app-ui-button>
+          </div>
+
+          <div *ngIf="uploading" class="uploading-state">
+            <span class="spinner"></span>
+            <p>Uploading...</p>
+          </div>
+
+          <div *ngIf="submission.fileUrl" class="file-preview">
+            <span class="icon">📄</span>
+            <a [href]="submission.fileUrl" target="_blank" class="file-url link">{{ fileName || 'File Attached' }}</a>
+            <button type="button" class="remove-btn" (click)="removeFile()">✕</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="formError()" class="error-banner">
+      {{ formError() }}
+    </div>
+
+    <div class="modal-actions">
+      <app-ui-button type="button" variant="outline" (click)="closeModal()" [disabled]="formLoading()">
+        Cancel
+      </app-ui-button>
+      <app-ui-button type="submit" variant="primary" [loading]="formLoading()">
+        Submit
+      </app-ui-button>
+    </div>
+  </form>
+</app-modal>

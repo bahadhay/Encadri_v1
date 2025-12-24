@@ -1,0 +1,88 @@
+<div class="submission-form-container">
+  <div class="header">
+    <h2>New Submission</h2>
+    <app-ui-button variant="outline" [routerLink]="['/projects', projectId]">Cancel</app-ui-button>
+  </div>
+
+  <app-ui-card>
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <app-ui-input
+          label="Title *"
+          placeholder="Submission Title"
+          [(ngModel)]="submission.title"
+          name="title"
+          [disabled]="loading">
+        </app-ui-input>
+
+        <div class="form-group">
+          <label class="label">Submission Type</label>
+          <select [(ngModel)]="submission.type" name="type" class="native-select" [disabled]="loading">
+            <option value="report">Report</option>
+            <option value="presentation">Presentation</option>
+            <option value="code">Code</option>
+            <option value="documentation">Documentation</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="label">Description *</label>
+          <textarea 
+            class="textarea" 
+            [(ngModel)]="submission.description" 
+            name="description" 
+            rows="4" 
+            placeholder="Describe what you are submitting..."
+            [disabled]="loading">
+          </textarea>
+        </div>
+
+        <div 
+          class="drop-zone" 
+          [class.active]="isDragging"
+          (dragover)="onDragOver($event)" 
+          (dragleave)="onDragLeave($event)" 
+          (drop)="onDrop($event)">
+          
+          <div *ngIf="!submission.fileUrl && !uploading">
+            <p class="drop-text">Drag & Drop your file here</p>
+            <p class="drop-subtext">or</p>
+            <input 
+              type="file" 
+              #fileInput 
+              (change)="onFileSelected($event)" 
+              style="display: none">
+            <app-ui-button type="button" variant="secondary" (click)="fileInput.click()">
+              Browse File
+            </app-ui-button>
+          </div>
+
+          <div *ngIf="uploading" class="uploading-state">
+            <span class="spinner"></span>
+            <p>Uploading...</p>
+          </div>
+
+          <div *ngIf="submission.fileUrl" class="file-preview">
+            <span class="icon">📄</span>
+            <a [href]="submission.fileUrl" target="_blank" class="file-url link">{{ fileName || 'File Attached' }}</a>
+            <button type="button" class="remove-btn" (click)="removeFile()">✕</button>
+          </div>
+        </div>
+
+        <!-- Hidden input to store URL but still submit -->
+        <input type="hidden" [(ngModel)]="submission.fileUrl" name="fileUrl" required>
+      </div>
+
+      <div *ngIf="error" class="error-banner">
+        {{ error }}
+      </div>
+
+      <div class="actions">
+        <app-ui-button type="submit" variant="primary" [loading]="loading">
+          Submit
+        </app-ui-button>
+      </div>
+    </form>
+  </app-ui-card>
+</div>

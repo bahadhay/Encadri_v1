@@ -1,0 +1,13 @@
+:host {
+  display: block;
+}
+
+:host-context(.stat-card-wrapper) {
+  display: block;
+  height: 100%;
+}
+
+:host-context(.project-card-wrapper) {
+  display: block;
+  height: 100%;
+}

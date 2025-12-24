@@ -1,0 +1,87 @@
+<div class="dashboard-container">
+  <div class="header">
+    <h2>Hello, {{ user?.fullName }}! 👋</h2>
+    <p>Here's what's happening with your projects today.</p>
+  </div>
+
+  <div class="stats-grid">
+    <app-ui-card class="stat-card-wrapper" [hover]="true" [compact]="true">
+      <div class="stat-card">
+        <span class="stat-icon p-blue">📁</span>
+        <div class="stat-content">
+          <h3>Active Projects</h3>
+          <p class="stat-value">{{ activeProjectsCount() }}</p>
+          <span class="stat-label">In Progress</span>
+        </div>
+      </div>
+    </app-ui-card>
+
+    <app-ui-card class="stat-card-wrapper" [hover]="true" [compact]="true">
+      <div class="stat-card">
+        <span class="stat-icon p-yellow">⏳</span>
+        <div class="stat-content">
+          <h3>Pending Reviews</h3>
+          <p class="stat-value">{{ pendingReviewsCount() }}</p>
+          <span class="stat-label">Awaiting Action</span>
+        </div>
+      </div>
+    </app-ui-card>
+
+    <app-ui-card class="stat-card-wrapper" [hover]="true" [compact]="true">
+      <div class="stat-card">
+        <span class="stat-icon p-green">📅</span>
+        <div class="stat-content">
+          <h3>Upcoming Meetings</h3>
+          <p class="stat-value">{{ upcomingMeetingsCount() }}</p>
+          <span class="stat-label">Scheduled</span>
+        </div>
+      </div>
+    </app-ui-card>
+  </div>
+
+  <div class="content-grid">
+    <section>
+      <div class="section-header">
+        <h3>My Projects</h3>
+        <app-ui-button variant="primary" size="sm" routerLink="/projects/new">New Project</app-ui-button>
+      </div>
+      
+      <div *ngIf="myProjects().length === 0" class="empty-state">
+        <p>You haven't created any projects yet.</p>
+      </div>
+
+      <div class="projects-list">
+        <app-ui-card *ngFor="let project of myProjects()" class="project-card">
+          <div class="card-content">
+            <h4>{{ project.title }}</h4>
+            <span class="badge" [class]="project.status">{{ project.status }}</span>
+            <p>{{ project.description | slice:0:100 }}...</p>
+            <div class="card-actions">
+              <a [routerLink]="['/projects', project.id]">Manage</a>
+            </div>
+          </div>
+        </app-ui-card>
+      </div>
+    </section>
+
+    <section>
+      <h3>Collaborations</h3>
+      <div *ngIf="collaborations().length === 0" class="empty-state">
+        <p>No collaborations yet.</p>
+      </div>
+
+      <div class="projects-list">
+        <app-ui-card *ngFor="let project of collaborations()" class="project-card">
+          <div class="card-content">
+            <h4>{{ project.title }}</h4>
+            <span class="badge" [class]="project.status">{{ project.status }}</span>
+            <p>Owner: {{ project.ownerEmail }}</p>
+            <div class="card-actions">
+              <a [routerLink]="['/projects', project.id]">View</a>
+            </div>
+          </div>
+        </app-ui-card>
+      </div>
+    </section>
+  </div>
+</div>

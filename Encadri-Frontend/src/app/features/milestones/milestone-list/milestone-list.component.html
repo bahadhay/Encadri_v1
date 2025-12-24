@@ -1,0 +1,375 @@
+<div class="milestones-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h2>Project Milestones</h2>
+      <p>{{ isSupervisor ? 'Track key phases and deliverables' : 'View project milestones and track progress' }}</p>
+    </div>
+    <div class="header-actions" *ngIf="isSupervisor">
+      <button
+        *ngIf="milestones().length > 0"
+        class="delete-all-btn"
+        (click)="openDeleteAllDialog()"
+        title="Delete all milestones">
+        🗑️ Delete All
+      </button>
+      <app-ui-button variant="primary" (click)="openCreateModal()">
+        <span class="icon">+</span> Add Milestone
+      </app-ui-button>
+    </div>
+    <div class="read-only-badge" *ngIf="isStudent">
+      <span class="badge-icon">👁️</span>
+      <span>Read-Only View</span>
+    </div>
+  </div>
+
+  <!-- Progress Overview -->
+  <div class="progress-overview" *ngIf="milestones().length > 0">
+    <div class="progress-stats">
+      <span class="stat-label">Overall Progress</span>
+      <span class="stat-value">{{ completionPercentage }}%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" [style.width.%]="completionPercentage"></div>
+    </div>
+    <div class="milestone-counts">
+      <span class="count-item">
+        <span class="count-icon">✅</span> {{ completedCount }} Completed
+      </span>
+      <span class="count-item">
+        <span class="count-icon">🔄</span> {{ inProgressCount }} In Progress
+      </span>
+      <span class="count-item">
+        <span class="count-icon">⏳</span> {{ notStartedCount }} Not Started
+      </span>
+    </div>
+  </div>
+
+  <app-skeleton-timeline *ngIf="loading()" [itemCount]="4"></app-skeleton-timeline>
+
+  <div class="empty-state" *ngIf="!loading() && milestones().length === 0">
+    <div class="empty-icon">📅</div>
+    <h3>No milestones yet</h3>
+    <p>Create milestones to track project phases and deadlines.</p>
+    <app-ui-button variant="outline" (click)="openCreateModal()">Add First Milestone</app-ui-button>
+  </div>
+
+  <!-- Timeline View -->
+  <div class="milestones-timeline" *ngIf="!loading() && milestones().length > 0">
+    <div class="timeline-item" *ngFor="let milestone of milestones(); let i = index">
+      <div class="timeline-marker" [ngClass]="'marker-' + milestone.status">
+        <span class="marker-icon">{{ getStatusIcon(milestone.status) }}</span>
+      </div>
+      <div class="timeline-line" *ngIf="i < milestones().length - 1"></div>
+
+      <app-ui-card class="milestone-card">
+        <div class="milestone-header">
+          <div class="milestone-title-area">
+            <h3>
+              <span class="milestone-number">{{ i + 1 }}.</span>
+              {{ milestone.title }}
+            </h3>
+            <span class="badge" [ngClass]="getStatusColor(milestone.status)">
+              {{ getStatusLabel(milestone.status) }}
+            </span>
+          </div>
+          <div class="milestone-actions" *ngIf="isSupervisor">
+            <button
+              class="quick-action-btn"
+              *ngIf="milestone.status !== 'completed'"
+              (click)="markAsComplete(milestone)"
+              title="Mark as complete">
+              ✓
+            </button>
+            <app-ui-button variant="secondary" size="sm" (click)="openEditModal(milestone)">
+              ✏️ Edit
+            </app-ui-button>
+            <button class="delete-icon-btn" (click)="openDeleteDialog(milestone)" title="Delete milestone">
+              🗑️
+            </button>
+          </div>
+        </div>
+
+        <p class="milestone-description" *ngIf="milestone.description">
+          {{ milestone.description }}
+        </p>
+
+        <div class="milestone-meta">
+          <span class="meta-item">
+            <span class="meta-label">Due Date:</span>
+            <span class="meta-value">{{ milestone.dueDate | date:'mediumDate' }}</span>
+          </span>
+          <span class="meta-item" *ngIf="milestone.completedDate">
+            <span class="meta-label">Completed:</span>
+            <span class="meta-value">{{ milestone.completedDate | date:'mediumDate' }}</span>
+          </span>
+        </div>
+
+        <!-- Deadline Warning Badge -->
+        <div class="deadline-warning">
+          <span class="urgency-badge" [ngClass]="getUrgencyColor(getUrgencyLevel(milestone))">
+            <span class="urgency-icon">{{ getUrgencyIcon(getUrgencyLevel(milestone)) }}</span>
+            <span class="urgency-text">{{ getDeadlineText(milestone) }}</span>
+          </span>
+        </div>
+
+        <!-- Subtasks Section -->
+        <div class="subtasks-section">
+          <div class="subtasks-header" (click)="toggleMilestoneExpansion(milestone.id || '')">
+            <span class="subtasks-toggle">
+              <span class="toggle-icon">{{ isMilestoneExpanded(milestone.id || '') ? '▼' : '▶' }}</span>
+              <span class="subtasks-title">Subtasks</span>
+              <span class="subtasks-count" *ngIf="getSubtaskTotalCount(milestone) > 0">
+                ({{ getSubtaskCompletedCount(milestone) }}/{{ getSubtaskTotalCount(milestone) }})
+              </span>
+            </span>
+            <span class="subtasks-progress-mini" *ngIf="getSubtaskTotalCount(milestone) > 0">
+              {{ getSubtaskProgress(milestone) }}%
+            </span>
+          </div>
+
+          <div class="subtasks-content" *ngIf="isMilestoneExpanded(milestone.id || '')">
+            <!-- Subtask Progress Bar -->
+            <div class="subtask-progress-bar" *ngIf="getSubtaskTotalCount(milestone) > 0">
+              <div class="progress-track-sm">
+                <div class="progress-fill-sm" [style.width.%]="getSubtaskProgress(milestone)"></div>
+              </div>
+            </div>
+
+            <!-- Subtasks List -->
+            <div class="subtasks-list" *ngIf="milestone.subtasks && milestone.subtasks.length > 0">
+              <div class="subtask-item" *ngFor="let subtask of milestone.subtasks">
+                <label class="subtask-checkbox" [class.read-only]="isStudent">
+                  <input
+                    type="checkbox"
+                    [checked]="subtask.isCompleted"
+                    (change)="toggleSubtask(milestone, subtask)"
+                    [disabled]="isStudent">
+                  <span class="checkbox-custom"></span>
+                  <span class="subtask-title" [class.completed]="subtask.isCompleted">
+                    {{ subtask.title }}
+                  </span>
+                </label>
+                <button
+                  *ngIf="isSupervisor"
+                  class="subtask-delete-btn"
+                  (click)="deleteSubtask(milestone, subtask.id || '')"
+                  title="Delete subtask">
+                  ×
+                </button>
+              </div>
+            </div>
+
+            <!-- Add Subtask Input (Supervisor Only) -->
+            <div class="add-subtask-form" *ngIf="isSupervisor">
+              <input
+                type="text"
+                class="subtask-input"
+                placeholder="Add a subtask..."
+                [(ngModel)]="newSubtaskTitle[milestone.id || '']"
+                (keydown.enter)="addSubtask(milestone.id || '')">
+              <button
+                class="add-subtask-btn"
+                (click)="addSubtask(milestone.id || '')"
+                [disabled]="!newSubtaskTitle[milestone.id || ''].trim()">
+                + Add
+              </button>
+            </div>
+
+            <p class="no-subtasks" *ngIf="!milestone.subtasks || milestone.subtasks.length === 0">
+              {{ isSupervisor ? 'No subtasks yet. Add one to break down this milestone into smaller tasks.' : 'No subtasks have been added to this milestone yet.' }}
+            </p>
+          </div>
+        </div>
+      </app-ui-card>
+    </div>
+  </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<app-modal
+  [isOpen]="isModalOpen()"
+  [title]="isEditMode() ? 'Edit Milestone' : (showTemplateSelector() ? 'Choose Milestone Template' : 'Create New Milestone')"
+  size="medium"
+  (close)="closeModal()">
+
+  <!-- Template Selector (shown only for first milestone) -->
+  <div *ngIf="showTemplateSelector() && !isEditMode()" class="template-selector">
+    <div class="template-header">
+      <p class="template-intro">Quick-start with a predefined milestone template or create your own:</p>
+      <p class="template-badge">🎓 Templates designed for EPI Digital School - Engineering Cycle</p>
+    </div>
+
+    <div class="template-cards">
+      <div class="template-card" (click)="applyTemplate('pfa')">
+        <div class="template-icon">📚</div>
+        <h3>PFA Template</h3>
+        <p class="template-duration">14 semaines</p>
+        <ul class="template-phases">
+          <li>Étape 0: Cahier des charges</li>
+          <li>Étape 1: Analyse (S1-3)</li>
+          <li>Étape 2: UI/Prototypage (S4-5)</li>
+          <li>Étape 3: Développement (S6-10)</li>
+          <li>Étape 4: Finalisation (S11-12)</li>
+          <li>Étape 5: Soutenance (S13-14)</li>
+        </ul>
+        <app-ui-button variant="primary" size="sm" type="button">
+          Use PFA Template
+        </app-ui-button>
+      </div>
+
+      <div class="template-card" (click)="applyTemplate('pfe')">
+        <div class="template-icon">🎓</div>
+        <h3>PFE Template</h3>
+        <p class="template-duration">24 semaines</p>
+        <ul class="template-phases">
+          <li>Phase 1: État de l'art (S1-4)</li>
+          <li>Phase 2: Spécification (S5-6)</li>
+          <li>Phase 3: Architecture (S7-10)</li>
+          <li>Phase 4-5: Développement (S11-18)</li>
+          <li>Phase 6: Tests (S19-20)</li>
+          <li>Phase 7: Documentation (S21-22)</li>
+          <li>Phase 8: Soutenance (S23-24)</li>
+        </ul>
+        <app-ui-button variant="primary" size="sm" type="button">
+          Use PFE Template
+        </app-ui-button>
+      </div>
+
+      <div class="template-card" (click)="applyTemplate('internship')">
+        <div class="template-icon">💼</div>
+        <h3>Stage Template</h3>
+        <p class="template-duration">12 semaines</p>
+        <ul class="template-phases">
+          <li>Phase 1: Intégration (S1-2)</li>
+          <li>Phase 2: Analyse (S3-4)</li>
+          <li>Phase 3: Conception (S5-6)</li>
+          <li>Phase 4: Sprint 1 (S7-8)</li>
+          <li>Phase 5: Sprint 2 (S9-10)</li>
+          <li>Phase 6: Tests (S11)</li>
+          <li>Phase 7: Livraison (S12)</li>
+        </ul>
+        <app-ui-button variant="primary" size="sm" type="button">
+          Use Stage Template
+        </app-ui-button>
+      </div>
+
+      <div class="template-card custom" (click)="applyTemplate('custom')">
+        <div class="template-icon">✏️</div>
+        <h3>Custom Milestones</h3>
+        <p class="template-duration">Your own</p>
+        <p class="custom-desc">Create milestones manually for maximum flexibility</p>
+        <app-ui-button variant="outline" size="sm" type="button">
+          Create Custom
+        </app-ui-button>
+      </div>
+    </div>
+
+    <div *ngIf="formLoading()" class="template-loading">
+      <div class="spinner"></div>
+      <p>Creating milestones from template...</p>
+    </div>
+  </div>
+
+  <!-- Regular Form (hidden when template selector is shown) -->
+  <form (ngSubmit)="onSubmit()" *ngIf="!showTemplateSelector() || isEditMode()">
+    <!-- Back to Templates button (only show for create mode when no milestones exist) -->
+    <div *ngIf="!isEditMode() && milestones().length === 0" class="back-to-templates">
+      <app-ui-button type="button" variant="outline" size="sm" (click)="showTemplateSelector.set(true)">
+        ← Back to Templates
+      </app-ui-button>
+    </div>
+
+    <div class="form-grid">
+      <app-ui-input
+        label="Title *"
+        placeholder="e.g., Requirements Analysis"
+        [(ngModel)]="milestone.title"
+        name="title"
+        [disabled]="formLoading()"
+        class="full-width">
+      </app-ui-input>
+
+      <div class="form-group full-width">
+        <label class="label">Description</label>
+        <textarea
+          class="textarea"
+          [(ngModel)]="milestone.description"
+          name="description"
+          rows="3"
+          placeholder="Describe this milestone phase..."
+          [disabled]="formLoading()">
+        </textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="label">Due Date *</label>
+        <input
+          type="date"
+          class="native-input"
+          [(ngModel)]="milestone.dueDate"
+          name="dueDate"
+          [disabled]="formLoading()">
+      </div>
+
+      <div class="form-group">
+        <label class="label">Status</label>
+        <select [(ngModel)]="milestone.status" name="status" class="native-select" [disabled]="formLoading()">
+          <option value="not_started">⏳ Not Started</option>
+          <option value="in_progress">🔄 In Progress</option>
+          <option value="completed">✅ Completed</option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="isEditMode()">
+        <label class="label">Order</label>
+        <input
+          type="number"
+          class="native-input"
+          [(ngModel)]="milestone.order"
+          name="order"
+          min="0"
+          placeholder="0"
+          [disabled]="formLoading()">
+      </div>
+    </div>
+
+    <div *ngIf="formError()" class="error-banner">
+      {{ formError() }}
+    </div>
+
+    <div class="modal-actions">
+      <app-ui-button type="button" variant="outline" (click)="closeModal()" [disabled]="formLoading()">
+        Cancel
+      </app-ui-button>
+      <app-ui-button type="submit" variant="primary" [loading]="formLoading()">
+        {{ isEditMode() ? 'Update Milestone' : 'Create Milestone' }}
+      </app-ui-button>
+    </div>
+  </form>
+</app-modal>
+
+<!-- Delete Confirmation Dialog -->
+<app-confirm-dialog
+  [isOpen]="isDeleteDialogOpen()"
+  title="Delete Milestone"
+  [message]="'Are you sure you want to delete &quot;' + (milestoneToDelete?.title || 'this milestone') + '&quot;? This action cannot be undone.'"
+  confirmText="Delete"
+  cancelText="Cancel"
+  variant="danger"
+  [loading]="deleteLoading()"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDeleteDialog()"
+></app-confirm-dialog>
+
+<!-- Delete All Confirmation Dialog -->
+<app-confirm-dialog
+  [isOpen]="isDeleteAllDialogOpen()"
+  title="Delete All Milestones"
+  [message]="'Are you sure you want to delete ALL ' + milestones().length + ' milestones? This action cannot be undone and will remove the entire project timeline.'"
+  confirmText="Delete All"
+  cancelText="Cancel"
+  variant="danger"
+  [loading]="deleteAllLoading()"
+  (confirm)="confirmDeleteAll()"
+  (cancel)="closeDeleteAllDialog()"
+></app-confirm-dialog>

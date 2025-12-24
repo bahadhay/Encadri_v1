@@ -1,0 +1,84 @@
+<div class="layout-container">
+  <!-- Toast Notifications -->
+  <app-notification-toast></app-notification-toast>
+
+  <!-- Mobile Backdrop -->
+  <div class="sidebar-backdrop"
+       *ngIf="isSidebarOpen"
+       (click)="closeSidebarOnMobile()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.closed]="!isSidebarOpen">
+    <div class="logo-area">
+      <div class="logo-container">
+        <div class="logo-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="28" height="28">
+            <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h1>Encadri</h1>
+          <span>Project Management</span>
+        </div>
+      </div>
+    </div>
+
+    <nav class="nav-links">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
+        <app-icon name="dashboard" [size]="20"></app-icon>
+        <span>Dashboard</span>
+      </a>
+      <a routerLink="/projects" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
+        <app-icon name="projects" [size]="20"></app-icon>
+        <span>Projects</span>
+      </a>
+      <a routerLink="/submissions" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
+        <app-icon name="submissions" [size]="20"></app-icon>
+        <span>Submissions</span>
+      </a>
+      <a routerLink="/chat" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
+        <app-icon name="chat" [size]="20"></app-icon>
+        <span>Chat</span>
+      </a>
+      <a routerLink="/profile" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
+        <app-icon name="profile" [size]="20"></app-icon>
+        <span>Profile</span>
+      </a>
+    </nav>
+
+    <div class="user-area">
+      <div class="user-info">
+        <p class="user-name">{{ authService.currentUser()?.fullName }}</p>
+        <p class="user-role">{{ authService.currentUser()?.userRole }}</p>
+      </div>
+      <button class="logout-btn" (click)="logout()">
+        <app-icon name="logout" [size]="16"></app-icon>
+        Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <!-- Mobile menu toggle button -->
+        <button class="mobile-menu-toggle" (click)="toggleSidebar()">
+          <app-icon name="menu" [size]="24"></app-icon>
+        </button>
+        <div class="breadcrumbs">
+          <!-- Breadcrumbs or page title could go here -->
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <!-- Notification Bell (New SignalR Real-time) -->
+        <app-notification-bell></app-notification-bell>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

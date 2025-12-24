@@ -1,0 +1,157 @@
+<div class="submission-detail-container" *ngIf="submission() as s">
+  <div class="header-actions">
+    <app-ui-button variant="outline" routerLink="/submissions">← Back to Submissions</app-ui-button>
+    <!-- <app-ui-button variant="secondary" [routerLink]="['/submissions', s.id, 'edit']">Edit</app-ui-button> -->
+  </div>
+
+  <app-ui-card>
+    <div class="detail-header">
+      <div class="title-section">
+        <span class="type-badge">{{ s.type }}</span>
+        <h1>{{ s.title }}</h1>
+      </div>
+      <span class="status-badge" [ngClass]="getStatusColor(s.status)">
+        {{ getStatusLabel(s.status) }}
+      </span>
+    </div>
+
+    <div class="meta-section">
+      <div class="meta-item">
+        <span class="label">Submitted By</span>
+        <span class="value">{{ s.submittedBy }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Due Date</span>
+        <span class="value">{{ s.dueDate | date:'mediumDate' }}</span>
+      </div>
+      <div class="meta-item" *ngIf="s.grade">
+        <span class="label">Grade</span>
+        <span class="value">{{ s.grade }} / 20</span>
+      </div>
+    </div>
+
+    <div class="content-section" *ngIf="s.description">
+      <h3>Description</h3>
+      <p>{{ s.description }}</p>
+    </div>
+
+    <div class="content-section" *ngIf="s.fileUrl">
+      <h3>Submitted File</h3>
+      <a [href]="s.fileUrl" target="_blank" class="file-link">
+        📎 View Attached File
+      </a>
+    </div>
+
+    <div class="feedback-section" *ngIf="s.feedback && !isSupervisor">
+      <h3>Feedback</h3>
+      <div class="feedback-box">
+        <p>{{ s.feedback }}</p>
+      </div>
+    </div>
+  </app-ui-card>
+
+  <!-- Supervisor Review Panel -->
+  <app-ui-card *ngIf="isSupervisor" class="review-panel">
+    <div class="panel-header">
+      <h2>📝 Supervisor Review Panel</h2>
+      <p class="panel-description">Provide feedback and grade for this submission</p>
+    </div>
+
+    <div class="review-form">
+      <!-- Grade Input -->
+      <div class="form-group">
+        <label for="grade">Grade (0-20)</label>
+        <input
+          type="number"
+          id="grade"
+          min="0"
+          max="20"
+          step="0.5"
+          [ngModel]="reviewGrade()"
+          (ngModelChange)="reviewGrade.set($event)"
+          placeholder="Enter grade out of 20"
+          class="grade-input"
+          [disabled]="submitting()"
+        />
+      </div>
+
+      <!-- Feedback Textarea -->
+      <div class="form-group">
+        <label for="feedback">Feedback</label>
+        <textarea
+          id="feedback"
+          rows="6"
+          [ngModel]="reviewFeedback()"
+          (ngModelChange)="reviewFeedback.set($event)"
+          placeholder="Provide detailed feedback for the student..."
+          class="feedback-textarea"
+          [disabled]="submitting()"
+        ></textarea>
+        <small class="hint">Explain what was done well and what needs improvement</small>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <div class="primary-actions">
+          <app-ui-button
+            variant="primary"
+            (click)="approveSubmission()"
+            [disabled]="submitting() || !canReview"
+            class="btn-approve"
+          >
+            ✓ Approve
+          </app-ui-button>
+
+          <app-ui-button
+            variant="secondary"
+            (click)="requestRevision()"
+            [disabled]="submitting() || !canReview"
+            class="btn-revision"
+          >
+            ⟳ Request Revision
+          </app-ui-button>
+
+          <app-ui-button
+            variant="danger"
+            (click)="rejectSubmission()"
+            [disabled]="submitting() || !canReview"
+          >
+            ✗ Reject
+          </app-ui-button>
+        </div>
+
+        <div class="secondary-actions">
+          <app-ui-button
+            variant="secondary"
+            (click)="saveFeedback()"
+            [disabled]="submitting()"
+          >
+            💾 Save Feedback
+          </app-ui-button>
+        </div>
+      </div>
+
+      <!-- Status Info -->
+      <div class="status-info" *ngIf="!canReview">
+        <p class="info-message">
+          ℹ️ This submission has been {{ s.status }}. You can still update feedback and grade.
+        </p>
+      </div>
+
+      <!-- Loading State -->
+      <div class="submitting-overlay" *ngIf="submitting()">
+        <div class="spinner"></div>
+        <p>Updating submission...</p>
+      </div>
+    </div>
+  </app-ui-card>
+</div>
+
+<div *ngIf="loading()" class="center-state">
+  <div class="spinner"></div>
+</div>
+
+<div *ngIf="error()" class="center-state">
+  <p class="error-text">{{ error() }}</p>
+  <app-ui-button variant="outline" routerLink="/submissions">Back to Submissions</app-ui-button>
+</div>

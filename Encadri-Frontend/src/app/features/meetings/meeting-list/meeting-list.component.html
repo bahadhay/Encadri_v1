@@ -1,0 +1,167 @@
+<div class="meetings-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h2>Meetings</h2>
+      <p>Schedule and manage project meetings</p>
+    </div>
+    <app-ui-button variant="primary" (click)="openCreateModal()" *ngIf="projectId">
+      <span class="icon">+</span> Schedule Meeting
+    </app-ui-button>
+  </div>
+
+  <div class="filters">
+    <div class="search-box">
+      <app-ui-input 
+        placeholder="Search meetings..." 
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)">
+      </app-ui-input>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="loading()">
+    <div class="spinner"></div>
+    <p>Loading meetings...</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading() && filteredMeetings.length === 0">
+    <div class="empty-icon">📅</div>
+    <h3>No meetings scheduled</h3>
+    <p>Upcoming meetings will appear here.</p>
+  </div>
+
+  <div class="meetings-list" *ngIf="!loading() && filteredMeetings.length > 0">
+    <app-ui-card *ngFor="let meeting of filteredMeetings">
+      <div class="meeting-card">
+        <div class="date-box">
+          <span class="day">{{ meeting.scheduledAt | date:'d' }}</span>
+          <span class="month">{{ meeting.scheduledAt | date:'MMM' }}</span>
+        </div>
+        
+        <div class="card-content">
+          <div class="content-header">
+            <h3>{{ meeting.title }}</h3>
+            <span class="badge" [ngClass]="getStatusColor(meeting.status)">
+              {{ getStatusLabel(meeting.status) }}
+            </span>
+          </div>
+          
+          <div class="meta-info">
+            <span class="meta-item">🕒 {{ meeting.scheduledAt | date:'shortTime' }} ({{ meeting.durationMinutes }}m)</span>
+            <span class="meta-separator">•</span>
+            <span class="meta-item">📍 {{ meeting.location }}</span>
+          </div>
+
+          <p class="agenda" *ngIf="meeting.agenda">{{ meeting.agenda }}</p>
+        </div>
+
+        <!-- <div class="card-actions">
+           <app-ui-button variant="outline" size="sm" [routerLink]="['/meetings', meeting.id]">
+            Details
+          </app-ui-button>
+        </div> -->
+      </div>
+    </app-ui-card>
+  </div>
+</div>
+
+<!-- Meeting Modal -->
+<app-modal
+  [isOpen]="isModalOpen()"
+  title="Schedule Meeting"
+  size="large"
+  (close)="closeModal()">
+
+  <form (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <app-ui-input
+          label="Meeting Title *"
+          placeholder="e.g. Weekly Progress Review"
+          [(ngModel)]="meeting.title"
+          name="title"
+          [disabled]="formLoading()">
+        </app-ui-input>
+      </div>
+
+      <div class="form-group">
+        <label class="label">Date *</label>
+        <input
+          type="date"
+          class="native-input"
+          [(ngModel)]="scheduledDate"
+          name="scheduledDate"
+          [disabled]="formLoading()">
+      </div>
+
+      <div class="form-group">
+        <label class="label">Time *</label>
+        <input
+          type="time"
+          class="native-input"
+          [(ngModel)]="scheduledTime"
+          name="scheduledTime"
+          [disabled]="formLoading()">
+      </div>
+
+      <div class="form-group">
+        <label class="label">Duration (minutes)</label>
+        <select [(ngModel)]="meeting.durationMinutes" name="durationMinutes" class="native-select" [disabled]="formLoading()">
+          <option [value]="15">15 min</option>
+          <option [value]="30">30 min</option>
+          <option [value]="45">45 min</option>
+          <option [value]="60">1 hour</option>
+          <option [value]="90">1.5 hours</option>
+          <option [value]="120">2 hours</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <app-ui-input
+          label="Location *"
+          placeholder="e.g. Online, Room 101"
+          [(ngModel)]="meeting.location"
+          name="location"
+          [disabled]="formLoading()">
+        </app-ui-input>
+      </div>
+
+      <div class="form-group full-width">
+        <label class="label">Agenda</label>
+        <textarea
+          class="textarea"
+          [(ngModel)]="meeting.agenda"
+          name="agenda"
+          rows="3"
+          placeholder="Topics to discuss..."
+          [disabled]="formLoading()">
+        </textarea>
+      </div>
+
+      <div class="form-group full-width">
+        <label class="label">Notes (Optional)</label>
+        <textarea
+          class="textarea"
+          [(ngModel)]="meeting.notes"
+          name="notes"
+          rows="3"
+          placeholder="Meeting minutes or additional notes..."
+          [disabled]="formLoading()">
+        </textarea>
+      </div>
+    </div>
+
+    <div *ngIf="formError()" class="error-banner">
+      {{ formError() }}
+    </div>
+
+    <div class="modal-actions">
+      <app-ui-button type="button" variant="outline" (click)="closeModal()" [disabled]="formLoading()">
+        Cancel
+      </app-ui-button>
+      <app-ui-button type="submit" variant="primary" [loading]="formLoading()">
+        Schedule Meeting
+      </app-ui-button>
+    </div>
+  </form>
+</app-modal>
