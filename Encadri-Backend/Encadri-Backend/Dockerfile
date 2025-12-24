@@ -2,13 +2,14 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copy csproj and restore dependencies
-COPY Encadri-Backend.csproj ./
-RUN dotnet restore Encadri-Backend.csproj
-
-# Copy everything else and build
+# Copy everything first
 COPY . ./
-RUN dotnet publish Encadri-Backend.csproj -c Release -o out
+
+# Restore dependencies
+RUN dotnet restore
+
+# Build and publish
+RUN dotnet publish -c Release -o out
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
