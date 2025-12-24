@@ -1,0 +1,11 @@
+{
+  "buildCommand": "npm run build -- --configuration production",
+  "outputDirectory": "dist/encadri-frontend/browser",
+  "framework": "angular",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
