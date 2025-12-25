@@ -115,15 +115,15 @@
                 <div class="progress-header">
                   <span class="progress-icon">📈</span>
                   <span class="progress-label">Progress</span>
-                  <span class="progress-percent">{{ project.progressPercentage }}%</span>
+                  <span class="progress-percent">{{ project.progressPercentage ?? 0 }}%</span>
                 </div>
                 <div class="progress-bar">
                   <div class="progress-fill"
-                       [style.width.%]="project.progressPercentage"
-                       [style.background-color]="getProgressColor(project.progressPercentage)">
+                       [style.width.%]="project.progressPercentage ?? 0"
+                       [style.background-color]="getProgressColor(project.progressPercentage ?? 0)">
                   </div>
                 </div>
-                <p class="progress-text">{{ getProgressText(project.progressPercentage) }}</p>
+                <p class="progress-text">{{ getProgressText(project.progressPercentage ?? 0) }}</p>
               </div>
 
               <div class="project-meta" *ngIf="project.studentEmail">
