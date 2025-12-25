@@ -1,239 +1,212 @@
-<div class="dashboard-wrapper">
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="welcome-header">
+    <div class="welcome-content">
+      <h1>Welcome back, {{ user?.fullName }}! 👋</h1>
+      <p>Here's an overview of your academic journey</p>
+    </div>
+    <div class="quick-actions-header" *ngIf="!loading() && !error()">
+      <app-ui-button variant="primary" routerLink="/projects/new" *ngIf="isSupervisor">
+        + New Project
+      </app-ui-button>
+      <app-ui-button variant="primary" routerLink="/projects">
+        View Projects
+      </app-ui-button>
+    </div>
+  </div>
+
   <!-- Loading State -->
-  <div *ngIf="loading()" class="loading-state">
+  <div *ngIf="loading()" class="loading-container">
     <div class="spinner"></div>
-    <p>Loading dashboard...</p>
+    <p>Loading your dashboard...</p>
   </div>
 
   <!-- Error State -->
-  <div *ngIf="error()" class="error-state">
+  <div *ngIf="error()" class="error-container">
     <div class="error-icon">⚠️</div>
-    <h3>Something went wrong</h3>
+    <h3>Oops! Something went wrong</h3>
     <p>{{ error() }}</p>
     <app-ui-button variant="primary" (click)="loadDashboardStats()">Try Again</app-ui-button>
   </div>
 
   <!-- Dashboard Content -->
-  <div *ngIf="!loading() && !error() && stats() as s" class="dashboard-content">
+  <div *ngIf="!loading() && !error() && stats() as s" class="dashboard-grid">
 
-    <!-- Header -->
-    <div class="dashboard-header">
-      <div class="header-text">
-        <h1>Welcome back, {{ user?.fullName?.split(' ')[0] || user?.fullName }}</h1>
-        <p>Manage and evaluate your students' projects</p>
-      </div>
-      <app-ui-button variant="primary" routerLink="/projects/new" *ngIf="isSupervisor">
-        + New Project
-      </app-ui-button>
-    </div>
-
-    <!-- Stats Cards -->
-    <div class="stats-grid">
-      <div class="stat-card purple">
-        <div class="stat-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <p class="stat-label">Total Projects</p>
-          <h2 class="stat-value">{{ s.totalProjects }}</h2>
+    <!-- Main Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card projects">
+        <div class="stat-icon">📁</div>
+        <div class="stat-details">
+          <h3>{{ s.totalProjects }}</h3>
+          <p>Total Projects</p>
+          <span class="stat-meta">{{ s.activeProjects }} active</span>
         </div>
       </div>
 
-      <div class="stat-card orange">
-        <div class="stat-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12 6 12 12 16 14"/>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <p class="stat-label">In Progress</p>
-          <h2 class="stat-value">{{ s.activeProjects }}</h2>
+      <div class="stat-card submissions">
+        <div class="stat-icon">📝</div>
+        <div class="stat-details">
+          <h3>{{ s.totalSubmissions }}</h3>
+          <p>Submissions</p>
+          <span class="stat-meta" *ngIf="isStudent">{{ s.approvedSubmissions }} approved</span>
+          <span class="stat-meta" *ngIf="isSupervisor">{{ s.pendingSubmissions }} pending review</span>
         </div>
       </div>
 
-      <div class="stat-card green">
-        <div class="stat-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M9 12l2 2 4-4"/>
-          </svg>
-        </div>
-        <div class="stat-info">
-          <p class="stat-label">Completed</p>
-          <h2 class="stat-value">{{ s.completedProjects }}</h2>
+      <div class="stat-card grade" *ngIf="isStudent && s.averageGrade">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-details">
+          <h3>{{ s.averageGrade }}<span class="stat-unit">/20</span></h3>
+          <p>Average Grade</p>
+          <span class="stat-meta">Keep it up!</span>
         </div>
       </div>
 
-      <div class="stat-card violet">
-        <div class="stat-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-          </svg>
+      <div class="stat-card students" *ngIf="isSupervisor">
+        <div class="stat-icon">👥</div>
+        <div class="stat-details">
+          <h3>{{ s.totalStudents }}</h3>
+          <p>Students</p>
+          <span class="stat-meta">Supervised</span>
         </div>
-        <div class="stat-info">
-          <p class="stat-label" *ngIf="isSupervisor">Pending Reviews</p>
-          <p class="stat-label" *ngIf="isStudent">My Submissions</p>
-          <h2 class="stat-value" *ngIf="isSupervisor">{{ s.pendingSubmissions }}</h2>
-          <h2 class="stat-value" *ngIf="isStudent">{{ s.totalSubmissions }}</h2>
+      </div>
+
+      <div class="stat-card meetings">
+        <div class="stat-icon">📅</div>
+        <div class="stat-details">
+          <h3>{{ s.upcomingMeetings }}</h3>
+          <p>Upcoming Meetings</p>
+          <span class="stat-meta">{{ s.totalMeetings }} total</span>
+        </div>
+      </div>
+
+      <div class="stat-card milestones">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-details">
+          <h3>{{ s.completedMilestones }}<span class="stat-unit">/{{ s.totalMilestones }}</span></h3>
+          <p>Milestones</p>
+          <span class="stat-meta">Completed</span>
         </div>
       </div>
     </div>
 
-    <!-- Main Content Grid -->
-    <div class="main-grid">
+    <!-- Charts and Activity Row -->
+    <div class="content-row">
 
-      <!-- Left Column: Active Projects & Charts -->
-      <div class="left-column">
+      <!-- Left Column: Charts -->
+      <div class="charts-column">
 
-        <!-- Active Projects -->
-        <div class="section-card" *ngIf="s.projectProgress && s.projectProgress.length > 0">
-          <div class="section-header">
-            <h3>Active Projects</h3>
+        <!-- Submission Chart -->
+        <div class="chart-card" *ngIf="s.totalSubmissions > 0">
+          <div class="card-header">
+            <h3>📊 Submission Overview</h3>
+            <p>Status breakdown</p>
           </div>
+          <div class="chart-wrapper">
+            <canvas #submissionChart></canvas>
+          </div>
+        </div>
 
-          <div class="projects-list">
-            <div class="project-card" *ngFor="let project of s.projectProgress" [routerLink]="['/projects', project?.id]">
+        <!-- Grade Trend Chart (Student) -->
+        <div class="chart-card" *ngIf="isStudent && s.gradeTrend && s.gradeTrend.length > 0">
+          <div class="card-header">
+            <h3>📈 Grade Progress</h3>
+            <p>Your performance over time</p>
+          </div>
+          <div class="chart-wrapper">
+            <canvas #gradeTrendChart></canvas>
+          </div>
+        </div>
+
+        <!-- Project Progress (Supervisor) -->
+        <div class="chart-card full-width" *ngIf="isSupervisor && s.projectProgress && s.projectProgress.length > 0">
+          <div class="card-header">
+            <h3>📂 Projects Overview</h3>
+            <p>Track all supervised projects</p>
+          </div>
+          <div class="projects-progress">
+            <div class="project-item" *ngFor="let project of s.projectProgress">
               <div class="project-header">
-                <h4>{{ project?.title }}</h4>
-                <button class="project-arrow">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                  </svg>
-                </button>
+                <span class="project-title">{{ project?.title }}</span>
+                <span class="project-status" [class]="project?.status">{{ project?.status }}</span>
               </div>
-
-              <div class="project-badges">
-                <span class="badge badge-cyan">Internship</span>
-                <span class="badge" [ngClass]="'badge-' + project?.status">{{ project?.status }}</span>
-              </div>
-
-              <div class="progress-section">
-                <div class="progress-header">
-                  <span class="progress-icon">📈</span>
-                  <span class="progress-label">Progress</span>
-                  <span class="progress-percent">{{ project?.progressPercentage ?? 0 }}%</span>
-                </div>
-                <div class="progress-bar">
+              <div class="progress-wrapper">
+                <div class="progress-track">
                   <div class="progress-fill"
                        [style.width.%]="project?.progressPercentage ?? 0"
-                       [style.background-color]="getProgressColor(project?.progressPercentage ?? 0)">
+                       [style.background]="getProgressColor(project?.progressPercentage ?? 0)">
                   </div>
                 </div>
-                <p class="progress-text">{{ getProgressText(project?.progressPercentage ?? 0) }}</p>
-              </div>
-
-              <div class="project-meta" *ngIf="project?.studentEmail">
-                <p class="meta-label">Student: <span class="meta-value">{{ project?.studentEmail }}</span></p>
+                <span class="progress-value">{{ project?.progressPercentage ?? 0 }}%</span>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Charts Section -->
-        <div class="charts-row" *ngIf="s.totalSubmissions > 0">
-          <div class="chart-card" *ngIf="s.totalSubmissions > 0">
-            <div class="chart-header">
-              <h3>Submission Overview</h3>
-              <p>Status breakdown</p>
-            </div>
-            <div class="chart-container">
-              <canvas #submissionChart></canvas>
-            </div>
-          </div>
-
-          <div class="chart-card" *ngIf="isStudent && s.gradeTrend && s.gradeTrend.length > 0">
-            <div class="chart-header">
-              <h3>Grade Progress</h3>
-              <p>Your performance</p>
-            </div>
-            <div class="chart-container">
-              <canvas #gradeTrendChart></canvas>
-            </div>
-          </div>
-        </div>
-
       </div>
 
-      <!-- Right Column: Deadlines & Activity -->
-      <div class="right-column">
+      <!-- Right Column: Recent Activity -->
+      <div class="activity-column">
 
-        <!-- Upcoming Deadlines -->
-        <div class="section-card">
-          <div class="section-header">
-            <div class="header-with-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
-              </svg>
-              <h3>Upcoming Deadlines</h3>
-            </div>
+        <!-- Recent Submissions (Student) -->
+        <div class="activity-card" *ngIf="isStudent && s.recentSubmissions && s.recentSubmissions.length > 0">
+          <div class="card-header">
+            <h3>📄 Recent Submissions</h3>
+            <a routerLink="/submissions" class="view-all">View all →</a>
           </div>
-
-          <div class="empty-state" *ngIf="!s.recentSubmissions || s.recentSubmissions.length === 0">
-            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
-            <p>No upcoming deadlines</p>
+          <div class="activity-list">
+            <div class="activity-item" *ngFor="let sub of s.recentSubmissions" [routerLink]="['/submissions', sub?.id]">
+              <div class="activity-info">
+                <h4>{{ sub?.title }}</h4>
+                <span class="badge" [class]="sub?.status">{{ sub?.status }}</span>
+              </div>
+              <div class="activity-meta">
+                <span class="date">{{ sub?.createdDate | date:'short' }}</span>
+                <span class="grade" *ngIf="sub?.grade">{{ sub?.grade }}/20</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Recent Activity -->
-        <div class="section-card">
-          <div class="section-header">
-            <div class="header-with-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-              </svg>
-              <h3>Recent Activity</h3>
-            </div>
+        <!-- Pending Reviews (Supervisor) -->
+        <div class="activity-card" *ngIf="isSupervisor && s.recentPendingSubmissions && s.recentPendingSubmissions.length > 0">
+          <div class="card-header">
+            <h3>⏳ Pending Reviews</h3>
+            <a routerLink="/submissions" class="view-all">View all →</a>
           </div>
-
-          <div class="activity-list" *ngIf="s.recentSubmissions && s.recentSubmissions.length > 0">
-            <div class="activity-item" *ngFor="let sub of s.recentSubmissions" [routerLink]="['/submissions', sub?.id]">
-              <div class="activity-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
-                </svg>
-              </div>
-              <div class="activity-details">
-                <h4>{{ sub?.title }}</h4>
-                <p>encadri plus</p>
-              </div>
-              <div class="activity-meta">
-                <span class="activity-badge" [ngClass]="'badge-' + sub?.status">{{ sub?.status }}</span>
-                <span class="activity-date">{{ sub?.createdDate | date:'MMM d' }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="activity-list" *ngIf="isSupervisor && s.recentPendingSubmissions && s.recentPendingSubmissions.length > 0">
+          <div class="activity-list">
             <div class="activity-item" *ngFor="let sub of s.recentPendingSubmissions" [routerLink]="['/submissions', sub?.id]">
-              <div class="activity-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
-                </svg>
-              </div>
-              <div class="activity-details">
+              <div class="activity-info">
                 <h4>{{ sub?.title }}</h4>
-                <p>{{ sub?.submittedBy }}</p>
+                <span class="badge pending">{{ sub?.status }}</span>
               </div>
               <div class="activity-meta">
-                <span class="activity-badge badge-pending">{{ sub?.status }}</span>
-                <span class="activity-date">{{ sub?.createdDate | date:'MMM d' }}</span>
+                <span class="student">{{ sub?.submittedBy }}</span>
+                <span class="date">{{ sub?.createdDate | date:'short' }}</span>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="quick-links-card">
+          <h3>Quick Links</h3>
+          <div class="links-grid">
+            <a routerLink="/projects" class="link-item">
+              <span class="link-icon">📁</span>
+              <span>Projects</span>
+            </a>
+            <a routerLink="/submissions" class="link-item">
+              <span class="link-icon">📝</span>
+              <span>Submissions</span>
+            </a>
+            <a routerLink="/meetings" class="link-item">
+              <span class="link-icon">📅</span>
+              <span>Meetings</span>
+            </a>
+            <a routerLink="/chat" class="link-item">
+              <span class="link-icon">💬</span>
+              <span>Chat</span>
+            </a>
           </div>
         </div>
 
