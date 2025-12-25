@@ -13,11 +13,16 @@ namespace Encadri_Backend.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly NotificationHelperService _notificationService;
+        private readonly IAzureBlobStorageService _azureBlobStorageService;
 
-        public SubmissionsController(ApplicationDbContext context, NotificationHelperService notificationService)
+        public SubmissionsController(
+            ApplicationDbContext context,
+            NotificationHelperService notificationService,
+            IAzureBlobStorageService azureBlobStorageService)
         {
             _context = context;
             _notificationService = notificationService;
+            _azureBlobStorageService = azureBlobStorageService;
         }
 
         /// <summary>
@@ -180,35 +185,92 @@ namespace Encadri_Backend.Controllers
 
 
         /// <summary>
-        /// Upload a file
+        /// Upload a file to Azure Blob Storage
         /// </summary>
         [HttpPost("upload")]
         public async Task<ActionResult<object>> Upload(IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
-                return BadRequest("No file uploaded.");
+                return BadRequest(new { error = "No file uploaded." });
             }
 
-            // Ensure wwwroot/uploads exists
-            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-            if (!Directory.Exists(uploadsPath))
+            try
             {
-                Directory.CreateDirectory(uploadsPath);
+                // Upload to Azure Blob Storage
+                using (var stream = file.OpenReadStream())
+                {
+                    var blobName = await _azureBlobStorageService.UploadFileAsync(
+                        stream,
+                        file.FileName,
+                        file.ContentType ?? "application/octet-stream"
+                    );
+
+                    // Generate a SAS URL that expires in 24 hours for immediate access
+                    var sasUrl = await _azureBlobStorageService.GetBlobSasUrlAsync(blobName, 1440);
+
+                    // Return both the blob name (to store in DB) and SAS URL (for immediate display)
+                    return Ok(new
+                    {
+                        url = blobName,        // Store this in the database
+                        sasUrl = sasUrl,       // Use this for immediate file access/display
+                        fileName = file.FileName
+                    });
+                }
             }
-
-            // Generate unique filename
-            var fileName = $"{Guid.NewGuid()}_{file.FileName}";
-            var filePath = Path.Combine(uploadsPath, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            catch (Exception ex)
             {
-                await file.CopyToAsync(stream);
+                return StatusCode(500, new { error = "File upload failed", details = ex.Message });
             }
+        }
 
-            // Return the URL
-            var url = $"/uploads/{fileName}";
-            return Ok(new { url });
+        /// <summary>
+        /// Download a submission file from Azure Blob Storage
+        /// </summary>
+        [HttpGet("download/{blobName}")]
+        public async Task<ActionResult> Download(string blobName)
+        {
+            try
+            {
+                if (!await _azureBlobStorageService.FileExistsAsync(blobName))
+                {
+                    return NotFound(new { error = "File not found" });
+                }
+
+                // Generate SAS URL for download
+                var sasUrl = await _azureBlobStorageService.GetBlobSasUrlAsync(blobName, 60);
+
+                // Redirect to the SAS URL
+                return Redirect(sasUrl);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Download failed", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get temporary access URL for a submission file
+        /// </summary>
+        [HttpGet("file-url/{blobName}")]
+        public async Task<ActionResult<object>> GetFileUrl(string blobName)
+        {
+            try
+            {
+                if (!await _azureBlobStorageService.FileExistsAsync(blobName))
+                {
+                    return NotFound(new { error = "File not found" });
+                }
+
+                // Generate SAS URL valid for 1 hour
+                var sasUrl = await _azureBlobStorageService.GetBlobSasUrlAsync(blobName, 60);
+
+                return Ok(new { url = sasUrl });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to generate file URL", details = ex.Message });
+            }
         }
     }
 }

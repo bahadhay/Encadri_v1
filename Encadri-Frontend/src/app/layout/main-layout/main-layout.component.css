@@ -224,6 +224,13 @@
   background-color: var(--slate-50);
 }
 
+/* Add safe area padding on mobile to avoid Safari bottom bar */
+@media (max-width: 1023px) {
+  .user-area {
+    padding-bottom: calc(var(--spacing-4) + env(safe-area-inset-bottom, 20px));
+  }
+}
+
 .user-name {
   font-weight: 600;
   margin: 0;

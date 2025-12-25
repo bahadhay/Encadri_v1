@@ -23,6 +23,7 @@ export class SubmissionDetailComponent {
   submission = signal<Submission | null>(null);
   loading = signal<boolean>(true);
   error = signal<string>('');
+  fileDownloadUrl = signal<string>('');
 
   // Review form state
   reviewFeedback = signal<string>('');
@@ -58,11 +59,29 @@ export class SubmissionDetailComponent {
         this.reviewFeedback.set(data.feedback || '');
         this.reviewGrade.set(data.grade || null);
         this.loading.set(false);
+
+        // If there's a file, get the Azure Blob SAS URL
+        if (data.fileUrl) {
+          this.loadFileUrl(data.fileUrl);
+        }
       },
       error: (err) => {
         this.error.set('Failed to load submission details');
         this.loading.set(false);
         console.error(err);
+      }
+    });
+  }
+
+  loadFileUrl(blobName: string) {
+    this.submissionService.getFileUrl(blobName).subscribe({
+      next: (response) => {
+        this.fileDownloadUrl.set(response.url);
+      },
+      error: (err) => {
+        console.error('Failed to load file URL:', err);
+        // Fallback to direct download endpoint
+        this.fileDownloadUrl.set(this.submissionService.downloadFile(blobName));
       }
     });
   }

@@ -37,9 +37,12 @@
 
     <div class="content-section" *ngIf="s.fileUrl">
       <h3>Submitted File</h3>
-      <a [href]="s.fileUrl" target="_blank" class="file-link">
+      <a *ngIf="fileDownloadUrl()" [href]="fileDownloadUrl()" target="_blank" class="file-link">
         📎 View Attached File
       </a>
+      <div *ngIf="!fileDownloadUrl()" class="file-loading">
+        <span>Loading file...</span>
+      </div>
     </div>
 
     <div class="feedback-section" *ngIf="s.feedback && !isSupervisor">

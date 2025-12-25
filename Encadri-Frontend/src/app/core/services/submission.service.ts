@@ -45,9 +45,18 @@ export class SubmissionService {
     return this.apiService.delete<void>(`${this.BASE_PATH}/${id}`);
   }
 
-  uploadFile(file: File): Observable<{ url: string }> {
+  uploadFile(file: File): Observable<{ url: string; sasUrl: string; fileName: string }> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.apiService.post<{ url: string }>(`${this.BASE_PATH}/upload`, formData);
+    return this.apiService.post<{ url: string; sasUrl: string; fileName: string }>(`${this.BASE_PATH}/upload`, formData);
+  }
+
+  getFileUrl(blobName: string): Observable<{ url: string }> {
+    return this.apiService.get<{ url: string }>(`${this.BASE_PATH}/file-url/${blobName}`);
+  }
+
+  downloadFile(blobName: string): string {
+    // Returns the download endpoint URL
+    return `${this.apiService['baseUrl']}${this.BASE_PATH}/download/${blobName}`;
   }
 }
