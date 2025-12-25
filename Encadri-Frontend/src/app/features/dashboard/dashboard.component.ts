@@ -201,6 +201,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     return '#10b981'; // Green
   }
 
+  getProgressText(percentage: number): string {
+    if (percentage < 25) return 'Just started';
+    if (percentage < 50) return 'Making progress';
+    if (percentage < 75) return 'Halfway there';
+    if (percentage < 100) return 'Almost done';
+    return 'Completed';
+  }
+
   ngOnDestroy() {
     // Clean up charts
     if (this.submissionChart) {
