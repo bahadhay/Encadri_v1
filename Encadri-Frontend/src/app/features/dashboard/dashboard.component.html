@@ -118,11 +118,7 @@
           <p class="chart-subtitle">Distribution of all submissions</p>
         </div>
         <div class="chart-container">
-          <canvas baseChart
-            [data]="submissionChartData"
-            [type]="pieChartType"
-            [options]="pieChartOptions">
-          </canvas>
+          <canvas #submissionChart></canvas>
         </div>
       </app-ui-card>
 
@@ -133,11 +129,7 @@
           <p class="chart-subtitle">Your recent grades over time</p>
         </div>
         <div class="chart-container">
-          <canvas baseChart
-            [data]="gradeTrendChartData"
-            [type]="lineChartType"
-            [options]="lineChartOptions">
-          </canvas>
+          <canvas #gradeTrendChart></canvas>
         </div>
       </app-ui-card>
 

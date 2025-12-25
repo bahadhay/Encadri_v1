@@ -1,92 +1,35 @@
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { StatisticsService, DashboardStats } from '../../core/services/statistics.service';
 import { UiCardComponent } from '../../shared/components/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../shared/components/ui-button/ui-button.component';
-import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
+
+// Register Chart.js components
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, UiCardComponent, UiButtonComponent, BaseChartDirective],
+  imports: [CommonModule, RouterModule, UiCardComponent, UiButtonComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, AfterViewInit {
   private authService = inject(AuthService);
   private statisticsService = inject(StatisticsService);
+
+  @ViewChild('submissionChart') submissionChartCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('gradeTrendChart') gradeTrendChartCanvas?: ElementRef<HTMLCanvasElement>;
 
   stats = signal<DashboardStats | null>(null);
   loading = signal<boolean>(true);
   error = signal<string>('');
 
-  // Chart configurations
-  public pieChartType: ChartType = 'pie';
-  public pieChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'bottom',
-        labels: {
-          padding: 15,
-          font: {
-            size: 12
-          }
-        }
-      }
-    }
-  };
-
-  public submissionChartData: ChartData<'pie'> = {
-    labels: [],
-    datasets: [{
-      data: [],
-      backgroundColor: [
-        '#10b981', // Green - approved
-        '#f59e0b', // Yellow - pending
-        '#ef4444', // Red - rejected
-        '#3b82f6', // Blue - reviewed
-        '#f97316'  // Orange - needs revision
-      ]
-    }]
-  };
-
-  public lineChartType: ChartType = 'line';
-  public lineChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: true,
-        position: 'top'
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 20,
-        ticks: {
-          stepSize: 5
-        }
-      }
-    }
-  };
-
-  public gradeTrendChartData: ChartData<'line'> = {
-    labels: [],
-    datasets: [{
-      label: 'Grade',
-      data: [],
-      borderColor: '#3b82f6',
-      backgroundColor: 'rgba(59, 130, 246, 0.1)',
-      fill: true,
-      tension: 0.4
-    }]
-  };
+  private submissionChart?: Chart;
+  private gradeTrendChart?: Chart;
 
   get user() {
     return this.authService.currentUser();
@@ -104,13 +47,18 @@ export class DashboardComponent implements OnInit {
     this.loadDashboardStats();
   }
 
+  ngAfterViewInit() {
+    // Charts will be created after data is loaded
+  }
+
   loadDashboardStats() {
     this.loading.set(true);
     this.statisticsService.getDashboardStats().subscribe({
       next: (data) => {
         this.stats.set(data);
-        this.updateCharts(data);
         this.loading.set(false);
+        // Wait for view to update before creating charts
+        setTimeout(() => this.createCharts(data), 0);
       },
       error: (err) => {
         console.error('Failed to load dashboard statistics', err);
@@ -120,63 +68,130 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  updateCharts(stats: DashboardStats) {
-    // Update submission status pie chart
-    const submissionLabels: string[] = [];
-    const submissionData: number[] = [];
+  createCharts(stats: DashboardStats) {
+    this.createSubmissionChart(stats);
+    if (this.isStudent) {
+      this.createGradeTrendChart(stats);
+    }
+  }
+
+  createSubmissionChart(stats: DashboardStats) {
+    if (!this.submissionChartCanvas || stats.totalSubmissions === 0) return;
+
+    // Destroy existing chart if it exists
+    if (this.submissionChart) {
+      this.submissionChart.destroy();
+    }
+
+    const labels: string[] = [];
+    const data: number[] = [];
+    const colors: string[] = [];
 
     if (stats.approvedSubmissions > 0) {
-      submissionLabels.push('Approved');
-      submissionData.push(stats.approvedSubmissions);
+      labels.push('Approved');
+      data.push(stats.approvedSubmissions);
+      colors.push('#10b981');
     }
     if (stats.pendingSubmissions > 0) {
-      submissionLabels.push('Pending');
-      submissionData.push(stats.pendingSubmissions);
+      labels.push('Pending');
+      data.push(stats.pendingSubmissions);
+      colors.push('#f59e0b');
     }
     if (stats.rejectedSubmissions > 0) {
-      submissionLabels.push('Rejected');
-      submissionData.push(stats.rejectedSubmissions);
+      labels.push('Rejected');
+      data.push(stats.rejectedSubmissions);
+      colors.push('#ef4444');
     }
     if (stats.reviewedSubmissions && stats.reviewedSubmissions > 0) {
-      submissionLabels.push('Reviewed');
-      submissionData.push(stats.reviewedSubmissions);
+      labels.push('Reviewed');
+      data.push(stats.reviewedSubmissions);
+      colors.push('#3b82f6');
     }
     if (stats.needsRevisionSubmissions && stats.needsRevisionSubmissions > 0) {
-      submissionLabels.push('Needs Revision');
-      submissionData.push(stats.needsRevisionSubmissions);
+      labels.push('Needs Revision');
+      data.push(stats.needsRevisionSubmissions);
+      colors.push('#f97316');
     }
 
-    this.submissionChartData = {
-      labels: submissionLabels,
-      datasets: [{
-        data: submissionData,
-        backgroundColor: [
-          '#10b981',
-          '#f59e0b',
-          '#ef4444',
-          '#3b82f6',
-          '#f97316'
-        ]
-      }]
+    const config: ChartConfiguration = {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: colors
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 15,
+              font: {
+                size: 12
+              }
+            }
+          }
+        }
+      }
     };
 
-    // Update grade trend chart for students
-    if (this.isStudent && stats.gradeTrend && stats.gradeTrend.length > 0) {
-      this.gradeTrendChartData = {
-        labels: stats.gradeTrend.map((item: any) => {
-          const title = item.title || 'Submission';
-          return title.length > 15 ? title.substring(0, 15) + '...' : title;
-        }),
+    this.submissionChart = new Chart(this.submissionChartCanvas.nativeElement, config);
+  }
+
+  createGradeTrendChart(stats: DashboardStats) {
+    if (!this.gradeTrendChartCanvas || !stats.gradeTrend || stats.gradeTrend.length === 0) return;
+
+    // Destroy existing chart if it exists
+    if (this.gradeTrendChart) {
+      this.gradeTrendChart.destroy();
+    }
+
+    const labels = stats.gradeTrend.map((item: any) => {
+      const title = item.title || 'Submission';
+      return title.length > 15 ? title.substring(0, 15) + '...' : title;
+    });
+
+    const grades = stats.gradeTrend.map((item: any) => item.grade || 0);
+
+    const config: ChartConfiguration = {
+      type: 'line',
+      data: {
+        labels: labels,
         datasets: [{
           label: 'Grade (out of 20)',
-          data: stats.gradeTrend.map((item: any) => item.grade || 0),
+          data: grades,
           borderColor: '#3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
           fill: true,
           tension: 0.4
         }]
-      };
-    }
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 20,
+            ticks: {
+              stepSize: 5
+            }
+          }
+        }
+      }
+    };
+
+    this.gradeTrendChart = new Chart(this.gradeTrendChartCanvas.nativeElement, config);
   }
 
   getProgressColor(percentage: number): string {
@@ -184,5 +199,15 @@ export class DashboardComponent implements OnInit {
     if (percentage < 50) return '#f59e0b'; // Orange
     if (percentage < 75) return '#3b82f6'; // Blue
     return '#10b981'; // Green
+  }
+
+  ngOnDestroy() {
+    // Clean up charts
+    if (this.submissionChart) {
+      this.submissionChart.destroy();
+    }
+    if (this.gradeTrendChart) {
+      this.gradeTrendChart.destroy();
+    }
   }
 }
