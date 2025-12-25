@@ -119,6 +119,7 @@ builder.Services.AddScoped<Encadri_Backend.Services.NotificationHelperService>()
 
 // Add Azure Blob Storage and Document Services
 builder.Services.AddSingleton<Encadri_Backend.Services.IAzureBlobStorageService, Encadri_Backend.Services.AzureBlobStorageService>();
+builder.Services.AddSingleton<Encadri_Backend.Services.IAzureCommunicationService, Encadri_Backend.Services.AzureCommunicationService>();
 builder.Services.AddScoped<Encadri_Backend.Services.IDocumentService, Encadri_Backend.Services.DocumentService>();
 
 // Configure CORS for Angular frontend and Swagger (with SignalR support)
