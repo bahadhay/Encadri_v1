@@ -127,19 +127,11 @@ namespace Encadri_Backend.Controllers
                 return NotFound();
             }
 
-            // Check if submission was evaluated (status changed or feedback/grade added)
-            bool wasEvaluated = false;
-            if (submission.Status != updatedSubmission.Status &&
-                (updatedSubmission.Status == "Graded" || updatedSubmission.Status == "Reviewed"))
-            {
-                wasEvaluated = true;
-            }
-            else if (!string.IsNullOrEmpty(updatedSubmission.Feedback) &&
-                     string.IsNullOrEmpty(submission.Feedback))
-            {
-                wasEvaluated = true;
-            }
+            // Track old status for notification
+            var oldStatus = submission.Status;
+            var newStatus = updatedSubmission.Status;
 
+            // Update submission fields
             submission.Title = updatedSubmission.Title;
             submission.Description = updatedSubmission.Description;
             submission.Type = updatedSubmission.Type;
@@ -152,8 +144,48 @@ namespace Encadri_Backend.Controllers
 
             await _context.SaveChangesAsync();
 
-            // Notify student if submission was evaluated
-            if (wasEvaluated)
+            // Send specific notifications based on status change
+            if (oldStatus != newStatus)
+            {
+                switch (newStatus.ToLower())
+                {
+                    case "approved":
+                        await _notificationService.NotifySubmissionApproved(
+                            submission.SubmittedBy,
+                            submission.Title,
+                            submission.Id
+                        );
+                        break;
+
+                    case "rejected":
+                        await _notificationService.NotifySubmissionRejected(
+                            submission.SubmittedBy,
+                            submission.Title,
+                            submission.Id
+                        );
+                        break;
+
+                    case "needs_revision":
+                        await _notificationService.NotifySubmissionNeedsRevision(
+                            submission.SubmittedBy,
+                            submission.Title,
+                            submission.Id
+                        );
+                        break;
+
+                    case "reviewed":
+                    case "graded":
+                        await _notificationService.NotifySubmissionEvaluated(
+                            submission.SubmittedBy,
+                            submission.Title,
+                            submission.Id
+                        );
+                        break;
+                }
+            }
+            // Also notify if feedback was added without status change
+            else if (!string.IsNullOrEmpty(updatedSubmission.Feedback) &&
+                     string.IsNullOrEmpty(oldStatus))
             {
                 await _notificationService.NotifySubmissionEvaluated(
                     submission.SubmittedBy,

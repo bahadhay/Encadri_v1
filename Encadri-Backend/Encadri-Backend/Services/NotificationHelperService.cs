@@ -100,6 +100,42 @@ namespace Encadri_Backend.Services
             );
         }
 
+        public async Task NotifySubmissionApproved(string studentEmail, string submissionTitle, string submissionId)
+        {
+            await SendNotificationAsync(
+                studentEmail,
+                "Submission Approved",
+                $"Congratulations! Your submission '{submissionTitle}' has been approved.",
+                "success",
+                "High",
+                $"/submissions/{submissionId}"
+            );
+        }
+
+        public async Task NotifySubmissionRejected(string studentEmail, string submissionTitle, string submissionId)
+        {
+            await SendNotificationAsync(
+                studentEmail,
+                "Submission Rejected",
+                $"Your submission '{submissionTitle}' has been rejected. Please review the feedback.",
+                "warning",
+                "High",
+                $"/submissions/{submissionId}"
+            );
+        }
+
+        public async Task NotifySubmissionNeedsRevision(string studentEmail, string submissionTitle, string submissionId)
+        {
+            await SendNotificationAsync(
+                studentEmail,
+                "Revision Requested",
+                $"Your submission '{submissionTitle}' needs revision. Please check the feedback and resubmit.",
+                "warning",
+                "High",
+                $"/submissions/{submissionId}"
+            );
+        }
+
         // Meeting Notifications
         public async Task NotifyMeetingScheduled(List<string> participantEmails, string meetingTitle, DateTime meetingDate, string meetingId)
         {
