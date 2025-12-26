@@ -65,11 +65,14 @@ export class MeetingService {
   }
 
   approveMeetingRequest(id: string, scheduledDate?: string): Observable<Meeting> {
-    return this.apiService.post<Meeting>(`${this.REQUESTS_PATH}/${id}/approve`, scheduledDate);
+    // Send as an object with scheduledDate property (or null to use preferred date)
+    const body = scheduledDate ? { scheduledDate } : null;
+    return this.apiService.post<Meeting>(`${this.REQUESTS_PATH}/${id}/approve`, body);
   }
 
   rejectMeetingRequest(id: string, reason: string): Observable<void> {
-    return this.apiService.post<void>(`${this.REQUESTS_PATH}/${id}/reject`, reason);
+    // Send as an object with reason property
+    return this.apiService.post<void>(`${this.REQUESTS_PATH}/${id}/reject`, { reason });
   }
 
   uploadMeetingDocument(requestId: string, file: File): Observable<any> {

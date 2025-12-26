@@ -99,7 +99,7 @@ namespace Encadri_Backend.Controllers
         /// Approve meeting request and create meeting (Supervisor)
         /// </summary>
         [HttpPost("{id}/approve")]
-        public async Task<ActionResult<Meeting>> ApproveRequest(string id, [FromBody] DateTime? scheduledDate = null)
+        public async Task<ActionResult<Meeting>> ApproveRequest(string id, [FromBody] ApproveRequestDto? dto)
         {
             var request = await _context.MeetingRequests.FindAsync(id);
             if (request == null)
@@ -108,13 +108,16 @@ namespace Encadri_Backend.Controllers
             if (request.Status != "pending")
                 return BadRequest("Only pending requests can be approved");
 
+            // Use the scheduled date from DTO if provided, otherwise use the preferred date from request
+            var scheduledDate = dto?.ScheduledDate ?? request.PreferredDate;
+
             // Create the meeting
             var meeting = new Meeting
             {
                 Id = Guid.NewGuid().ToString(),
                 ProjectId = request.ProjectId,
                 Title = request.Title,
-                ScheduledAt = DateTimeHelper.EnsureUtc(scheduledDate ?? request.PreferredDate),
+                ScheduledAt = DateTimeHelper.EnsureUtc(scheduledDate),
                 DurationMinutes = request.DurationMinutes ?? 60,
                 Agenda = request.Agenda,
                 Status = "confirmed",
@@ -146,12 +149,20 @@ namespace Encadri_Backend.Controllers
             return Ok(meeting);
         }
 
+        public class ApproveRequestDto
+        {
+            public DateTime? ScheduledDate { get; set; }
+        }
+
         /// <summary>
         /// Reject meeting request (Supervisor)
         /// </summary>
         [HttpPost("{id}/reject")]
-        public async Task<ActionResult> RejectRequest(string id, [FromBody] string reason)
+        public async Task<ActionResult> RejectRequest(string id, [FromBody] RejectRequestDto dto)
         {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Reason))
+                return BadRequest("Rejection reason is required");
+
             var request = await _context.MeetingRequests.FindAsync(id);
             if (request == null)
                 return NotFound();
@@ -160,7 +171,7 @@ namespace Encadri_Backend.Controllers
                 return BadRequest("Only pending requests can be rejected");
 
             request.Status = "rejected";
-            request.RejectionReason = reason;
+            request.RejectionReason = dto.Reason;
             request.UpdatedDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -169,10 +180,15 @@ namespace Encadri_Backend.Controllers
             await _notificationService.NotifyMeetingRequestRejected(
                 request.StudentEmail,
                 request.Title ?? "Meeting",
-                reason
+                dto.Reason
             );
 
             return Ok();
+        }
+
+        public class RejectRequestDto
+        {
+            public string Reason { get; set; } = string.Empty;
         }
 
         /// <summary>

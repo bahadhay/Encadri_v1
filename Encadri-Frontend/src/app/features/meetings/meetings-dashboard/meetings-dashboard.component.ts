@@ -141,7 +141,9 @@ export class MeetingsDashboardComponent implements OnInit {
         this.loadData();
       },
       error: (err) => {
-        alert('Failed to approve meeting request: ' + err.message);
+        console.error('Failed to approve meeting request:', err);
+        const errorMsg = err?.message || err?.error?.message || err?.title || 'Unknown error occurred';
+        alert('Failed to approve meeting request: ' + errorMsg);
       }
     });
   }
@@ -158,7 +160,9 @@ export class MeetingsDashboardComponent implements OnInit {
         this.loadData();
       },
       error: (err) => {
-        alert('Failed to reject meeting request: ' + err.message);
+        console.error('Failed to reject meeting request:', err);
+        const errorMsg = err?.message || err?.error?.message || err?.title || 'Unknown error occurred';
+        alert('Failed to reject meeting request: ' + errorMsg);
       }
     });
   }
