@@ -413,7 +413,9 @@ export class RequestMeetingComponent implements OnInit {
       this.request.supervisorEmail = project.supervisorEmail;
 
       // Load supervisor's availability
-      this.loadSupervisorAvailability(project.supervisorEmail);
+      if (project.supervisorEmail) {
+        this.loadSupervisorAvailability(project.supervisorEmail);
+      }
     } else {
       this.selectedProject.set(null);
       this.request.projectId = '';
