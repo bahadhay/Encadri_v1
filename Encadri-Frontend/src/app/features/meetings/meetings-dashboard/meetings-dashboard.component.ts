@@ -55,7 +55,11 @@ export class MeetingsDashboardComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        this.error.set('Failed to load meetings');
+        console.error('Failed to load meetings:', err);
+        const errorMsg = err.status === 0
+          ? 'Cannot connect to server. Please check if the backend is running.'
+          : err.error?.message || err.message || 'Failed to load meetings';
+        this.error.set(errorMsg);
         this.loading.set(false);
       }
     });
