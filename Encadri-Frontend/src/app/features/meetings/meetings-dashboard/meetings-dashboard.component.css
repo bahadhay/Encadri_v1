@@ -119,6 +119,22 @@
   border-left: 4px solid #ef4444;
 }
 
+.meeting-card.highlighted {
+  border: 2px solid #3b82f6;
+  background: linear-gradient(to right, #eff6ff, white);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  animation: pulse 2s ease-in-out 3;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
+  }
+}
+
 .meeting-header {
   display: flex;
   justify-content: space-between;

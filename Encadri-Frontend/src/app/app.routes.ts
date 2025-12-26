@@ -78,6 +78,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/meetings/request-meeting/request-meeting.component').then(m => m.RequestMeetingComponent)
       },
       {
+        path: 'meetings/:id',
+        loadComponent: () => import('./features/meetings/meetings-dashboard/meetings-dashboard.component').then(m => m.MeetingsDashboardComponent)
+      },
+      {
         path: 'meetings',
         loadComponent: () => import('./features/meetings/meetings-dashboard/meetings-dashboard.component').then(m => m.MeetingsDashboardComponent)
       },

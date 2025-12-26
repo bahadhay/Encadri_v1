@@ -30,15 +30,25 @@ export class MeetingsDashboardComponent implements OnInit {
   activeTab = signal<'upcoming' | 'requests' | 'availability' | 'history'>('upcoming');
   loading = signal(false);
   error = signal<string | null>(null);
+  highlightedMeetingId = signal<string | null>(null);
 
   // Filters
   statusFilter = signal<string>('all');
   pastMeetings = signal<Meeting[]>([]);
 
   ngOnInit() {
+    // Check for meeting ID in route params (from notification links)
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.highlightedMeetingId.set(params['id']);
+        // Always show upcoming tab when coming from notification
+        this.switchTab('upcoming');
+      }
+    });
+
     // Check for tab query parameter
     this.route.queryParams.subscribe(params => {
-      if (params['tab']) {
+      if (params['tab'] && !this.highlightedMeetingId()) {
         this.switchTab(params['tab']);
       }
     });
@@ -136,9 +146,23 @@ export class MeetingsDashboardComponent implements OnInit {
     if (!request.id) return;
 
     this.meetingService.approveMeetingRequest(request.id, request.preferredDate).subscribe({
-      next: () => {
+      next: (meeting) => {
         alert('Meeting request approved successfully!');
+        // Switch to upcoming tab to show the newly created meeting
+        this.switchTab('upcoming');
+        // Reload data to fetch the new meeting
         this.loadData();
+        // Highlight the newly created meeting
+        if (meeting && meeting.id) {
+          this.highlightedMeetingId.set(meeting.id);
+          // Auto-scroll to the meeting after a short delay
+          setTimeout(() => {
+            const element = document.getElementById(`meeting-${meeting.id}`);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }, 500);
+        }
       },
       error: (err) => {
         console.error('Failed to approve meeting request:', err);

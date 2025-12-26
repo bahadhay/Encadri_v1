@@ -106,7 +106,11 @@
       } @else {
         <div class="meetings-grid">
           @for (meeting of upcomingMeetings(); track meeting.id) {
-            <div class="meeting-card" [class.urgent]="getTimeUntilMeeting(meeting.scheduledAt).includes('hour')">
+            <div
+              class="meeting-card"
+              [id]="'meeting-' + meeting.id"
+              [class.urgent]="getTimeUntilMeeting(meeting.scheduledAt).includes('hour')"
+              [class.highlighted]="highlightedMeetingId() === meeting.id">
               <div class="meeting-header">
                 <div class="meeting-info">
                   <h3>{{ meeting.title }}</h3>
