@@ -125,7 +125,25 @@ export class SetAvailabilityComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to save availability:', err);
-        const errorMsg = err.error?.message || err.message || 'Failed to save availability';
+        console.error('Error details:', err.error);
+
+        let errorMsg = 'Failed to save availability';
+
+        // Try to extract detailed error message
+        if (err.error) {
+          if (typeof err.error === 'string') {
+            errorMsg = err.error;
+          } else if (err.error.errors) {
+            // Validation errors
+            const validationErrors = Object.values(err.error.errors).flat();
+            errorMsg = validationErrors.join(', ');
+          } else if (err.error.title) {
+            errorMsg = err.error.title;
+          } else if (err.error.message) {
+            errorMsg = err.error.message;
+          }
+        }
+
         this.error.set(errorMsg);
         this.loading.set(false);
       }
