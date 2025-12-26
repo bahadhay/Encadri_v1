@@ -51,20 +51,26 @@ export class SetAvailabilityComponent implements OnInit {
 
   addTimeSlot() {
     const userEmail = this.currentUser()?.email;
-    if (!userEmail) return;
+    if (!userEmail) {
+      console.error('No user email found');
+      return;
+    }
 
-    this.availabilities.update(slots => [
-      ...slots,
-      {
-        supervisorEmail: userEmail,
-        dayOfWeek: 'Monday',
-        startTime: '09:00',
-        endTime: '10:00',
-        isRecurring: true,
-        location: 'Office',
-        isActive: true
-      }
-    ]);
+    const newSlot = {
+      supervisorEmail: userEmail,
+      dayOfWeek: 'Monday',
+      startTime: '09:00',
+      endTime: '10:00',
+      isRecurring: true,
+      location: 'Office',
+      isActive: true
+    };
+
+    this.availabilities.update(slots => {
+      const updated = [...slots, newSlot];
+      console.log('Adding time slot. Total slots:', updated.length);
+      return updated;
+    });
   }
 
   removeTimeSlot(index: number) {
@@ -201,9 +207,11 @@ export class SetAvailabilityComponent implements OnInit {
   }
 
   updateSlot(index: number, field: string, value: any) {
+    console.log(`Updating slot ${index}, field: ${field}, value:`, value);
     this.availabilities.update(slots => {
       const updated = [...slots];
       updated[index] = { ...updated[index], [field]: value };
+      console.log(`Updated slot ${index}:`, updated[index]);
       return updated;
     });
   }
