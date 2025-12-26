@@ -265,12 +265,23 @@
               <h3>{{ daySlot.day }}</h3>
               <div class="time-slots">
                 @for (slot of daySlot.slots; track slot.id) {
-                  <div class="time-slot">
-                    <app-icon name="schedule" [size]="16"></app-icon>
-                    <span>{{ slot.startTime }} - {{ slot.endTime }}</span>
-                    @if (slot.location) {
-                      <span class="location">{{ slot.location }}</span>
-                    }
+                  <div class="time-slot" [class.virtual]="slot.meetingType === 'virtual'" [class.in-person]="slot.meetingType === 'in-person'" [class.both]="slot.meetingType === 'both' || !slot.meetingType">
+                    <div class="time-info">
+                      <app-icon name="schedule" [size]="16"></app-icon>
+                      <span class="time">{{ slot.startTime }} - {{ slot.endTime }}</span>
+                    </div>
+                    <div class="slot-details">
+                      @if (slot.meetingType === 'virtual') {
+                        <span class="type-badge virtual">💻 Virtual</span>
+                      } @else if (slot.meetingType === 'in-person') {
+                        <span class="type-badge in-person">🏢 In-Person</span>
+                      } @else {
+                        <span class="type-badge both">💻🏢 Both</span>
+                      }
+                      @if (slot.location) {
+                        <span class="location">📍 {{ slot.location }}</span>
+                      }
+                    </div>
                   </div>
                 }
               </div>

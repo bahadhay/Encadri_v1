@@ -70,6 +70,7 @@ namespace Encadri_Backend.Controllers
                         a.Id,
                         StartTime = a.StartTime.ToString(@"hh\:mm"),
                         EndTime = a.EndTime.ToString(@"hh\:mm"),
+                        a.MeetingType,
                         a.Location
                     })
                 })

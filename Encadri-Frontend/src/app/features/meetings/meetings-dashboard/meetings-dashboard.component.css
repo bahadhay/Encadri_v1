@@ -293,18 +293,75 @@
 
 .time-slot {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 0.5rem;
-  padding: 0.5rem;
+  padding: 0.75rem;
   background-color: #f9fafb;
   border-radius: 6px;
   font-size: 0.875rem;
   color: #4b5563;
+  border-left: 3px solid #e5e7eb;
+}
+
+.time-slot.virtual {
+  border-left-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.time-slot.in-person {
+  border-left-color: #f59e0b;
+  background-color: #fffbeb;
+}
+
+.time-slot.both {
+  border-left-color: #8b5cf6;
+  background-color: #f5f3ff;
+}
+
+.time-slot .time-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.time-slot .time-info .time {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.time-slot .slot-details {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.time-slot .type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.time-slot .type-badge.virtual {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.time-slot .type-badge.in-person {
+  background-color: #fed7aa;
+  color: #92400e;
+}
+
+.time-slot .type-badge.both {
+  background-color: #e9d5ff;
+  color: #6b21a8;
 }
 
 .time-slot .location {
-  margin-left: auto;
-  color: #9ca3af;
+  color: #6b7280;
   font-size: 0.75rem;
 }
 
