@@ -1,0 +1,113 @@
+<div class="set-availability-container">
+  <div class="header">
+    <h1>
+      <app-icon name="schedule" [size]="32"></app-icon>
+      Set Office Hours
+    </h1>
+    <p>Define when you're available for student meetings</p>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-error">
+      <app-icon name="error" [size]="20"></app-icon>
+      {{ error() }}
+    </div>
+  }
+
+  @if (success()) {
+    <div class="alert alert-success">
+      <app-icon name="check" [size]="20"></app-icon>
+      {{ success() }}
+    </div>
+  }
+
+  <div class="time-slots-section">
+    <div class="section-header">
+      <h2>Weekly Availability</h2>
+      <button class="btn btn-secondary" (click)="addTimeSlot()">
+        <app-icon name="add" [size]="20"></app-icon>
+        Add Time Slot
+      </button>
+    </div>
+
+    @if (availabilities().length === 0) {
+      <div class="empty-state">
+        <app-icon name="schedule" [size]="64"></app-icon>
+        <p>No availability set. Click "Add Time Slot" to get started.</p>
+      </div>
+    } @else {
+      <div class="slots-grid">
+        @for (slot of availabilities(); track $index) {
+          <div class="slot-card">
+            <div class="slot-header">
+              <h3>Time Slot {{ $index + 1 }}</h3>
+              <button class="btn-icon btn-danger" (click)="removeTimeSlot($index)">
+                <app-icon name="trash" [size]="18"></app-icon>
+              </button>
+            </div>
+
+            <div class="slot-form">
+              <div class="form-group">
+                <label>Day of Week</label>
+                <select
+                  [value]="slot.dayOfWeek"
+                  (change)="updateSlot($index, 'dayOfWeek', $any($event.target).value)">
+                  @for (day of daysOfWeek; track day) {
+                    <option [value]="day">{{ day }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Start Time</label>
+                  <input
+                    type="time"
+                    [value]="slot.startTime"
+                    (change)="updateSlot($index, 'startTime', $any($event.target).value)">
+                </div>
+
+                <div class="form-group">
+                  <label>End Time</label>
+                  <input
+                    type="time"
+                    [value]="slot.endTime"
+                    (change)="updateSlot($index, 'endTime', $any($event.target).value)">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Location</label>
+                <input
+                  type="text"
+                  placeholder="e.g., Office 301, Online"
+                  [value]="slot.location || ''"
+                  (input)="updateSlot($index, 'location', $any($event.target).value)">
+              </div>
+
+              <div class="form-group checkbox-group">
+                <label>
+                  <input
+                    type="checkbox"
+                    [checked]="slot.isRecurring"
+                    (change)="updateSlot($index, 'isRecurring', $any($event.target).checked)">
+                  <span>Recurring weekly</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" (click)="cancel()">Cancel</button>
+    @if (availabilities().length > 0) {
+      <button class="btn btn-danger" (click)="clearAllAvailability()">Clear All</button>
+      <button class="btn btn-primary" (click)="saveAvailability()" [disabled]="loading()">
+        {{ loading() ? 'Saving...' : 'Save Availability' }}
+      </button>
+    }
+  </div>
+</div>

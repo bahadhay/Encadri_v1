@@ -66,6 +66,18 @@ export const routes: Routes = [
         loadComponent: () => import('./features/submissions/submission-list/submission-list.component').then(m => m.SubmissionListComponent)
       },
       {
+        path: 'meetings/set-availability',
+        loadComponent: () => import('./features/meetings/set-availability/set-availability.component').then(m => m.SetAvailabilityComponent)
+      },
+      {
+        path: 'meetings/bulk-invite',
+        loadComponent: () => import('./features/meetings/bulk-invite/bulk-invite.component').then(m => m.BulkInviteComponent)
+      },
+      {
+        path: 'meetings/request-meeting',
+        loadComponent: () => import('./features/meetings/request-meeting/request-meeting.component').then(m => m.RequestMeetingComponent)
+      },
+      {
         path: 'meetings',
         loadComponent: () => import('./features/meetings/meetings-dashboard/meetings-dashboard.component').then(m => m.MeetingsDashboardComponent)
       },

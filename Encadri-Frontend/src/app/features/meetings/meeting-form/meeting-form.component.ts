@@ -32,7 +32,8 @@ export class MeetingFormComponent {
     durationMinutes: 60,
     location: 'Online',
     status: 'pending',
-    agenda: ''
+    agenda: '',
+    meetingType: 'virtual'
   };
 
   // Date/Time inputs

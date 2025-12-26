@@ -44,7 +44,8 @@ export class MeetingListComponent implements OnInit {
       location: 'Online',
       status: 'pending',
       agenda: '',
-      notes: ''
+      notes: '',
+      meetingType: 'virtual'
     };
   }
 
