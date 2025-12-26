@@ -31,7 +31,7 @@ export class MeetingFormComponent {
     title: '',
     durationMinutes: 60,
     location: 'Online',
-    status: 'scheduled',
+    status: 'pending',
     agenda: ''
   };
 

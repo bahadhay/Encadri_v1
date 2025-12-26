@@ -42,7 +42,7 @@ export class MeetingListComponent implements OnInit {
       title: '',
       durationMinutes: 60,
       location: 'Online',
-      status: 'scheduled',
+      status: 'pending',
       agenda: '',
       notes: ''
     };
@@ -54,7 +54,7 @@ export class MeetingListComponent implements OnInit {
 
   loadMeetings() {
     this.loading.set(true);
-    this.meetingService.getMeetings(this.projectId).subscribe({
+    this.meetingService.getMeetings(this.projectId ? { projectId: this.projectId } : undefined).subscribe({
       next: (data) => {
         this.meetings.set(data);
         this.loading.set(false);
@@ -112,9 +112,9 @@ export class MeetingListComponent implements OnInit {
   }
 
   get filteredMeetings() {
-    return this.meetings().filter(m => 
+    return this.meetings().filter(m =>
       m.title.toLowerCase().includes(this.searchTerm().toLowerCase()) ||
-      m.location.toLowerCase().includes(this.searchTerm().toLowerCase())
+      (m.location && m.location.toLowerCase().includes(this.searchTerm().toLowerCase()))
     );
   }
 
