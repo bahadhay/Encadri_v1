@@ -30,6 +30,7 @@ export class MeetingsDashboardComponent implements OnInit {
   activeTab = signal<'upcoming' | 'requests' | 'availability' | 'history'>('upcoming');
   loading = signal(false);
   error = signal<string | null>(null);
+  success = signal<string | null>(null);
   highlightedMeetingId = signal<string | null>(null);
 
   // Filters
@@ -145,9 +146,12 @@ export class MeetingsDashboardComponent implements OnInit {
   approveMeetingRequest(request: MeetingRequest) {
     if (!request.id) return;
 
+    this.success.set(null);
+    this.error.set(null);
+
     this.meetingService.approveMeetingRequest(request.id, request.preferredDate).subscribe({
       next: (meeting) => {
-        alert('Meeting request approved successfully!');
+        this.success.set('Meeting request approved successfully!');
         // Switch to upcoming tab to show the newly created meeting
         this.switchTab('upcoming');
         // Reload data to fetch the new meeting
@@ -163,11 +167,14 @@ export class MeetingsDashboardComponent implements OnInit {
             }
           }, 500);
         }
+        // Clear success message after 5 seconds
+        setTimeout(() => this.success.set(null), 5000);
       },
       error: (err) => {
         console.error('Failed to approve meeting request:', err);
         const errorMsg = err?.message || err?.error?.message || err?.title || 'Unknown error occurred';
-        alert('Failed to approve meeting request: ' + errorMsg);
+        this.error.set('Failed to approve meeting request: ' + errorMsg);
+        setTimeout(() => this.error.set(null), 5000);
       }
     });
   }
@@ -178,15 +185,20 @@ export class MeetingsDashboardComponent implements OnInit {
     const reason = prompt('Please provide a reason for rejection:');
     if (!reason) return;
 
+    this.success.set(null);
+    this.error.set(null);
+
     this.meetingService.rejectMeetingRequest(request.id, reason).subscribe({
       next: () => {
-        alert('Meeting request rejected');
+        this.success.set('Meeting request rejected');
         this.loadData();
+        setTimeout(() => this.success.set(null), 5000);
       },
       error: (err) => {
         console.error('Failed to reject meeting request:', err);
         const errorMsg = err?.message || err?.error?.message || err?.title || 'Unknown error occurred';
-        alert('Failed to reject meeting request: ' + errorMsg);
+        this.error.set('Failed to reject meeting request: ' + errorMsg);
+        setTimeout(() => this.error.set(null), 5000);
       }
     });
   }
@@ -194,13 +206,19 @@ export class MeetingsDashboardComponent implements OnInit {
   cancelMeeting(meeting: Meeting) {
     if (!confirm(`Are you sure you want to cancel "${meeting.title}"?`)) return;
 
+    this.success.set(null);
+    this.error.set(null);
+
     this.meetingService.deleteMeeting(meeting.id).subscribe({
       next: () => {
-        alert('Meeting cancelled successfully');
+        this.success.set('Meeting cancelled successfully');
         this.loadData();
+        setTimeout(() => this.success.set(null), 5000);
       },
       error: (err) => {
-        alert('Failed to cancel meeting: ' + err.message);
+        const errorMsg = err?.message || 'Failed to cancel meeting';
+        this.error.set(errorMsg);
+        setTimeout(() => this.error.set(null), 5000);
       }
     });
   }

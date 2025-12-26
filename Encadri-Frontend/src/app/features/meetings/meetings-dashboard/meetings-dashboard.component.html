@@ -80,12 +80,25 @@
     </div>
   }
 
-  <!-- Error State -->
-  @if (error()) {
-    <div class="error-state">
-      <app-icon name="error" [size]="48"></app-icon>
-      <p>{{ error() }}</p>
-      <button class="btn btn-primary" (click)="loadData()">Retry</button>
+  <!-- Success Notification -->
+  @if (success()) {
+    <div class="notification notification-success">
+      <app-icon name="check" [size]="20"></app-icon>
+      <span>{{ success() }}</span>
+      <button class="btn-close" (click)="success.set(null)">
+        <app-icon name="close" [size]="16"></app-icon>
+      </button>
+    </div>
+  }
+
+  <!-- Error Notification -->
+  @if (error() && !loading()) {
+    <div class="notification notification-error">
+      <app-icon name="error" [size]="20"></app-icon>
+      <span>{{ error() }}</span>
+      <button class="btn-close" (click)="error.set(null)">
+        <app-icon name="close" [size]="16"></app-icon>
+      </button>
     </div>
   }
 
