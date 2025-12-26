@@ -109,11 +109,25 @@ export class SetAvailabilityComponent implements OnInit {
     }
 
     // Format the slots to ensure proper TimeSpan format for .NET backend
-    const formattedSlots = newSlots.map(slot => ({
-      ...slot,
-      startTime: this.formatTimeForBackend(slot.startTime!),
-      endTime: this.formatTimeForBackend(slot.endTime!)
-    }));
+    // System.Text.Json expects TimeSpan as "HH:mm:ss" or "d.HH:mm:ss" format
+    const formattedSlots = newSlots.map(slot => {
+      const formatted: any = {
+        supervisorEmail: slot.supervisorEmail,
+        dayOfWeek: slot.dayOfWeek,
+        startTime: this.formatTimeForBackend(slot.startTime!),
+        endTime: this.formatTimeForBackend(slot.endTime!),
+        isRecurring: slot.isRecurring !== undefined ? slot.isRecurring : true,
+        location: slot.location || null,
+        isActive: true
+      };
+
+      // Only include specificDate if it exists
+      if (slot.specificDate) {
+        formatted.specificDate = slot.specificDate;
+      }
+
+      return formatted;
+    });
 
     console.log('Sending availability data:', formattedSlots);
 
@@ -150,10 +164,17 @@ export class SetAvailabilityComponent implements OnInit {
     });
   }
 
-  // Convert HH:mm to TimeSpan format that .NET expects (HH:mm:ss)
+  // Convert HH:mm to .NET TimeSpan format
+  // .NET expects format like "09:00:00" or as a duration string
   formatTimeForBackend(time: string): string {
-    if (time.split(':').length === 2) {
-      return `${time}:00`; // Add seconds
+    if (!time) return '00:00:00';
+
+    // Ensure format is HH:mm:ss
+    const parts = time.split(':');
+    if (parts.length === 2) {
+      return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}:00`;
+    } else if (parts.length === 3) {
+      return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}:${parts[2].padStart(2, '0')}`;
     }
     return time;
   }
