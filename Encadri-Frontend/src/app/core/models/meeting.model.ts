@@ -14,6 +14,7 @@ export interface Meeting {
   supervisorEmail: string;
   meetingLink?: string;
   meetingType: 'virtual' | 'in-person' | 'hybrid';
+  cancellationReason?: string;
   isRecurring?: boolean;
   recurrencePattern?: string;
   recurrenceEndDate?: string;

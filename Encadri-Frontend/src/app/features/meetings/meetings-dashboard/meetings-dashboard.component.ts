@@ -33,6 +33,23 @@ export class MeetingsDashboardComponent implements OnInit {
   success = signal<string | null>(null);
   highlightedMeetingId = signal<string | null>(null);
 
+  // Cancel modal state
+  showCancelModal = signal(false);
+  meetingToCancel = signal<Meeting | null>(null);
+  selectedCancellationReason = signal<string>('');
+  customCancellationReason = signal<string>('');
+
+  // Predefined cancellation reasons
+  cancellationReasons = [
+    'Schedule conflict',
+    'No longer needed',
+    'Illness or emergency',
+    'Technical issues',
+    'Rescheduling required',
+    'Student/Supervisor unavailable',
+    'Other'
+  ];
+
   // Filters
   statusFilter = signal<string>('all');
   pastMeetings = signal<Meeting[]>([]);
@@ -212,14 +229,53 @@ export class MeetingsDashboardComponent implements OnInit {
   }
 
   cancelMeeting(meeting: Meeting) {
-    if (!confirm(`Are you sure you want to cancel "${meeting.title}"?`)) return;
+    // Open cancel modal instead of basic confirm
+    this.meetingToCancel.set(meeting);
+    this.showCancelModal.set(true);
+    this.selectedCancellationReason.set('');
+    this.customCancellationReason.set('');
+  }
+
+  closeCancelModal() {
+    this.showCancelModal.set(false);
+    this.meetingToCancel.set(null);
+    this.selectedCancellationReason.set('');
+    this.customCancellationReason.set('');
+  }
+
+  confirmCancelMeeting() {
+    const meeting = this.meetingToCancel();
+    if (!meeting) return;
+
+    const selectedReason = this.selectedCancellationReason();
+    if (!selectedReason) {
+      this.error.set('Please select a cancellation reason');
+      setTimeout(() => this.error.set(null), 3000);
+      return;
+    }
+
+    // If "Other" is selected, require custom reason
+    if (selectedReason === 'Other' && !this.customCancellationReason().trim()) {
+      this.error.set('Please provide a cancellation reason');
+      setTimeout(() => this.error.set(null), 3000);
+      return;
+    }
+
+    const cancellationReason = selectedReason === 'Other'
+      ? this.customCancellationReason().trim()
+      : selectedReason;
 
     this.success.set(null);
     this.error.set(null);
 
-    this.meetingService.deleteMeeting(meeting.id).subscribe({
+    // Update meeting status to cancelled with reason
+    this.meetingService.updateMeeting(meeting.id, {
+      status: 'cancelled',
+      cancellationReason: cancellationReason
+    }).subscribe({
       next: () => {
         this.success.set('Meeting cancelled successfully');
+        this.closeCancelModal();
         this.loadData();
         setTimeout(() => this.success.set(null), 5000);
       },

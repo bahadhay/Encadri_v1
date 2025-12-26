@@ -21,6 +21,7 @@ namespace Encadri_Backend.Models
         public string SupervisorEmail { get; set; }
         public string? MeetingLink { get; set; } // Azure Communication Services link or physical location
         public string MeetingType { get; set; } // "virtual", "in-person", "hybrid"
+        public string? CancellationReason { get; set; } // Reason for cancelling the meeting
         public bool IsRecurring { get; set; } = false;
         public string? RecurrencePattern { get; set; } // "weekly", "biweekly", "monthly"
         public DateTime? RecurrenceEndDate { get; set; }
