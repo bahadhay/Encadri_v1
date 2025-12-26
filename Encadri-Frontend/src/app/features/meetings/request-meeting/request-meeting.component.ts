@@ -70,17 +70,26 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
         @if (availableSlots().length > 0 && !loadingSlots()) {
           <div class="availability-info">
             <h3>Supervisor's Office Hours:</h3>
+            <p class="hint-text">💡 Click on a time slot to auto-fill the date and time</p>
             <div class="slots-list">
               @for (daySlot of availableSlots(); track daySlot.day) {
                 <div class="day-slot">
                   <strong>{{ daySlot.day }}:</strong>
                   @for (slot of daySlot.slots; track slot.id) {
-                    <span class="time-badge">{{ slot.startTime }} - {{ slot.endTime }}</span>
+                    <button
+                      type="button"
+                      class="time-badge"
+                      [class.selected]="isSlotSelected(daySlot.day, slot.id)"
+                      (click)="selectTimeSlot(daySlot.day, slot)">
+                      {{ slot.startTime }} - {{ slot.endTime }}
+                      @if (slot.location) {
+                        <span class="location-hint">📍 {{ slot.location }}</span>
+                      }
+                    </button>
                   }
                 </div>
               }
             </div>
-            <p class="hint-text">💡 Please select a date and time within these office hours</p>
           </div>
         }
 
@@ -304,6 +313,36 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
       border-radius: 0.25rem;
       font-size: 0.813rem;
       font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .time-badge:hover {
+      background-color: #bbf7d0;
+      border-color: #4ade80;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(22, 101, 52, 0.1);
+    }
+
+    .time-badge.selected {
+      background-color: #22c55e;
+      border-color: #16a34a;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(34, 197, 94, 0.3);
+    }
+
+    .time-badge.selected:hover {
+      background-color: #16a34a;
+      transform: translateY(-1px);
+    }
+
+    .location-hint {
+      font-size: 0.75rem;
+      opacity: 0.9;
     }
 
     .hint-text {
@@ -369,6 +408,7 @@ export class RequestMeetingComponent implements OnInit {
   selectedProject = signal<Project | null>(null);
   availableSlots = signal<any[]>([]);
   loadingSlots = signal(false);
+  selectedSlot = signal<{day: string, slotId: string} | null>(null);
 
   preferredDate = '';
   preferredTime = '';
@@ -437,6 +477,43 @@ export class RequestMeetingComponent implements OnInit {
         this.loadingSlots.set(false);
       }
     });
+  }
+
+  selectTimeSlot(day: string, slot: any) {
+    this.selectedSlot.set({day, slotId: slot.id});
+
+    // Calculate the next occurrence of this day
+    const targetDate = this.getNextDayOfWeek(day);
+
+    // Format date as YYYY-MM-DD for the input
+    this.preferredDate = targetDate.toISOString().split('T')[0];
+
+    // Set the start time
+    this.preferredTime = slot.startTime;
+  }
+
+  getNextDayOfWeek(dayName: string): Date {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const targetDay = days.indexOf(dayName);
+
+    const today = new Date();
+    const currentDay = today.getDay();
+
+    // Calculate days until target day
+    let daysUntil = targetDay - currentDay;
+    if (daysUntil <= 0) {
+      daysUntil += 7; // Get next week's occurrence
+    }
+
+    const nextDate = new Date(today);
+    nextDate.setDate(today.getDate() + daysUntil);
+
+    return nextDate;
+  }
+
+  isSlotSelected(day: string, slotId: string): boolean {
+    const selected = this.selectedSlot();
+    return selected?.day === day && selected?.slotId === slotId;
   }
 
   isValid(): boolean {
