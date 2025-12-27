@@ -29,7 +29,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     this.removeBodyScrollLock();
   }
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   onResize() {
     // Keep sidebar behavior responsive
     this.checkScreenSize();
