@@ -25,6 +25,9 @@ namespace Encadri_Backend.Data
         public DbSet<Milestone> Milestones { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
         public DbSet<ProjectDocument> Documents { get; set; }
+        public DbSet<Note> Notes { get; set; }
+        public DbSet<NoteCategory> NoteCategories { get; set; }
+        public DbSet<NoteFolder> NoteFolders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -135,6 +138,39 @@ namespace Encadri_Backend.Data
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired();
+            });
+
+            // Configure Note entity
+            modelBuilder.Entity<Note>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Title).IsRequired();
+                entity.Property(e => e.Content).IsRequired();
+                entity.Property(e => e.UserEmail).IsRequired();
+
+                // Store Tags as JSON
+                entity.Property(e => e.Tags)
+                    .HasConversion(
+                        v => v != null ? System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null) : null,
+                        v => v != null ? System.Text.Json.JsonSerializer.Deserialize<List<string>>(v, (System.Text.Json.JsonSerializerOptions?)null) : null
+                    )
+                    .HasColumnType("json");
+            });
+
+            // Configure NoteCategory entity
+            modelBuilder.Entity<NoteCategory>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired();
+                entity.Property(e => e.UserEmail).IsRequired();
+            });
+
+            // Configure NoteFolder entity
+            modelBuilder.Entity<NoteFolder>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired();
+                entity.Property(e => e.UserEmail).IsRequired();
             });
         }
     }
