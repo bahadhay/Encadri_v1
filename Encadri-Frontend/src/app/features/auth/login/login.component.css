@@ -23,6 +23,13 @@
   margin-bottom: clamp(1rem, 3vw, var(--spacing-6));
 }
 
+.auth-logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--spacing-4);
+  display: block;
+}
+
 .auth-header h2 {
   font-size: clamp(1.25rem, 3vw, 1.5rem);
   font-weight: 700;

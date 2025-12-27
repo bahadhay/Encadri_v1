@@ -10,6 +10,17 @@
   margin-bottom: var(--spacing-6);
 }
 
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.page-logo {
+  width: 40px;
+  height: 40px;
+}
+
 .header h2 {
   font-size: 1.5rem;
   font-weight: 700;
