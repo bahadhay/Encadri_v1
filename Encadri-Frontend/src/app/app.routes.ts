@@ -93,6 +93,23 @@ export const routes: Routes = [
         path: 'chat',
         loadComponent: () => import('./features/chat/chat-container.component').then(m => m.ChatContainerComponent)
       },
+      // Notes Routes
+      {
+        path: 'notes/new',
+        loadComponent: () => import('./features/notes/note-form/note-form.component').then(m => m.NoteFormComponent)
+      },
+      {
+        path: 'notes/:id/edit',
+        loadComponent: () => import('./features/notes/note-form/note-form.component').then(m => m.NoteFormComponent)
+      },
+      {
+        path: 'notes/:id',
+        loadComponent: () => import('./features/notes/note-detail/note-detail.component').then(m => m.NoteDetailComponent)
+      },
+      {
+        path: 'notes',
+        loadComponent: () => import('./features/notes/note-list/note-list.component').then(m => m.NoteListComponent)
+      },
       // Other features will go here
     ]
   },

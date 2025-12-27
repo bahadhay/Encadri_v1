@@ -1,0 +1,115 @@
+<div class="notes-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h2>Notes</h2>
+      <p>Your personal notebook</p>
+    </div>
+    <app-ui-button variant="primary" routerLink="/notes/new">
+      <app-icon name="plus" [size]="16"></app-icon>
+      New Note
+    </app-ui-button>
+  </div>
+
+  <!-- Search -->
+  <div class="search-box">
+    <app-ui-input
+      placeholder="Search notes..."
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)">
+    </app-ui-input>
+  </div>
+
+  <!-- Loading State -->
+  <div class="notes-grid" *ngIf="loading()">
+    <app-skeleton-card *ngFor="let i of [1,2,3,4,5,6]"></app-skeleton-card>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading() && filteredNotes().length === 0">
+    <div class="empty-icon">📝</div>
+    <h3>{{ searchTerm() ? 'No notes found' : 'No notes yet' }}</h3>
+    <p>{{ searchTerm() ? 'Try a different search term' : 'Create your first note to get started' }}</p>
+    <app-ui-button variant="primary" routerLink="/notes/new" *ngIf="!searchTerm()">
+      Create Note
+    </app-ui-button>
+  </div>
+
+  <!-- Notes List -->
+  <div *ngIf="!loading() && filteredNotes().length > 0">
+    <!-- Pinned Notes -->
+    <div *ngIf="pinnedNotes().length > 0" class="notes-section">
+      <h3 class="section-title">
+        <app-icon name="push_pin" [size]="18"></app-icon>
+        Pinned
+      </h3>
+      <div class="notes-grid">
+        <app-ui-card *ngFor="let note of pinnedNotes()"
+                     [routerLink]="['/notes', note.id]"
+                     class="note-card"
+                     [ngClass]="getColorClass(note.color)">
+          <div class="note-header">
+            <h4>{{ note.title }}</h4>
+            <div class="note-actions">
+              <button class="action-btn pinned" (click)="togglePin(note, $event)" title="Unpin">
+                <app-icon name="push_pin" [size]="18"></app-icon>
+              </button>
+              <button class="action-btn" [routerLink]="['/notes', note.id, 'edit']" (click)="$event.stopPropagation()" title="Edit">
+                <app-icon name="edit" [size]="18"></app-icon>
+              </button>
+              <button class="action-btn danger" (click)="openDeleteDialog(note, $event)" title="Delete">
+                <app-icon name="trash" [size]="18"></app-icon>
+              </button>
+            </div>
+          </div>
+          <p class="note-preview">{{ note.content.substring(0, 150) }}{{ note.content.length > 150 ? '...' : '' }}</p>
+          <div class="note-footer">
+            <span class="note-date">{{ formatDate(note.updatedDate) }}</span>
+          </div>
+        </app-ui-card>
+      </div>
+    </div>
+
+    <!-- Other Notes -->
+    <div *ngIf="unpinnedNotes().length > 0" class="notes-section">
+      <h3 class="section-title" *ngIf="pinnedNotes().length > 0">All Notes</h3>
+      <div class="notes-grid">
+        <app-ui-card *ngFor="let note of unpinnedNotes()"
+                     [routerLink]="['/notes', note.id]"
+                     class="note-card"
+                     [ngClass]="getColorClass(note.color)">
+          <div class="note-header">
+            <h4>{{ note.title }}</h4>
+            <div class="note-actions">
+              <button class="action-btn" (click)="togglePin(note, $event)" title="Pin">
+                <app-icon name="push_pin" [size]="18"></app-icon>
+              </button>
+              <button class="action-btn" [routerLink]="['/notes', note.id, 'edit']" (click)="$event.stopPropagation()" title="Edit">
+                <app-icon name="edit" [size]="18"></app-icon>
+              </button>
+              <button class="action-btn danger" (click)="openDeleteDialog(note, $event)" title="Delete">
+                <app-icon name="trash" [size]="18"></app-icon>
+              </button>
+            </div>
+          </div>
+          <p class="note-preview">{{ note.content.substring(0, 150) }}{{ note.content.length > 150 ? '...' : '' }}</p>
+          <div class="note-footer">
+            <span class="note-date">{{ formatDate(note.updatedDate) }}</span>
+          </div>
+        </app-ui-card>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Dialog -->
+<app-confirm-dialog
+  [isOpen]="isDeleteDialogOpen()"
+  title="Delete Note"
+  [message]="'Are you sure you want to delete \"' + noteToDelete()?.title + '\"? This action cannot be undone.'"
+  confirmText="Delete"
+  variant="danger"
+  [loading]="deleting()"
+  (confirm)="confirmDelete()"
+  (cancel)="isDeleteDialogOpen.set(false)">
+</app-confirm-dialog>

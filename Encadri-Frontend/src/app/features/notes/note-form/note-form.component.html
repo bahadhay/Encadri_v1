@@ -1,0 +1,102 @@
+<div class="note-form-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h2>{{ isEditMode() ? 'Edit Note' : 'New Note' }}</h2>
+    <app-ui-button variant="outline" (click)="cancel()">Cancel</app-ui-button>
+  </div>
+
+  <!-- Form -->
+  <app-ui-card>
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-content">
+        <!-- Title -->
+        <app-ui-input
+          label="Title *"
+          placeholder="Note title..."
+          [(ngModel)]="note.title"
+          name="title"
+          [disabled]="loading()">
+        </app-ui-input>
+
+        <!-- Color Selection -->
+        <div class="form-group">
+          <label class="label">Color</label>
+          <div class="color-options">
+            <button
+              *ngFor="let color of colors"
+              type="button"
+              class="color-btn"
+              [class.selected]="note.color === color.value"
+              [ngClass]="color.class"
+              (click)="note.color = color.value"
+              [title]="color.label">
+              {{ color.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Editor Tabs -->
+        <div class="editor-section">
+          <div class="editor-tabs">
+            <button
+              type="button"
+              class="tab-btn"
+              [class.active]="!showPreview()"
+              (click)="showPreview.set(false)">
+              Write
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              [class.active]="showPreview()"
+              (click)="showPreview.set(true)">
+              Preview
+            </button>
+          </div>
+
+          <!-- Write Mode -->
+          <div class="editor-content" *ngIf="!showPreview()">
+            <textarea
+              class="markdown-editor"
+              [(ngModel)]="note.content"
+              name="content"
+              placeholder="Write your note here... (Markdown supported: **bold**, *italic*, # heading, etc.)"
+              [disabled]="loading()"
+              rows="15">
+            </textarea>
+            <div class="editor-help">
+              <span>Supports Markdown: **bold**, *italic*, # heading, [link](url)</span>
+            </div>
+          </div>
+
+          <!-- Preview Mode -->
+          <div class="editor-content" *ngIf="showPreview()">
+            <div class="markdown-preview" [innerHTML]="renderMarkdown(note.content || '')"></div>
+          </div>
+        </div>
+
+        <!-- Pin Toggle -->
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="note.isPinned"
+              name="isPinned"
+              [disabled]="loading()">
+            <span>Pin this note</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <app-ui-button type="button" variant="outline" (click)="cancel()" [disabled]="loading()">
+          Cancel
+        </app-ui-button>
+        <app-ui-button type="submit" variant="primary" [loading]="loading()">
+          {{ isEditMode() ? 'Update Note' : 'Create Note' }}
+        </app-ui-button>
+      </div>
+    </form>
+  </app-ui-card>
+</div>

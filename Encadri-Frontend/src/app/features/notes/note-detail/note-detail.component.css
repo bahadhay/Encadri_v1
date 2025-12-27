@@ -1,0 +1,134 @@
+.note-detail-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .note-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
+
+.note-content-card {
+  padding: 2rem;
+}
+
+.note-title-section {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--slate-100);
+}
+
+.note-title-section h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--slate-900);
+  margin: 0 0 1rem 0;
+  line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+  .note-title-section h1 {
+    font-size: 1.75rem;
+  }
+}
+
+.note-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pinned-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  background: var(--primary-50);
+  color: var(--primary-700);
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.note-date {
+  font-size: 0.875rem;
+  color: var(--slate-500);
+}
+
+.note-content {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--slate-700);
+}
+
+.note-content h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--slate-900);
+  margin: 1.5rem 0 1rem 0;
+}
+
+.note-content h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--slate-900);
+  margin: 1.25rem 0 0.75rem 0;
+}
+
+.note-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--slate-900);
+  margin: 1rem 0 0.5rem 0;
+}
+
+.note-content strong {
+  font-weight: 600;
+  color: var(--slate-900);
+}
+
+.note-content em {
+  font-style: italic;
+}
+
+.note-content a {
+  color: var(--primary-600);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.note-content a:hover {
+  color: var(--primary-700);
+}
+
+.note-content p {
+  margin: 0.75rem 0;
+}
+
+.loading-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}

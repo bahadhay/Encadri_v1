@@ -44,6 +44,10 @@
         <app-icon name="chat" [size]="20"></app-icon>
         <span>Chat</span>
       </a>
+      <a routerLink="/notes" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
+        <app-icon name="description" [size]="20"></app-icon>
+        <span>Notes</span>
+      </a>
       <a routerLink="/profile" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
         <app-icon name="profile" [size]="20"></app-icon>
         <span>Profile</span>

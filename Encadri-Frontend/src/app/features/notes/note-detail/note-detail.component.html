@@ -1,0 +1,56 @@
+<div class="note-detail-container" *ngIf="note() as n">
+  <!-- Header -->
+  <div class="note-header">
+    <app-ui-button variant="outline" routerLink="/notes">
+      ← Back to Notes
+    </app-ui-button>
+
+    <div class="header-actions">
+      <app-ui-button variant="outline" size="sm" (click)="togglePin()">
+        <app-icon [name]="n.isPinned ? 'push_pin' : 'push_pin'" [size]="16"></app-icon>
+        {{ n.isPinned ? 'Unpin' : 'Pin' }}
+      </app-ui-button>
+      <app-ui-button variant="outline" size="sm" [routerLink]="['/notes', n.id, 'edit']">
+        <app-icon name="edit" [size]="16"></app-icon>
+        Edit
+      </app-ui-button>
+      <app-ui-button variant="danger" size="sm" (click)="isDeleteDialogOpen.set(true)">
+        <app-icon name="trash" [size]="16"></app-icon>
+        Delete
+      </app-ui-button>
+    </div>
+  </div>
+
+  <!-- Note Content -->
+  <app-ui-card class="note-content-card">
+    <div class="note-title-section">
+      <h1>{{ n.title }}</h1>
+      <div class="note-meta">
+        <span *ngIf="n.isPinned" class="pinned-badge">
+          <app-icon name="push_pin" [size]="14"></app-icon>
+          Pinned
+        </span>
+        <span class="note-date">Last updated {{ formatDate(n.updatedDate) }}</span>
+      </div>
+    </div>
+
+    <div class="note-content" [innerHTML]="renderMarkdown(n.content)"></div>
+  </app-ui-card>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading()" class="loading-container">
+  <app-skeleton-profile></app-skeleton-profile>
+</div>
+
+<!-- Delete Confirmation Dialog -->
+<app-confirm-dialog
+  [isOpen]="isDeleteDialogOpen()"
+  title="Delete Note"
+  [message]="'Are you sure you want to delete \"' + note()?.title + '\"? This action cannot be undone.'"
+  confirmText="Delete"
+  variant="danger"
+  [loading]="deleting()"
+  (confirm)="confirmDelete()"
+  (cancel)="isDeleteDialogOpen.set(false)">
+</app-confirm-dialog>
