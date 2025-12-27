@@ -13,6 +13,7 @@ import { MeetingListComponent } from '../../meetings/meeting-list/meeting-list.c
 import { EvaluationListComponent } from '../../evaluations/evaluation-list/evaluation-list.component';
 import { MilestoneListComponent } from '../../milestones/milestone-list/milestone-list.component';
 import { DocumentRepositoryComponent } from '../../documents/document-repository/document-repository.component';
+import { SkeletonProfileComponent } from '../../../shared/components/skeleton-profile/skeleton-profile.component';
 import { MilestoneService } from '../../../core/services/milestone.service';
 
 import { AuthService } from '../../../core/services/auth.service';
@@ -20,7 +21,7 @@ import { AuthService } from '../../../core/services/auth.service';
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, UiCardComponent, UiButtonComponent, UiInputComponent, SubmissionListComponent, MeetingListComponent, EvaluationListComponent, MilestoneListComponent, DocumentRepositoryComponent],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, UiCardComponent, UiButtonComponent, UiInputComponent, SubmissionListComponent, MeetingListComponent, EvaluationListComponent, MilestoneListComponent, DocumentRepositoryComponent, SkeletonProfileComponent],
   templateUrl: './project-detail.component.html',
   styleUrls: ['./project-detail.component.css']
 })

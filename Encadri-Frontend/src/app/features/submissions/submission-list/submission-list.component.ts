@@ -8,12 +8,13 @@ import { UiCardComponent } from '../../../shared/components/ui-card/ui-card.comp
 import { UiButtonComponent } from '../../../shared/components/ui-button/ui-button.component';
 import { UiInputComponent } from '../../../shared/components/ui-input/ui-input.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { SkeletonCardComponent } from '../../../shared/components/skeleton-card/skeleton-card.component';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-submission-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, UiCardComponent, UiButtonComponent, UiInputComponent, ModalComponent],
+  imports: [CommonModule, RouterModule, FormsModule, UiCardComponent, UiButtonComponent, UiInputComponent, ModalComponent, SkeletonCardComponent],
   templateUrl: './submission-list.component.html',
   styleUrls: ['./submission-list.component.css']
 })

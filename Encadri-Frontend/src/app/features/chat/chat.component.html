@@ -14,8 +14,7 @@
 
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading">
-    <div class="spinner"></div>
-    <p>Connecting to chat...</p>
+    <app-skeleton-list [itemCount]="5"></app-skeleton-list>
   </div>
 
   <!-- Messages Container -->

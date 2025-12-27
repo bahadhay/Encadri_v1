@@ -7,10 +7,12 @@ import { Message, TypingIndicator, ChatUser } from '../../core/models/chat.model
 import { Subscription } from 'rxjs';
 import { HubConnectionState } from '@microsoft/signalr';
 
+import { SkeletonListComponent } from '../../shared/components/skeleton-list/skeleton-list.component';
+
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SkeletonListComponent],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css'],
   host: {

@@ -74,9 +74,8 @@
 
   <!-- Loading State -->
   @if (loading()) {
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading meetings...</p>
+    <div class="grid-container">
+      <app-skeleton-card *ngFor="let i of [1,2,3,4]"></app-skeleton-card>
     </div>
   }
 

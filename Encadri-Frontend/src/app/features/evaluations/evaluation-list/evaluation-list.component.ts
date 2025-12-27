@@ -8,11 +8,12 @@ import { Evaluation } from '../../../core/models/evaluation.model';
 import { UiCardComponent } from '../../../shared/components/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../../shared/components/ui-button/ui-button.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { SkeletonCardComponent } from '../../../shared/components/skeleton-card/skeleton-card.component';
 
 @Component({
   selector: 'app-evaluation-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, UiCardComponent, UiButtonComponent, ModalComponent],
+  imports: [CommonModule, RouterModule, FormsModule, UiCardComponent, UiButtonComponent, ModalComponent, SkeletonCardComponent],
   templateUrl: './evaluation-list.component.html',
   styleUrls: ['./evaluation-list.component.css']
 })

@@ -150,8 +150,8 @@
   </app-ui-card>
 </div>
 
-<div *ngIf="loading()" class="center-state">
-  <div class="spinner"></div>
+<div *ngIf="loading()" class="loading-container">
+  <app-skeleton-profile></app-skeleton-profile>
 </div>
 
 <div *ngIf="error()" class="center-state">

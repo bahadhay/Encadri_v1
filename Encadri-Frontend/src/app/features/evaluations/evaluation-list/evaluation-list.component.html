@@ -1,7 +1,6 @@
 <div class="evaluations-container">
-  <div class="loading-state" *ngIf="loading()">
-    <div class="spinner"></div>
-    <p>Loading evaluations...</p>
+  <div class="evaluations-list" *ngIf="loading()">
+    <app-skeleton-card *ngFor="let i of [1,2,3]"></app-skeleton-card>
   </div>
 
   <div class="empty-state" *ngIf="!loading() && evaluations().length === 0">

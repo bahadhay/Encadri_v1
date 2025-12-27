@@ -7,11 +7,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { Submission } from '../../../core/models/submission.model';
 import { UiCardComponent } from '../../../shared/components/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../../shared/components/ui-button/ui-button.component';
+import { SkeletonProfileComponent } from '../../../shared/components/skeleton-profile/skeleton-profile.component';
 
 @Component({
   selector: 'app-submission-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, UiCardComponent, UiButtonComponent],
+  imports: [CommonModule, RouterModule, FormsModule, UiCardComponent, UiButtonComponent, SkeletonProfileComponent],
   templateUrl: './submission-detail.component.html',
   styleUrls: ['./submission-detail.component.css']
 })

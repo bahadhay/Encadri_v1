@@ -6,11 +6,12 @@ import { MeetingService } from '../../../core/services/meeting.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Meeting, MeetingRequest, SupervisorAvailability } from '../../../core/models/meeting.model';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+import { SkeletonCardComponent } from '../../../shared/components/skeleton-card/skeleton-card.component';
 
 @Component({
   selector: 'app-meetings-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, IconComponent],
+  imports: [CommonModule, RouterModule, FormsModule, IconComponent, SkeletonCardComponent],
   templateUrl: './meetings-dashboard.component.html',
   styleUrls: ['./meetings-dashboard.component.css']
 })

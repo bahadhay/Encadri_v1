@@ -19,9 +19,8 @@
     </div>
   </div>
 
-  <div class="loading-state" *ngIf="loading()">
-    <div class="spinner"></div>
-    <p>Loading meetings...</p>
+  <div class="meetings-list" *ngIf="loading()">
+    <app-skeleton-card *ngFor="let i of [1,2,3,4,5,6]"></app-skeleton-card>
   </div>
 
   <div class="empty-state" *ngIf="!loading() && filteredMeetings.length === 0">
