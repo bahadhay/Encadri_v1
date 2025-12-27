@@ -289,8 +289,5 @@ export class IconComponent {
   @Input() strokeLinecap: string = 'round';
   @Input() strokeLinejoin: string = 'round';
   @Input() className: string = '';
-
-  get viewBox(): string {
-    return '0 0 24 24';
-  }
+  @Input() viewBox: string = '0 0 24 24';
 }
