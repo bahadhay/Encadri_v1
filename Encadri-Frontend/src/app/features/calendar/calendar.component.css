@@ -583,8 +583,8 @@
 
 .gantt-weeks-header {
   display: grid;
-  grid-template-columns: repeat(52, minmax(60px, 1fr));
-  min-width: 3120px; /* 52 weeks * 60px */
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  min-width: fit-content;
 }
 
 .week-column {
@@ -658,8 +658,8 @@
 
 .gantt-grid {
   display: grid;
-  grid-template-columns: repeat(52, minmax(60px, 1fr));
-  min-width: 3120px;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  min-width: fit-content;
   height: 100%;
 }
 
@@ -695,7 +695,7 @@
   pointer-events: all;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   transition: all 0.2s;
-  min-width: 80px !important;
+  min-width: 60px !important;
   opacity: 0.95;
 }
 
@@ -759,8 +759,8 @@
 
   .gantt-weeks-header,
   .gantt-grid {
-    grid-template-columns: repeat(52, minmax(50px, 1fr));
-    min-width: 2600px;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    min-width: fit-content;
   }
 
   .week-column {

@@ -249,10 +249,20 @@ export class CalendarComponent implements OnInit {
   ganttData = computed(() => {
     const milestones = this.events().filter(e => e.type === 'milestone');
 
-    // Get current year
-    const currentYear = new Date().getFullYear();
-    const yearStart = new Date(currentYear, 0, 1); // Jan 1
-    const yearEnd = new Date(currentYear, 11, 31); // Dec 31
+    if (milestones.length === 0) {
+      return [];
+    }
+
+    // Find min and max dates across all milestones
+    const allDates = milestones.flatMap(m => [new Date(m.start), new Date(m.end)]);
+    const minDate = new Date(Math.min(...allDates.map(d => d.getTime())));
+    const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())));
+
+    // Add padding (2 weeks before first, 2 weeks after last)
+    const timelineStart = new Date(minDate);
+    timelineStart.setDate(timelineStart.getDate() - 14);
+    const timelineEnd = new Date(maxDate);
+    timelineEnd.setDate(timelineEnd.getDate() + 14);
 
     // Group by project NAME
     const grouped: { [key: string]: CalendarEvent[] } = {};
@@ -264,29 +274,27 @@ export class CalendarComponent implements OnInit {
       grouped[projectName].push(milestone);
     });
 
-    // Calculate positions and widths for each milestone
+    // Calculate positions and widths for each milestone using actual dates
     return Object.entries(grouped).map(([projectName, milestones]) => {
       const milestonesWithPosition = milestones.map(milestone => {
-        const endDate = new Date(milestone.start); // DueDate
-        // Calculate start date (assume 4 weeks duration for better visibility)
-        const startDate = new Date(endDate);
-        startDate.setDate(startDate.getDate() - 28); // 4 weeks = 28 days
+        const startDate = new Date(milestone.start);
+        const endDate = new Date(milestone.end);
 
-        const startPosition = this.calculatePosition(startDate, yearStart, yearEnd);
-        const endPosition = this.calculatePosition(endDate, yearStart, yearEnd);
+        const startPosition = this.calculatePosition(startDate, timelineStart, timelineEnd);
+        const endPosition = this.calculatePosition(endDate, timelineStart, timelineEnd);
         let width = endPosition - startPosition;
 
-        // Ensure minimum width of 5% for visibility
-        if (width < 5) {
-          width = 5;
+        // Ensure minimum width of 3% for visibility
+        if (width < 3) {
+          width = 3;
         }
 
         return {
           ...milestone,
           position: startPosition,
           width: width,
-          calculatedStart: startDate,
-          calculatedEnd: endDate
+          timelineStart,
+          timelineEnd
         };
       });
 
@@ -294,20 +302,38 @@ export class CalendarComponent implements OnInit {
         projectName,
         milestones: milestonesWithPosition.sort((a, b) =>
           new Date(a.start).getTime() - new Date(b.start).getTime()
-        )
+        ),
+        timelineStart,
+        timelineEnd
       };
     });
   });
 
-  // Generate 52 weeks for timeline header
+  // Generate adaptive weeks for timeline header based on milestone dates
   timelineWeeks = computed(() => {
-    const currentYear = new Date().getFullYear();
-    const yearStart = new Date(currentYear, 0, 1);
-    const weeks: any[] = [];
+    const ganttData = this.ganttData();
 
-    for (let i = 0; i < 52; i++) {
-      const weekStart = new Date(yearStart);
-      weekStart.setDate(yearStart.getDate() + (i * 7));
+    if (ganttData.length === 0) {
+      return [];
+    }
+
+    // Use the timeline from first project (all should be same)
+    const firstProject = ganttData[0];
+    if (!firstProject.timelineStart || !firstProject.timelineEnd) {
+      return [];
+    }
+
+    const timelineStart = new Date(firstProject.timelineStart);
+    const timelineEnd = new Date(firstProject.timelineEnd);
+
+    // Calculate number of weeks needed
+    const totalDays = Math.ceil((timelineEnd.getTime() - timelineStart.getTime()) / (1000 * 60 * 60 * 24));
+    const totalWeeks = Math.ceil(totalDays / 7);
+
+    const weeks: any[] = [];
+    for (let i = 0; i < totalWeeks; i++) {
+      const weekStart = new Date(timelineStart);
+      weekStart.setDate(timelineStart.getDate() + (i * 7));
 
       weeks.push({
         weekNumber: i + 1,
