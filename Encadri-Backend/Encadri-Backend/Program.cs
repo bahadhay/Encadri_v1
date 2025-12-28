@@ -214,33 +214,26 @@ using (var scope = app.Services.CreateScope())
         logger.LogInformation($"Database tables exist: {tablesExist}");
         Console.WriteLine($"Database tables exist: {tablesExist}");
 
-        // Force apply migrations if tables don't exist
-        if (!tablesExist)
+        // ALWAYS force migration on startup to ensure latest schema
+        logger.LogInformation("Force applying all migrations to ensure database is up to date...");
+        Console.WriteLine("Force applying all migrations to ensure database is up to date...");
+
+        await context.Database.MigrateAsync();
+
+        logger.LogInformation("Migrations applied successfully!");
+        Console.WriteLine("Migrations applied successfully!");
+
+        // Verify Notes table exists
+        try
         {
-            logger.LogWarning("Database tables do not exist. Forcing migration...");
-            Console.WriteLine("Database tables do not exist. Forcing migration...");
-
-            // Force apply all migrations
-            await context.Database.MigrateAsync();
-
-            logger.LogInformation("Migrations applied successfully!");
-            Console.WriteLine("Migrations applied successfully!");
+            await context.Notes.AnyAsync();
+            logger.LogInformation("✓ Notes table verified and exists");
+            Console.WriteLine("✓ Notes table verified and exists");
         }
-        else if (pendingMigrations.Any())
+        catch (Exception notesEx)
         {
-            // Apply pending migrations
-            logger.LogInformation("Applying database migrations...");
-            Console.WriteLine("Applying database migrations...");
-
-            await context.Database.MigrateAsync();
-
-            logger.LogInformation("Migrations applied successfully!");
-            Console.WriteLine("Migrations applied successfully!");
-        }
-        else
-        {
-            logger.LogInformation("Database is up to date.");
-            Console.WriteLine("Database is up to date.");
+            logger.LogError(notesEx, "✗ Notes table does NOT exist after migration!");
+            Console.WriteLine($"✗ Notes table does NOT exist after migration! Error: {notesEx.Message}");
         }
 
         // Seed the database with test data
