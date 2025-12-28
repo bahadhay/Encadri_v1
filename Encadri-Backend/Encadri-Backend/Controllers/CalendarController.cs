@@ -51,6 +51,10 @@ namespace Encadri_Backend.Controllers
             var meetings = await meetingsQuery.ToListAsync();
             foreach (var meeting in meetings)
             {
+                // Get project name
+                var project = await _context.Projects.FindAsync(meeting.ProjectId);
+                var projectName = project?.Title ?? "Unknown Project";
+
                 events.Add(new CalendarEvent
                 {
                     Id = meeting.Id,
@@ -62,7 +66,8 @@ namespace Encadri_Backend.Controllers
                     Description = meeting.Agenda,
                     Location = meeting.Location,
                     Status = meeting.Status,
-                    ProjectId = meeting.ProjectId
+                    ProjectId = meeting.ProjectId,
+                    ProjectName = projectName
                 });
             }
 
@@ -79,6 +84,11 @@ namespace Encadri_Backend.Controllers
             foreach (var submission in submissions)
             {
                 var isPastDue = submission.DueDate < DateTime.UtcNow && submission.Status == "pending";
+
+                // Get project name
+                var project = await _context.Projects.FindAsync(submission.ProjectId);
+                var projectName = project?.Title ?? "Unknown Project";
+
                 events.Add(new CalendarEvent
                 {
                     Id = submission.Id,
@@ -90,11 +100,12 @@ namespace Encadri_Backend.Controllers
                     Description = submission.Description,
                     Status = submission.Status,
                     ProjectId = submission.ProjectId,
+                    ProjectName = projectName,
                     AllDay = true
                 });
             }
 
-            // 3. Get Milestone Deadlines
+            // 3. Get Milestone Deadlines with Project Names
             var milestonesQuery = _context.Milestones
                 .Where(m => userProjects.Contains(m.ProjectId));
 
@@ -109,6 +120,10 @@ namespace Encadri_Backend.Controllers
                 var isOverdue = milestone.DueDate < DateTime.UtcNow && milestone.Status != "completed";
                 var isCompleted = milestone.Status == "completed";
 
+                // Get project name
+                var project = await _context.Projects.FindAsync(milestone.ProjectId);
+                var projectName = project?.Title ?? "Unknown Project";
+
                 events.Add(new CalendarEvent
                 {
                     Id = milestone.Id,
@@ -120,6 +135,7 @@ namespace Encadri_Backend.Controllers
                     Description = milestone.Description,
                     Status = milestone.Status,
                     ProjectId = milestone.ProjectId,
+                    ProjectName = projectName,
                     AllDay = true
                 });
             }
@@ -144,6 +160,7 @@ namespace Encadri_Backend.Controllers
         public string? Location { get; set; }
         public string? Status { get; set; }
         public string? ProjectId { get; set; }
+        public string? ProjectName { get; set; }
         public bool AllDay { get; set; } = false;
     }
 }
