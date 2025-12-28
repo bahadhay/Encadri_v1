@@ -13,6 +13,7 @@ import { UiInputComponent } from '../../../shared/components/ui-input/ui-input.c
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SkeletonTimelineComponent } from '../../../shared/components/skeleton-timeline/skeleton-timeline.component';
+import { GanttModalComponent } from '../../../shared/components/gantt-modal/gantt-modal.component';
 
 @Component({
   selector: 'app-milestone-list',
@@ -25,7 +26,8 @@ import { SkeletonTimelineComponent } from '../../../shared/components/skeleton-t
     UiInputComponent,
     ModalComponent,
     ConfirmDialogComponent,
-    SkeletonTimelineComponent
+    SkeletonTimelineComponent,
+    GanttModalComponent
   ],
   templateUrl: './milestone-list.component.html',
   styleUrls: ['./milestone-list.component.css']
@@ -64,6 +66,9 @@ export class MilestoneListComponent implements OnInit {
   // Delete all confirmation state
   isDeleteAllDialogOpen = signal<boolean>(false);
   deleteAllLoading = signal<boolean>(false);
+
+  // Gantt modal state
+  isGanttModalOpen = signal<boolean>(false);
 
   // Form data
   milestone: Partial<Milestone> = this.getEmptyMilestone();
@@ -915,5 +920,14 @@ export class MilestoneListComponent implements OnInit {
         // The user will still see the deadline warnings in the UI
       }
     });
+  }
+
+  // Gantt modal methods
+  openGanttModal() {
+    this.isGanttModalOpen.set(true);
+  }
+
+  closeGanttModal() {
+    this.isGanttModalOpen.set(false);
   }
 }

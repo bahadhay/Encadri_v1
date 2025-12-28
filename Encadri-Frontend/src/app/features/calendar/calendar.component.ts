@@ -68,7 +68,7 @@ export class CalendarComponent implements OnInit {
         date: dayDate,
         isCurrentMonth: false,
         isToday: this.isToday(dayDate),
-        events: this.getEventsForDate(dayDate)
+        events: this.getEventsForDate(dayDate).filter(e => e.type !== 'milestone') // Exclude milestones
       });
     }
 
@@ -79,7 +79,7 @@ export class CalendarComponent implements OnInit {
         date: dayDate,
         isCurrentMonth: true,
         isToday: this.isToday(dayDate),
-        events: this.getEventsForDate(dayDate)
+        events: this.getEventsForDate(dayDate).filter(e => e.type !== 'milestone') // Exclude milestones
       });
     }
 
@@ -91,7 +91,7 @@ export class CalendarComponent implements OnInit {
         date: dayDate,
         isCurrentMonth: false,
         isToday: this.isToday(dayDate),
-        events: this.getEventsForDate(dayDate)
+        events: this.getEventsForDate(dayDate).filter(e => e.type !== 'milestone') // Exclude milestones
       });
     }
 
@@ -218,11 +218,11 @@ export class CalendarComponent implements OnInit {
     this.loadEvents();
   }
 
-  // Timeline view: events sorted by date with month headers
+  // Timeline view: events sorted by date with month headers (excluding milestones)
   timelineEvents = computed(() => {
-    const events = this.events().sort((a, b) =>
-      new Date(a.start).getTime() - new Date(b.start).getTime()
-    );
+    const events = this.events()
+      .filter(e => e.type !== 'milestone') // Exclude milestones
+      .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 
     // Group by month
     const grouped: { [key: string]: CalendarEvent[] } = {};

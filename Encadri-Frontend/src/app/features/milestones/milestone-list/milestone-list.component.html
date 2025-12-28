@@ -7,6 +7,13 @@
     <div class="header-actions" *ngIf="isSupervisor">
       <button
         *ngIf="milestones().length > 0"
+        class="gantt-btn"
+        (click)="openGanttModal()"
+        title="View Gantt Chart">
+        📊 Gantt Chart
+      </button>
+      <button
+        *ngIf="milestones().length > 0"
         class="delete-all-btn"
         (click)="openDeleteAllDialog()"
         title="Delete all milestones">
@@ -15,6 +22,14 @@
       <app-ui-button variant="primary" (click)="openCreateModal()">
         <span class="icon">+</span> Add Milestone
       </app-ui-button>
+    </div>
+    <div class="header-actions" *ngIf="isStudent && milestones().length > 0">
+      <button
+        class="gantt-btn"
+        (click)="openGanttModal()"
+        title="View Gantt Chart">
+        📊 Gantt Chart
+      </button>
     </div>
     <div class="read-only-badge" *ngIf="isStudent">
       <span class="badge-icon">👁️</span>
@@ -373,3 +388,10 @@
   (confirm)="confirmDeleteAll()"
   (cancel)="closeDeleteAllDialog()"
 ></app-confirm-dialog>
+
+<!-- Gantt Chart Modal -->
+<app-gantt-modal
+  [projectId]="projectId"
+  [isOpen]="isGanttModalOpen()"
+  (close)="closeGanttModal()"
+></app-gantt-modal>

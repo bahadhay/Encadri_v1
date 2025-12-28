@@ -1,0 +1,115 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onOverlayClick($event)">
+  <div class="modal-container" (click)="onModalContentClick($event)">
+    <div class="modal-header">
+      <h2>
+        <app-icon name="view_timeline" [size]="24"></app-icon>
+        Gantt Chart
+      </h2>
+      <button class="close-btn" (click)="closeModal()">
+        <app-icon name="close" [size]="20"></app-icon>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div *ngIf="loading()" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading milestones...</p>
+      </div>
+
+      <div *ngIf="!loading() && ganttData().length === 0" class="empty-state">
+        <app-icon name="flag" [size]="48"></app-icon>
+        <h3>No milestones found</h3>
+        <p>Add milestones to see them in the Gantt chart</p>
+      </div>
+
+      <!-- Gantt View -->
+      <div *ngIf="!loading() && ganttData().length > 0" class="gantt-view">
+        <div class="gantt-wrapper">
+          <!-- Timeline Header -->
+          <div class="gantt-header-row">
+            <div class="gantt-sidebar-header">Project Name</div>
+            <div class="gantt-timeline-header">
+              <div class="gantt-weeks-header">
+                <div *ngFor="let week of timelineWeeks()" class="week-column" [title]="week.fullLabel">
+                  {{ week.label }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gantt Rows -->
+          <div class="gantt-body">
+            <div *ngFor="let project of ganttData()" class="gantt-project-section">
+              <!-- Project Header Row -->
+              <div class="gantt-row project-row">
+                <div class="gantt-sidebar">
+                  <div class="project-name">{{ project.projectName }}</div>
+                </div>
+                <div class="gantt-timeline">
+                  <div class="gantt-grid">
+                    <div *ngFor="let week of timelineWeeks()" class="week-cell"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Milestone Rows -->
+              <div *ngFor="let milestone of project.milestones" class="gantt-row milestone-row">
+                <div class="gantt-sidebar">
+                  <div class="milestone-name">{{ milestone.title }}</div>
+                </div>
+                <div class="gantt-timeline">
+                  <div class="gantt-grid">
+                    <div *ngFor="let week of timelineWeeks()" class="week-cell"></div>
+                  </div>
+                  <div class="gantt-bar-container">
+                    <div class="gantt-task-bar"
+                         [style.left.%]="milestone.position"
+                         [style.width.%]="milestone.width"
+                         [style.background-color]="milestone.color"
+                         [title]="milestone.title"
+                         (click)="selectEvent(milestone)">
+                      <span class="bar-label">{{ milestone.title }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Event Detail Modal (nested) -->
+<div class="event-modal-overlay" *ngIf="selectedEvent()" (click)="closeEventDetail()">
+  <div class="event-modal-content" (click)="$event.stopPropagation()">
+    <div class="event-modal-header">
+      <div class="event-modal-title">
+        <app-icon [name]="getEventIcon(selectedEvent()!.type)" [size]="24"></app-icon>
+        <h3>{{ selectedEvent()!.title }}</h3>
+      </div>
+      <button class="event-close-btn" (click)="closeEventDetail()">
+        <app-icon name="close" [size]="20"></app-icon>
+      </button>
+    </div>
+    <div class="event-modal-body">
+      <div class="event-detail-section">
+        <div class="detail-row">
+          <app-icon name="calendar_today" [size]="18"></app-icon>
+          <span>{{ formatDate(selectedEvent()!.start) }} - {{ formatDate(selectedEvent()!.end) }}</span>
+        </div>
+        <div class="detail-row" *ngIf="selectedEvent()!.status">
+          <app-icon name="info" [size]="18"></app-icon>
+          <span class="status-badge" [class]="selectedEvent()!.status">
+            {{ selectedEvent()!.status }}
+          </span>
+        </div>
+      </div>
+      <div class="event-description" *ngIf="selectedEvent()!.description">
+        <h4>Description</h4>
+        <p>{{ selectedEvent()!.description }}</p>
+      </div>
+    </div>
+  </div>
+</div>
