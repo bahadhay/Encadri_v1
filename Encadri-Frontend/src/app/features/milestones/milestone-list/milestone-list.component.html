@@ -109,8 +109,12 @@
         </p>
 
         <div class="milestone-meta">
+          <span class="meta-item" *ngIf="milestone.startDate">
+            <span class="meta-label">Start Date:</span>
+            <span class="meta-value">{{ milestone.startDate | date:'mediumDate' }}</span>
+          </span>
           <span class="meta-item">
-            <span class="meta-label">Due Date:</span>
+            <span class="meta-label">End Date:</span>
             <span class="meta-value">{{ milestone.dueDate | date:'mediumDate' }}</span>
           </span>
           <span class="meta-item" *ngIf="milestone.completedDate">

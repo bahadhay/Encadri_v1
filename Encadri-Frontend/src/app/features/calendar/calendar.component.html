@@ -6,61 +6,14 @@
       <p>View all your meetings and submission deadlines</p>
     </div>
     <div class="header-actions">
-      <div class="view-toggle">
-        <button class="toggle-btn" [class.active]="viewMode() === 'timeline'" (click)="setViewMode('timeline')">
-          <app-icon name="list" [size]="16"></app-icon>
-          Timeline
-        </button>
-        <button class="toggle-btn" [class.active]="viewMode() === 'calendar'" (click)="setViewMode('calendar')">
-          <app-icon name="calendar_view_month" [size]="16"></app-icon>
-          Month
-        </button>
-      </div>
-      <app-ui-button variant="outline" (click)="today()" *ngIf="viewMode() === 'calendar'">
+      <app-ui-button variant="outline" (click)="today()">
         Today
       </app-ui-button>
     </div>
   </div>
 
-  <!-- Timeline View -->
-  <div *ngIf="viewMode() === 'timeline'" class="timeline-view">
-    <div *ngFor="let monthGroup of timelineEvents()" class="timeline-month">
-      <h3 class="month-header">{{ monthGroup.monthYear }}</h3>
-      <div class="timeline-events">
-        <div *ngFor="let event of monthGroup.events"
-             class="timeline-event"
-             (click)="selectEvent(event)">
-          <div class="event-marker" [style.background-color]="event.color"></div>
-          <div class="event-details">
-            <div class="event-header-row">
-              <app-icon [name]="getEventIcon(event.type)" [size]="18"></app-icon>
-              <span class="event-title-text">{{ event.title }}</span>
-              <span class="event-type-badge" [style.background-color]="event.color">
-                {{ event.type }}
-              </span>
-            </div>
-            <div class="event-meta">
-              <span class="event-date">
-                <app-icon name="calendar_today" [size]="14"></app-icon>
-                {{ formatDate(event.start) }}
-              </span>
-              <span class="event-time" *ngIf="!event.allDay">
-                <app-icon name="schedule" [size]="14"></app-icon>
-                {{ formatTime(event.start) }}
-              </span>
-              <span class="event-location" *ngIf="event.location">
-                <app-icon name="location_on" [size]="14"></app-icon>
-                {{ event.location }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Calendar Navigation -->
-  <div *ngIf="viewMode() === 'calendar'" class="calendar-nav">
+  <div class="calendar-nav">
     <button class="nav-btn" (click)="previousMonth()">
       <app-icon name="chevron_left" [size]="20"></app-icon>
     </button>
@@ -71,7 +24,7 @@
   </div>
 
   <!-- Calendar Grid -->
-  <div *ngIf="viewMode() === 'calendar'" class="calendar-grid">
+  <div class="calendar-grid">
     <!-- Weekday Headers -->
     <div class="weekday-header">Sun</div>
     <div class="weekday-header">Mon</div>
@@ -105,7 +58,7 @@
   </div>
 
   <!-- Legend -->
-  <div *ngIf="viewMode() === 'calendar'" class="calendar-legend">
+  <div class="calendar-legend">
     <div class="legend-item">
       <div class="legend-color" style="background: #3B82F6;"></div>
       <span>Meetings</span>

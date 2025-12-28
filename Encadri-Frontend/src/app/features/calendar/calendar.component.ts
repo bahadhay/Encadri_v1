@@ -37,7 +37,6 @@ export class CalendarComponent implements OnInit {
   events = signal<CalendarEvent[]>([]);
   loading = signal<boolean>(false);
   selectedEvent = signal<CalendarEvent | null>(null);
-  viewMode = signal<'calendar' | 'timeline' | 'gantt'>('timeline');
 
   // Computed values
   currentMonth = computed(() => {
@@ -108,31 +107,21 @@ export class CalendarComponent implements OnInit {
 
     this.loading.set(true);
 
-    // For timeline and gantt views, load all events (past and future)
-    // For calendar view, load 3 months window
-    const viewMode = this.viewMode();
-    let start: Date;
-    let end: Date;
-
-    if (viewMode === 'calendar') {
-      const date = this.currentDate();
-      start = new Date(date.getFullYear(), date.getMonth() - 1, 1);
-      end = new Date(date.getFullYear(), date.getMonth() + 2, 0);
-    } else {
-      // Load 6 months past and 12 months future for timeline/gantt
-      const now = new Date();
-      start = new Date(now.getFullYear(), now.getMonth() - 6, 1);
-      end = new Date(now.getFullYear(), now.getMonth() + 12, 0);
-    }
+    // Load 3 months window for calendar view
+    const date = this.currentDate();
+    const start = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+    const end = new Date(date.getFullYear(), date.getMonth() + 2, 0);
 
     this.calendarService.getEvents(currentUser.email, currentUser.userRole, start, end).subscribe({
       next: (events) => {
-        // Convert string dates to Date objects
-        const processedEvents = events.map(event => ({
-          ...event,
-          start: new Date(event.start),
-          end: new Date(event.end)
-        }));
+        // Convert string dates to Date objects and filter out milestones
+        const processedEvents = events
+          .filter(e => e.type !== 'milestone') // Only show meetings and submissions
+          .map(event => ({
+            ...event,
+            start: new Date(event.start),
+            end: new Date(event.end)
+          }));
         this.events.set(processedEvents);
         this.loading.set(false);
       },
@@ -211,152 +200,5 @@ export class CalendarComponent implements OnInit {
   navigateToEvent(event: CalendarEvent) {
     // This will be implemented based on event type
     this.toastService.info(`Navigate to ${event.type}: ${event.title}`);
-  }
-
-  setViewMode(mode: 'calendar' | 'timeline' | 'gantt') {
-    this.viewMode.set(mode);
-    this.loadEvents();
-  }
-
-  // Timeline view: events sorted by date with month headers (excluding milestones)
-  timelineEvents = computed(() => {
-    const events = this.events()
-      .filter(e => e.type !== 'milestone') // Exclude milestones
-      .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
-
-    // Group by month
-    const grouped: { [key: string]: CalendarEvent[] } = {};
-    events.forEach(event => {
-      const date = new Date(event.start);
-      const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
-      if (!grouped[monthKey]) {
-        grouped[monthKey] = [];
-      }
-      grouped[monthKey].push(event);
-    });
-
-    return Object.entries(grouped).map(([key, events]) => {
-      const [year, month] = key.split('-').map(Number);
-      const date = new Date(year, month, 1);
-      return {
-        monthYear: date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-        events
-      };
-    });
-  });
-
-  // Gantt view: milestones grouped by project with timeline positioning
-  ganttData = computed(() => {
-    const milestones = this.events().filter(e => e.type === 'milestone');
-
-    if (milestones.length === 0) {
-      return [];
-    }
-
-    // Find min and max dates across all milestones
-    const allDates = milestones.flatMap(m => [new Date(m.start), new Date(m.end)]);
-    const minDate = new Date(Math.min(...allDates.map(d => d.getTime())));
-    const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())));
-
-    // Add padding (2 weeks before first, 2 weeks after last)
-    const timelineStart = new Date(minDate);
-    timelineStart.setDate(timelineStart.getDate() - 14);
-    const timelineEnd = new Date(maxDate);
-    timelineEnd.setDate(timelineEnd.getDate() + 14);
-
-    // Group by project NAME
-    const grouped: { [key: string]: CalendarEvent[] } = {};
-    milestones.forEach(milestone => {
-      const projectName = milestone.projectName || 'Unknown Project';
-      if (!grouped[projectName]) {
-        grouped[projectName] = [];
-      }
-      grouped[projectName].push(milestone);
-    });
-
-    // Calculate positions and widths for each milestone using actual dates
-    return Object.entries(grouped).map(([projectName, milestones]) => {
-      const milestonesWithPosition = milestones.map(milestone => {
-        const startDate = new Date(milestone.start);
-        const endDate = new Date(milestone.end);
-
-        const startPosition = this.calculatePosition(startDate, timelineStart, timelineEnd);
-        const endPosition = this.calculatePosition(endDate, timelineStart, timelineEnd);
-        let width = endPosition - startPosition;
-
-        // Ensure minimum width of 3% for visibility
-        if (width < 3) {
-          width = 3;
-        }
-
-        return {
-          ...milestone,
-          position: startPosition,
-          width: width,
-          timelineStart,
-          timelineEnd
-        };
-      });
-
-      return {
-        projectName,
-        milestones: milestonesWithPosition.sort((a, b) =>
-          new Date(a.start).getTime() - new Date(b.start).getTime()
-        ),
-        timelineStart,
-        timelineEnd
-      };
-    });
-  });
-
-  // Generate adaptive weeks for timeline header based on milestone dates
-  timelineWeeks = computed(() => {
-    const ganttData = this.ganttData();
-
-    if (ganttData.length === 0) {
-      return [];
-    }
-
-    // Use the timeline from first project (all should be same)
-    const firstProject = ganttData[0];
-    if (!firstProject.timelineStart || !firstProject.timelineEnd) {
-      return [];
-    }
-
-    const timelineStart = new Date(firstProject.timelineStart);
-    const timelineEnd = new Date(firstProject.timelineEnd);
-
-    // Calculate number of weeks needed
-    const totalDays = Math.ceil((timelineEnd.getTime() - timelineStart.getTime()) / (1000 * 60 * 60 * 24));
-    const totalWeeks = Math.ceil(totalDays / 7);
-
-    const weeks: any[] = [];
-    for (let i = 0; i < totalWeeks; i++) {
-      const weekStart = new Date(timelineStart);
-      weekStart.setDate(timelineStart.getDate() + (i * 7));
-
-      weeks.push({
-        weekNumber: i + 1,
-        label: `W${i + 1}`,
-        fullLabel: `Week ${i + 1}`,
-        startDate: weekStart
-      });
-    }
-
-    return weeks;
-  });
-
-  calculatePosition(date: Date, yearStart: Date, yearEnd: Date): number {
-    const dateTime = date.getTime();
-    const startTime = yearStart.getTime();
-    const endTime = yearEnd.getTime();
-    const totalDuration = endTime - startTime;
-    const elapsed = dateTime - startTime;
-    return (elapsed / totalDuration) * 100;
-  }
-
-  formatDateShort(date: Date | string): string {
-    const d = new Date(date);
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 }
