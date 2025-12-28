@@ -265,6 +265,79 @@ import { CommonModule } from '@angular/common';
           <line x1="18" y1="6" x2="6" y2="18"/>
           <line x1="6" y1="6" x2="18" y2="18"/>
         </g>
+
+        <!-- Calendar Month (alias for calendar) -->
+        <g *ngSwitchCase="'calendar_month'">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </g>
+
+        <!-- Calendar Today (alias for calendar) -->
+        <g *ngSwitchCase="'calendar_today'">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+          <rect x="10" y="13" width="4" height="4"/>
+        </g>
+
+        <!-- Calendar View Month (alias for calendar) -->
+        <g *ngSwitchCase="'calendar_view_month'">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+          <line x1="12" y1="10" x2="12" y2="22"/>
+        </g>
+
+        <!-- Location On -->
+        <g *ngSwitchCase="'location_on'">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </g>
+
+        <!-- List -->
+        <g *ngSwitchCase="'list'">
+          <line x1="8" y1="6" x2="21" y2="6"/>
+          <line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+          <line x1="3" y1="6" x2="3.01" y2="6"/>
+          <line x1="3" y1="12" x2="3.01" y2="12"/>
+          <line x1="3" y1="18" x2="3.01" y2="18"/>
+        </g>
+
+        <!-- Folder -->
+        <g *ngSwitchCase="'folder'">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+        </g>
+
+        <!-- Flag -->
+        <g *ngSwitchCase="'flag'">
+          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+          <line x1="4" y1="22" x2="4" y2="15"/>
+        </g>
+
+        <!-- View Timeline -->
+        <g *ngSwitchCase="'view_timeline'">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+          <circle cx="6" cy="6" r="1.5"/>
+          <circle cx="6" cy="12" r="1.5"/>
+          <circle cx="6" cy="18" r="1.5"/>
+        </g>
+
+        <!-- Chevron Left -->
+        <g *ngSwitchCase="'chevron_left'">
+          <polyline points="15 18 9 12 15 6"/>
+        </g>
+
+        <!-- Chevron Right (alias) -->
+        <g *ngSwitchCase="'chevron_right'">
+          <polyline points="9 18 15 12 9 6"/>
+        </g>
       </ng-container>
     </svg>
   `,

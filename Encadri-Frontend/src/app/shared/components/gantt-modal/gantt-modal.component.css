@@ -234,6 +234,8 @@
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   display: flex;
   align-items: center;
+  min-width: 320px;
+  max-width: 320px;
 }
 
 .project-header-title {
@@ -284,7 +286,7 @@
   display: grid;
   grid-template-columns: 320px 1fr;
   border-bottom: 1px solid #e2e8f0;
-  min-height: 72px;
+  min-height: 90px;
   transition: all 0.2s;
 }
 
@@ -299,6 +301,8 @@
   display: flex;
   align-items: center;
   background: white;
+  min-width: 320px;
+  max-width: 320px;
 }
 
 .milestone-info {
@@ -380,12 +384,12 @@
   right: 0;
   height: 100%;
   pointer-events: none;
-  padding: 1rem 0;
+  padding: 0.75rem 0;
 }
 
 .gantt-task-bar {
   position: absolute;
-  height: calc(100% - 2rem);
+  height: calc(100% - 1.5rem);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -425,7 +429,7 @@
 
 .bar-label {
   color: white;
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
