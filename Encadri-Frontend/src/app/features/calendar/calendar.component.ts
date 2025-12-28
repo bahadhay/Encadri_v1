@@ -37,6 +37,7 @@ export class CalendarComponent implements OnInit {
   events = signal<CalendarEvent[]>([]);
   loading = signal<boolean>(false);
   selectedEvent = signal<CalendarEvent | null>(null);
+  viewMode = signal<'calendar' | 'timeline' | 'gantt'>('timeline');
 
   // Computed values
   currentMonth = computed(() => {
@@ -107,10 +108,22 @@ export class CalendarComponent implements OnInit {
 
     this.loading.set(true);
 
-    // Get first and last day of current month view
-    const date = this.currentDate();
-    const start = new Date(date.getFullYear(), date.getMonth() - 1, 1);
-    const end = new Date(date.getFullYear(), date.getMonth() + 2, 0);
+    // For timeline and gantt views, load all events (past and future)
+    // For calendar view, load 3 months window
+    const viewMode = this.viewMode();
+    let start: Date;
+    let end: Date;
+
+    if (viewMode === 'calendar') {
+      const date = this.currentDate();
+      start = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+      end = new Date(date.getFullYear(), date.getMonth() + 2, 0);
+    } else {
+      // Load 6 months past and 12 months future for timeline/gantt
+      const now = new Date();
+      start = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+      end = new Date(now.getFullYear(), now.getMonth() + 12, 0);
+    }
 
     this.calendarService.getEvents(currentUser.email, currentUser.userRole, start, end).subscribe({
       next: (events) => {
@@ -198,5 +211,72 @@ export class CalendarComponent implements OnInit {
   navigateToEvent(event: CalendarEvent) {
     // This will be implemented based on event type
     this.toastService.info(`Navigate to ${event.type}: ${event.title}`);
+  }
+
+  setViewMode(mode: 'calendar' | 'timeline' | 'gantt') {
+    this.viewMode.set(mode);
+    this.loadEvents();
+  }
+
+  // Timeline view: events sorted by date with month headers
+  timelineEvents = computed(() => {
+    const events = this.events().sort((a, b) =>
+      new Date(a.start).getTime() - new Date(b.start).getTime()
+    );
+
+    // Group by month
+    const grouped: { [key: string]: CalendarEvent[] } = {};
+    events.forEach(event => {
+      const date = new Date(event.start);
+      const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+      if (!grouped[monthKey]) {
+        grouped[monthKey] = [];
+      }
+      grouped[monthKey].push(event);
+    });
+
+    return Object.entries(grouped).map(([key, events]) => {
+      const [year, month] = key.split('-').map(Number);
+      const date = new Date(year, month, 1);
+      return {
+        monthYear: date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+        events
+      };
+    });
+  });
+
+  // Gantt view: only milestones grouped by project
+  ganttMilestones = computed(() => {
+    const milestones = this.events().filter(e => e.type === 'milestone');
+
+    // Group by project
+    const grouped: { [key: string]: CalendarEvent[] } = {};
+    milestones.forEach(milestone => {
+      const projectId = milestone.projectId || 'unknown';
+      if (!grouped[projectId]) {
+        grouped[projectId] = [];
+      }
+      grouped[projectId].push(milestone);
+    });
+
+    return Object.entries(grouped).map(([projectId, milestones]) => ({
+      projectId,
+      milestones: milestones.sort((a, b) =>
+        new Date(a.start).getTime() - new Date(b.start).getTime()
+      )
+    }));
+  });
+
+  getMonthPosition(date: Date, startDate: Date, endDate: Date): number {
+    const eventTime = date.getTime();
+    const start = startDate.getTime();
+    const end = endDate.getTime();
+    const range = end - start;
+    return ((eventTime - start) / range) * 100;
+  }
+
+  formatDateShort(date: Date | string): string {
+    const d = new Date(date);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 }
