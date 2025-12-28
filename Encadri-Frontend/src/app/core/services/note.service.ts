@@ -52,9 +52,11 @@ export class NoteService {
   // Categories CRUD
   getCategories(): Observable<NoteCategory[]> {
     const currentUser = this.authService.currentUser();
-    return this.apiService.get<NoteCategory[]>(this.CATEGORIES_PATH, {
-      userEmail: currentUser?.email
-    });
+    const queryParams: any = {};
+    if (currentUser?.email) {
+      queryParams.userEmail = currentUser.email;
+    }
+    return this.apiService.get<NoteCategory[]>(this.CATEGORIES_PATH, queryParams);
   }
 
   createCategory(category: Partial<NoteCategory>): Observable<NoteCategory> {
@@ -72,10 +74,14 @@ export class NoteService {
   // Folders CRUD
   getFolders(categoryId?: string): Observable<NoteFolder[]> {
     const currentUser = this.authService.currentUser();
-    return this.apiService.get<NoteFolder[]>(this.FOLDERS_PATH, {
-      userEmail: currentUser?.email,
-      categoryId
-    });
+    const queryParams: any = {};
+    if (currentUser?.email) {
+      queryParams.userEmail = currentUser.email;
+    }
+    if (categoryId) {
+      queryParams.categoryId = categoryId;
+    }
+    return this.apiService.get<NoteFolder[]>(this.FOLDERS_PATH, queryParams);
   }
 
   createFolder(folder: Partial<NoteFolder>): Observable<NoteFolder> {
