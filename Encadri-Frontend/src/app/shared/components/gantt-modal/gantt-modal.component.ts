@@ -47,9 +47,9 @@ export class GanttModalComponent implements OnInit {
 
     this.calendarService.getEvents(currentUser.email, currentUser.userRole, start, end).subscribe({
       next: (events) => {
-        // Convert string dates to Date objects and filter only milestones
+        // Convert string dates to Date objects and filter only milestones for this project
         const processedEvents = events
-          .filter(e => e.type === 'milestone')
+          .filter(e => e.type === 'milestone' && e.projectId === this.projectId)
           .map(event => ({
             ...event,
             start: new Date(event.start),
@@ -66,12 +66,12 @@ export class GanttModalComponent implements OnInit {
     });
   }
 
-  // Gantt view: milestones grouped by project with timeline positioning
+  // Gantt view: milestones for current project with timeline positioning
   ganttData = computed(() => {
     const milestones = this.events().filter(e => e.type === 'milestone');
 
     if (milestones.length === 0) {
-      return [];
+      return null;
     }
 
     // Find min and max dates across all milestones
@@ -85,67 +85,45 @@ export class GanttModalComponent implements OnInit {
     const timelineEnd = new Date(maxDate);
     timelineEnd.setDate(timelineEnd.getDate() + 14);
 
-    // Group by project NAME
-    const grouped: { [key: string]: CalendarEvent[] } = {};
-    milestones.forEach(milestone => {
-      const projectName = milestone.projectName || 'Unknown Project';
-      if (!grouped[projectName]) {
-        grouped[projectName] = [];
-      }
-      grouped[projectName].push(milestone);
-    });
-
     // Calculate positions and widths for each milestone using actual dates
-    return Object.entries(grouped).map(([projectName, milestones]) => {
-      const milestonesWithPosition = milestones.map(milestone => {
-        const startDate = new Date(milestone.start);
-        const endDate = new Date(milestone.end);
+    const milestonesWithPosition = milestones.map(milestone => {
+      const startDate = new Date(milestone.start);
+      const endDate = new Date(milestone.end);
 
-        const startPosition = this.calculatePosition(startDate, timelineStart, timelineEnd);
-        const endPosition = this.calculatePosition(endDate, timelineStart, timelineEnd);
-        let width = endPosition - startPosition;
+      const startPosition = this.calculatePosition(startDate, timelineStart, timelineEnd);
+      const endPosition = this.calculatePosition(endDate, timelineStart, timelineEnd);
+      let width = endPosition - startPosition;
 
-        // Ensure minimum width of 3% for visibility
-        if (width < 3) {
-          width = 3;
-        }
-
-        return {
-          ...milestone,
-          position: startPosition,
-          width: width,
-          timelineStart,
-          timelineEnd
-        };
-      });
+      // Ensure minimum width of 3% for visibility
+      if (width < 3) {
+        width = 3;
+      }
 
       return {
-        projectName,
-        milestones: milestonesWithPosition.sort((a, b) =>
-          new Date(a.start).getTime() - new Date(b.start).getTime()
-        ),
-        timelineStart,
-        timelineEnd
+        ...milestone,
+        position: startPosition,
+        width: width
       };
-    });
+    }).sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+
+    return {
+      projectName: milestones[0]?.projectName || 'Project',
+      milestones: milestonesWithPosition,
+      timelineStart,
+      timelineEnd
+    };
   });
 
   // Generate adaptive weeks for timeline header based on milestone dates
   timelineWeeks = computed(() => {
     const ganttData = this.ganttData();
 
-    if (ganttData.length === 0) {
+    if (!ganttData || !ganttData.timelineStart || !ganttData.timelineEnd) {
       return [];
     }
 
-    // Use the timeline from first project (all should be same)
-    const firstProject = ganttData[0];
-    if (!firstProject.timelineStart || !firstProject.timelineEnd) {
-      return [];
-    }
-
-    const timelineStart = new Date(firstProject.timelineStart);
-    const timelineEnd = new Date(firstProject.timelineEnd);
+    const timelineStart = new Date(ganttData.timelineStart);
+    const timelineEnd = new Date(ganttData.timelineEnd);
 
     // Calculate number of weeks needed
     const totalDays = Math.ceil((timelineEnd.getTime() - timelineStart.getTime()) / (1000 * 60 * 60 * 24));
@@ -201,6 +179,11 @@ export class GanttModalComponent implements OnInit {
       case 'milestone': return 'flag';
       default: return 'event';
     }
+  }
+
+  formatDateShort(date: Date | string): string {
+    const d = new Date(date);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 
   closeModal() {

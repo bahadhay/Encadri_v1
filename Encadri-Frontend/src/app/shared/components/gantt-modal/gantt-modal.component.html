@@ -16,46 +16,47 @@
         <p>Loading milestones...</p>
       </div>
 
-      <div *ngIf="!loading() && ganttData().length === 0" class="empty-state">
+      <div *ngIf="!loading() && !ganttData()" class="empty-state">
         <app-icon name="flag" [size]="48"></app-icon>
         <h3>No milestones found</h3>
         <p>Add milestones to see them in the Gantt chart</p>
       </div>
 
       <!-- Gantt View -->
-      <div *ngIf="!loading() && ganttData().length > 0" class="gantt-view">
-        <div class="gantt-wrapper">
-          <!-- Timeline Header -->
-          <div class="gantt-header-row">
-            <div class="gantt-sidebar-header">Project Name</div>
-            <div class="gantt-timeline-header">
-              <div class="gantt-weeks-header">
-                <div *ngFor="let week of timelineWeeks()" class="week-column" [title]="week.fullLabel">
-                  {{ week.label }}
+      <div *ngIf="!loading() && ganttData()" class="gantt-view">
+        <div class="gantt-scroll-container">
+          <div class="gantt-wrapper">
+            <!-- Timeline Header -->
+            <div class="gantt-header-row">
+              <div class="gantt-sidebar-header">
+                <div class="project-header-title">
+                  <app-icon name="folder" [size]="18"></app-icon>
+                  <span>{{ ganttData()!.projectName }}</span>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <!-- Gantt Rows -->
-          <div class="gantt-body">
-            <div *ngFor="let project of ganttData()" class="gantt-project-section">
-              <!-- Project Header Row -->
-              <div class="gantt-row project-row">
-                <div class="gantt-sidebar">
-                  <div class="project-name">{{ project.projectName }}</div>
-                </div>
-                <div class="gantt-timeline">
-                  <div class="gantt-grid">
-                    <div *ngFor="let week of timelineWeeks()" class="week-cell"></div>
+              <div class="gantt-timeline-header">
+                <div class="gantt-weeks-header">
+                  <div *ngFor="let week of timelineWeeks()" class="week-column" [title]="week.fullLabel">
+                    <div class="week-label">{{ week.label }}</div>
                   </div>
                 </div>
               </div>
+            </div>
 
+            <!-- Gantt Body -->
+            <div class="gantt-body">
               <!-- Milestone Rows -->
-              <div *ngFor="let milestone of project.milestones" class="gantt-row milestone-row">
+              <div *ngFor="let milestone of ganttData()!.milestones; let i = index" class="gantt-row milestone-row">
                 <div class="gantt-sidebar">
-                  <div class="milestone-name">{{ milestone.title }}</div>
+                  <div class="milestone-info">
+                    <div class="milestone-number">{{ i + 1 }}</div>
+                    <div class="milestone-details">
+                      <div class="milestone-name">{{ milestone.title }}</div>
+                      <div class="milestone-dates">
+                        {{ formatDateShort(milestone.start) }} - {{ formatDateShort(milestone.end) }}
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div class="gantt-timeline">
                   <div class="gantt-grid">
@@ -69,10 +70,34 @@
                          [title]="milestone.title"
                          (click)="selectEvent(milestone)">
                       <span class="bar-label">{{ milestone.title }}</span>
+                      <div class="bar-progress" *ngIf="milestone.status === 'completed'"></div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gantt Legend -->
+        <div class="gantt-legend">
+          <div class="legend-title">Status:</div>
+          <div class="legend-items">
+            <div class="legend-item">
+              <div class="legend-dot" style="background: #10B981;"></div>
+              <span>Completed</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background: #3B82F6;"></div>
+              <span>In Progress</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background: #8B5CF6;"></div>
+              <span>Not Started</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background: #EF4444;"></div>
+              <span>Overdue</span>
             </div>
           </div>
         </div>
