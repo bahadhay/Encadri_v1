@@ -40,12 +40,11 @@
             <button
               *ngFor="let color of colors"
               type="button"
-              class="color-btn"
+              class="color-circle"
               [class.selected]="note.color === color.value"
-              [ngClass]="color.class"
+              [attr.data-color]="color.value"
               (click)="note.color = color.value"
               [title]="color.label">
-              {{ color.label }}
             </button>
           </div>
         </div>
