@@ -14,6 +14,7 @@ export interface CalendarEvent {
   location?: string;
   status?: string;
   projectId?: string;
+  projectName?: string;
   allDay?: boolean;
 }
 

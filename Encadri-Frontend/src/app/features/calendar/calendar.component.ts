@@ -254,28 +254,39 @@ export class CalendarComponent implements OnInit {
     const yearStart = new Date(currentYear, 0, 1); // Jan 1
     const yearEnd = new Date(currentYear, 11, 31); // Dec 31
 
-    // Group by project
+    // Group by project NAME
     const grouped: { [key: string]: CalendarEvent[] } = {};
     milestones.forEach(milestone => {
-      const projectId = milestone.projectId || 'Unknown Project';
-      if (!grouped[projectId]) {
-        grouped[projectId] = [];
+      const projectName = milestone.projectName || 'Unknown Project';
+      if (!grouped[projectName]) {
+        grouped[projectName] = [];
       }
-      grouped[projectId].push(milestone);
+      grouped[projectName].push(milestone);
     });
 
-    // Calculate positions for each milestone
-    return Object.entries(grouped).map(([projectId, milestones]) => {
+    // Calculate positions and widths for each milestone
+    return Object.entries(grouped).map(([projectName, milestones]) => {
       const milestonesWithPosition = milestones.map(milestone => {
-        const position = this.calculatePosition(new Date(milestone.start), yearStart, yearEnd);
+        const endDate = new Date(milestone.start); // DueDate
+        // Calculate start date (assume 2 weeks duration)
+        const startDate = new Date(endDate);
+        startDate.setDate(startDate.getDate() - 14);
+
+        const startPosition = this.calculatePosition(startDate, yearStart, yearEnd);
+        const endPosition = this.calculatePosition(endDate, yearStart, yearEnd);
+        const width = endPosition - startPosition;
+
         return {
           ...milestone,
-          position
+          position: startPosition,
+          width: width,
+          calculatedStart: startDate,
+          calculatedEnd: endDate
         };
       });
 
       return {
-        projectId,
+        projectName,
         milestones: milestonesWithPosition.sort((a, b) =>
           new Date(a.start).getTime() - new Date(b.start).getTime()
         )
@@ -283,17 +294,25 @@ export class CalendarComponent implements OnInit {
     });
   });
 
-  // Generate 12 months for timeline header
-  timelineMonths = computed(() => {
+  // Generate 52 weeks for timeline header
+  timelineWeeks = computed(() => {
     const currentYear = new Date().getFullYear();
-    return Array.from({ length: 12 }, (_, i) => {
-      const date = new Date(currentYear, i, 1);
-      return {
-        month: date.toLocaleDateString('en-US', { month: 'short' }),
-        fullMonth: date.toLocaleDateString('en-US', { month: 'long' }),
-        index: i
-      };
-    });
+    const yearStart = new Date(currentYear, 0, 1);
+    const weeks: any[] = [];
+
+    for (let i = 0; i < 52; i++) {
+      const weekStart = new Date(yearStart);
+      weekStart.setDate(yearStart.getDate() + (i * 7));
+
+      weeks.push({
+        weekNumber: i + 1,
+        label: `W${i + 1}`,
+        fullLabel: `Week ${i + 1}`,
+        startDate: weekStart
+      });
+    }
+
+    return weeks;
   });
 
   calculatePosition(date: Date, yearStart: Date, yearEnd: Date): number {

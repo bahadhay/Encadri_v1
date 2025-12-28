@@ -581,22 +581,22 @@
   overflow-y: hidden;
 }
 
-.gantt-months-header {
+.gantt-weeks-header {
   display: grid;
-  grid-template-columns: repeat(12, minmax(120px, 1fr));
-  min-width: 1440px; /* 12 months * 120px */
+  grid-template-columns: repeat(52, minmax(60px, 1fr));
+  min-width: 3120px; /* 52 weeks * 60px */
 }
 
-.month-column {
-  padding: 1rem;
+.week-column {
+  padding: 0.75rem 0.5rem;
   text-align: center;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: var(--slate-700);
   border-right: 1px solid var(--slate-300);
 }
 
-.month-column:last-child {
+.week-column:last-child {
   border-right: none;
 }
 
@@ -658,17 +658,17 @@
 
 .gantt-grid {
   display: grid;
-  grid-template-columns: repeat(12, minmax(120px, 1fr));
-  min-width: 1440px;
+  grid-template-columns: repeat(52, minmax(60px, 1fr));
+  min-width: 3120px;
   height: 100%;
 }
 
-.month-cell {
+.week-cell {
   border-right: 1px solid var(--slate-200);
   height: 100%;
 }
 
-.month-cell:last-child {
+.week-cell:last-child {
   border-right: none;
 }
 
@@ -683,26 +683,26 @@
   padding: 0.5rem 0;
 }
 
-.gantt-milestone-bar {
+.gantt-task-bar {
   position: absolute;
   height: calc(100% - 1rem);
-  min-width: 100px;
-  max-width: 150px;
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 0 0.75rem;
   cursor: pointer;
   pointer-events: all;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   transition: all 0.2s;
+  min-width: 40px;
 }
 
-.gantt-milestone-bar:hover {
+.gantt-task-bar:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   z-index: 5;
+  filter: brightness(1.1);
 }
 
 .bar-label {
@@ -712,6 +712,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 @media (max-width: 768px) {
@@ -755,20 +756,19 @@
     padding-left: 0.5rem;
   }
 
-  .gantt-months-header,
+  .gantt-weeks-header,
   .gantt-grid {
-    grid-template-columns: repeat(12, minmax(100px, 1fr));
-    min-width: 1200px;
+    grid-template-columns: repeat(52, minmax(50px, 1fr));
+    min-width: 2600px;
   }
 
-  .month-column {
-    padding: 0.75rem 0.5rem;
-    font-size: 0.75rem;
+  .week-column {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.625rem;
   }
 
-  .gantt-milestone-bar {
-    min-width: 80px;
-    max-width: 120px;
+  .gantt-task-bar {
+    min-width: 30px;
   }
 
   .bar-label {

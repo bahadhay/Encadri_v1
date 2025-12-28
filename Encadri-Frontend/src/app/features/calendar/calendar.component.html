@@ -68,11 +68,11 @@
     <div class="gantt-wrapper">
       <!-- Timeline Header -->
       <div class="gantt-header-row">
-        <div class="gantt-sidebar-header">Projects / Milestones</div>
+        <div class="gantt-sidebar-header">Project Name</div>
         <div class="gantt-timeline-header">
-          <div class="gantt-months-header">
-            <div *ngFor="let month of timelineMonths()" class="month-column" [title]="month.fullMonth">
-              {{ month.month }}
+          <div class="gantt-weeks-header">
+            <div *ngFor="let week of timelineWeeks()" class="week-column" [title]="week.fullLabel">
+              {{ week.label }}
             </div>
           </div>
         </div>
@@ -84,11 +84,11 @@
           <!-- Project Header Row -->
           <div class="gantt-row project-row">
             <div class="gantt-sidebar">
-              <div class="project-name">{{ project.projectId }}</div>
+              <div class="project-name">{{ project.projectName }}</div>
             </div>
             <div class="gantt-timeline">
               <div class="gantt-grid">
-                <div *ngFor="let month of timelineMonths()" class="month-cell"></div>
+                <div *ngFor="let week of timelineWeeks()" class="week-cell"></div>
               </div>
             </div>
           </div>
@@ -100,15 +100,16 @@
             </div>
             <div class="gantt-timeline">
               <div class="gantt-grid">
-                <div *ngFor="let month of timelineMonths()" class="month-cell"></div>
+                <div *ngFor="let week of timelineWeeks()" class="week-cell"></div>
               </div>
               <div class="gantt-bar-container">
-                <div class="gantt-milestone-bar"
+                <div class="gantt-task-bar"
                      [style.left.%]="milestone.position"
+                     [style.width.%]="milestone.width"
                      [style.background-color]="milestone.color"
-                     [title]="milestone.title + ' - ' + formatDate(milestone.start)"
+                     [title]="milestone.title"
                      (click)="selectEvent(milestone)">
-                  <span class="bar-label">{{ formatDateShort(milestone.start) }}</span>
+                  <span class="bar-label">{{ milestone.title }}</span>
                 </div>
               </div>
             </div>
