@@ -144,20 +144,27 @@
 </app-confirm-dialog>
 
 <!-- Create Folder Dialog -->
-<app-confirm-dialog
-  [isOpen]="isCreateFolderOpen()"
-  title="Create Folder"
-  message="Enter folder name:"
-  confirmText="Create"
-  variant="info"
-  [loading]="creatingFolder()"
-  (confirm)="createFolder()"
-  (cancel)="cancelCreateFolder()">
-  <div style="margin-top: 1rem;">
-    <app-ui-input
-      placeholder="Folder name..."
-      [(ngModel)]="newFolderName"
-      name="folderName">
-    </app-ui-input>
+<div class="modal-overlay" *ngIf="isCreateFolderOpen()" (click)="cancelCreateFolder()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Create Folder</h3>
+    </div>
+    <div class="modal-body">
+      <p class="modal-description">Enter folder name:</p>
+      <app-ui-input
+        placeholder="Folder name..."
+        [(ngModel)]="newFolderName"
+        name="folderName"
+        [disabled]="creatingFolder()">
+      </app-ui-input>
+    </div>
+    <div class="modal-actions">
+      <app-ui-button variant="outline" (click)="cancelCreateFolder()" [disabled]="creatingFolder()">
+        Cancel
+      </app-ui-button>
+      <app-ui-button variant="primary" (click)="createFolder()" [loading]="creatingFolder()">
+        Create
+      </app-ui-button>
+    </div>
   </div>
-</app-confirm-dialog>
+</div>
