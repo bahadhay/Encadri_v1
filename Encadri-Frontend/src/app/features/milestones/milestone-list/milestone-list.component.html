@@ -317,7 +317,17 @@
       </div>
 
       <div class="form-group">
-        <label class="label">Due Date *</label>
+        <label class="label">Start Date</label>
+        <input
+          type="date"
+          class="native-input"
+          [(ngModel)]="milestone.startDate"
+          name="startDate"
+          [disabled]="formLoading()">
+      </div>
+
+      <div class="form-group">
+        <label class="label">End Date *</label>
         <input
           type="date"
           class="native-input"

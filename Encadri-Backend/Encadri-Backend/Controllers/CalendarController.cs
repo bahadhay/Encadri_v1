@@ -134,9 +134,14 @@ namespace Encadri_Backend.Controllers
                     var isOverdue = milestone.DueDate < DateTime.UtcNow && milestone.Status != "completed";
                     var isCompleted = milestone.Status == "completed";
 
-                    // Calculate start date
+                    // Use StartDate if available, otherwise calculate based on milestone order
                     DateTime startDate;
-                    if (i == 0)
+                    if (milestone.StartDate.HasValue)
+                    {
+                        // Use explicit start date if provided
+                        startDate = milestone.StartDate.Value;
+                    }
+                    else if (i == 0)
                     {
                         // First milestone: start from CreatedDate or 2 weeks before DueDate
                         startDate = milestone.CreatedDate ?? milestone.DueDate.AddDays(-14);

@@ -5,6 +5,7 @@ export interface Milestone {
   projectId: string;
   title: string;
   description?: string;
+  startDate?: Date | string;
   dueDate: Date | string;
   status: 'not_started' | 'in_progress' | 'completed' | 'overdue';
   completedDate?: Date | string | null;

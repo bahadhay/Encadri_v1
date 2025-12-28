@@ -175,13 +175,15 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Étape 0: Cahier des charges',
           description: 'Contexte, présentation du problème, objectifs, utilisateurs cibles, besoins fonctionnels, contraintes techniques, environnement technologique, répartition des rôles',
-          dueDate: this.addWeeks(today, 0), // Before week 1
+          startDate: this.addWeeks(today, 0),
+          dueDate: this.addWeeks(today, 0),
           order: 0
         },
         {
           ...baseTemplate,
           title: 'Étape 1: Analyse et conception (Semaines 1-3)',
           description: 'Spécifications fonctionnelles et techniques, diagrammes UML (cas d\'utilisation, classes, séquences), architecture logicielle, sélection des technologies avec justification',
+          startDate: this.addWeeks(today, 1),
           dueDate: this.addWeeks(today, 3),
           order: 1
         },
@@ -189,6 +191,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Étape 2: Conception UI & prototypage (Semaines 4-5)',
           description: 'Maquettes UI/UX (Figma, Adobe XD), préparation environnement technique (IDE, bases de données, serveurs, dépôts Git)',
+          startDate: this.addWeeks(today, 4),
           dueDate: this.addWeeks(today, 5),
           order: 2
         },
@@ -196,6 +199,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Étape 3: Développement et intégration (Semaines 6-10)',
           description: 'Implémentation modules principaux, intégration fonctionnalités (IA, IoT, Data), tests unitaires et d\'intégration, suivi versions via GIT (commits fréquents)',
+          startDate: this.addWeeks(today, 6),
           dueDate: this.addWeeks(today, 10),
           order: 3
         },
@@ -203,6 +207,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Étape 4: Finalisation et sécurité (Semaines 11-12)',
           description: 'Correction de bugs, sécurité (authentification, validation), documentation technique et utilisateur, préparation version stable pour démonstration',
+          startDate: this.addWeeks(today, 11),
           dueDate: this.addWeeks(today, 12),
           order: 4
         },
@@ -210,6 +215,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Étape 5: Rapport et soutenance (Semaines 13-14)',
           description: 'Rédaction rapport final, préparation diaporama et démonstration, répétition de la présentation',
+          startDate: this.addWeeks(today, 13),
           dueDate: this.addWeeks(today, 14),
           order: 5
         }
@@ -221,6 +227,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Phase 1: État de l\'art (Semaines 1-4)',
           description: 'Recherche bibliographique, analyse de l\'existant, technologies émergentes, revue de littérature',
+          startDate: this.addWeeks(today, 1),
           dueDate: this.addWeeks(today, 4),
           order: 0
         },
@@ -228,6 +235,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Phase 2: Analyse & Spécification (Semaines 5-6)',
           description: 'Cahier des charges détaillé, spécifications fonctionnelles et techniques, besoins utilisateurs',
+          startDate: this.addWeeks(today, 5),
           dueDate: this.addWeeks(today, 6),
           order: 1
         },
@@ -235,6 +243,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Phase 3: Conception & Architecture (Semaines 7-10)',
           description: 'Architecture système, conception détaillée, modélisation UML, choix technologiques',
+          startDate: this.addWeeks(today, 7),
           dueDate: this.addWeeks(today, 10),
           order: 2
         },
@@ -242,6 +251,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Phase 4: Développement Phase 1 (Semaines 11-14)',
           description: 'Développement modules principaux, fonctionnalités core, implémentation base de données',
+          startDate: this.addWeeks(today, 11),
           dueDate: this.addWeeks(today, 14),
           order: 3
         },
@@ -249,6 +259,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Phase 5: Développement Phase 2 (Semaines 15-18)',
           description: 'Fonctionnalités avancées, intégration composants, optimisation performances',
+          startDate: this.addWeeks(today, 15),
           dueDate: this.addWeeks(today, 18),
           order: 4
         },
@@ -256,6 +267,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Phase 6: Tests & Validation (Semaines 19-20)',
           description: 'Tests unitaires, tests d\'intégration, validation utilisateurs, correction bugs',
+          startDate: this.addWeeks(today, 19),
           dueDate: this.addWeeks(today, 20),
           order: 5
         },
@@ -263,6 +275,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Phase 7: Documentation & Déploiement (Semaines 21-22)',
           description: 'Documentation technique, manuel utilisateur, guide d\'installation, déploiement production',
+          startDate: this.addWeeks(today, 21),
           dueDate: this.addWeeks(today, 22),
           order: 6
         },
@@ -270,6 +283,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Phase 8: Rapport Final & Soutenance (Semaines 23-24)',
           description: 'Rédaction rapport final, préparation soutenance, répétition présentation, démonstration',
+          startDate: this.addWeeks(today, 23),
           dueDate: this.addWeeks(today, 24),
           order: 7
         }
@@ -281,6 +295,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Phase 1: Intégration & Formation (Semaines 1-2)',
           description: 'Découverte entreprise, présentation équipe, formation outils et technologies, prise en main environnement de travail',
+          startDate: this.addWeeks(today, 1),
           dueDate: this.addWeeks(today, 2),
           order: 0
         },
@@ -288,6 +303,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Phase 2: Analyse du Besoin (Semaines 3-4)',
           description: 'Compréhension problématique métier, analyse besoins fonctionnels, proposition solutions techniques',
+          startDate: this.addWeeks(today, 3),
           dueDate: this.addWeeks(today, 4),
           order: 1
         },
@@ -295,6 +311,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Phase 3: Conception & Planification (Semaines 5-6)',
           description: 'Architecture solution, conception technique, planification sprints, validation approche avec tuteur',
+          startDate: this.addWeeks(today, 5),
           dueDate: this.addWeeks(today, 6),
           order: 2
         },
@@ -302,6 +319,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Phase 4: Développement Sprint 1 (Semaines 7-8)',
           description: 'Première itération développement, implémentation fonctionnalités prioritaires, revue de code',
+          startDate: this.addWeeks(today, 7),
           dueDate: this.addWeeks(today, 8),
           order: 3
         },
@@ -309,6 +327,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Phase 5: Développement Sprint 2 (Semaines 9-10)',
           description: 'Deuxième itération, fonctionnalités complémentaires, intégration continue, optimisations',
+          startDate: this.addWeeks(today, 9),
           dueDate: this.addWeeks(today, 10),
           order: 4
         },
@@ -316,6 +335,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Phase 6: Tests & Finalisation (Semaine 11)',
           description: 'Tests unitaires et d\'intégration, corrections bugs, optimisations performances, préparation livraison',
+          startDate: this.addWeeks(today, 11),
           dueDate: this.addWeeks(today, 11),
           order: 5
         },
@@ -323,6 +343,7 @@ export class MilestoneListComponent implements OnInit {
           ...baseTemplate,
           title: 'Phase 7: Livraison & Rapport (Semaine 12)',
           description: 'Livraison projet final, transfert de connaissances, documentation, rédaction rapport de stage',
+          startDate: this.addWeeks(today, 12),
           dueDate: this.addWeeks(today, 12),
           order: 6
         }
