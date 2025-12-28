@@ -44,6 +44,11 @@ export class NoteListComponent {
   noteToDelete = signal<Note | null>(null);
   deleting = signal<boolean>(false);
 
+  deleteMessage = computed(() => {
+    const noteTitle = this.noteToDelete()?.title || 'this note';
+    return `Are you sure you want to delete "${noteTitle}"? This action cannot be undone.`;
+  });
+
   constructor() {
     this.loadNotes();
   }

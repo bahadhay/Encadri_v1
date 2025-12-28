@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { NoteService } from '../../../core/services/note.service';
@@ -35,6 +35,11 @@ export class NoteDetailComponent implements OnInit {
   loading = signal<boolean>(true);
   isDeleteDialogOpen = signal<boolean>(false);
   deleting = signal<boolean>(false);
+
+  deleteMessage = computed(() => {
+    const noteTitle = this.note()?.title || 'this note';
+    return `Are you sure you want to delete "${noteTitle}"? This action cannot be undone.`;
+  });
 
   ngOnInit() {
     const noteId = this.route.snapshot.paramMap.get('id');
