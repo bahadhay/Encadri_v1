@@ -75,7 +75,7 @@ export class NoteFormComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load note', err);
-        this.toastService.showError('Failed to load note');
+        this.toastService.error('Failed to load note');
         this.router.navigate(['/notes']);
       }
     });
@@ -83,7 +83,7 @@ export class NoteFormComponent implements OnInit {
 
   onSubmit() {
     if (!this.note.title || !this.note.content) {
-      this.toastService.showError('Please fill in all required fields');
+      this.toastService.error('Please fill in all required fields');
       return;
     }
 
@@ -92,24 +92,24 @@ export class NoteFormComponent implements OnInit {
     if (this.isEditMode() && this.note.id) {
       this.noteService.updateNote(this.note.id, this.note).subscribe({
         next: () => {
-          this.toastService.showSuccess('Note updated successfully');
+          this.toastService.success('Note updated successfully');
           this.router.navigate(['/notes', this.note.id]);
         },
         error: (err) => {
           console.error('Failed to update note', err);
-          this.toastService.showError('Failed to update note');
+          this.toastService.error('Failed to update note');
           this.loading.set(false);
         }
       });
     } else {
       this.noteService.createNote(this.note).subscribe({
         next: (createdNote) => {
-          this.toastService.showSuccess('Note created successfully');
+          this.toastService.success('Note created successfully');
           this.router.navigate(['/notes', createdNote.id]);
         },
         error: (err) => {
           console.error('Failed to create note', err);
-          this.toastService.showError('Failed to create note');
+          this.toastService.error('Failed to create note');
           this.loading.set(false);
         }
       });

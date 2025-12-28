@@ -57,7 +57,7 @@ export class NoteListComponent {
       },
       error: (err) => {
         console.error('Failed to load notes', err);
-        this.toastService.showError('Failed to load notes');
+        this.toastService.error('Failed to load notes');
         this.loading.set(false);
       }
     });
@@ -85,11 +85,11 @@ export class NoteListComponent {
       next: () => {
         note.isPinned = newPinState;
         this.notes.set([...this.notes()]);
-        this.toastService.showSuccess(newPinState ? 'Note pinned' : 'Note unpinned');
+        this.toastService.success(newPinState ? 'Note pinned' : 'Note unpinned');
       },
       error: (err) => {
         console.error('Failed to toggle pin', err);
-        this.toastService.showError('Failed to update note');
+        this.toastService.error('Failed to update note');
       }
     });
   }
@@ -110,13 +110,13 @@ export class NoteListComponent {
     this.noteService.deleteNote(note.id).subscribe({
       next: () => {
         this.notes.set(this.notes().filter(n => n.id !== note.id));
-        this.toastService.showSuccess('Note deleted');
+        this.toastService.success('Note deleted');
         this.isDeleteDialogOpen.set(false);
         this.deleting.set(false);
       },
       error: (err) => {
         console.error('Failed to delete note', err);
-        this.toastService.showError('Failed to delete note');
+        this.toastService.error('Failed to delete note');
         this.deleting.set(false);
       }
     });

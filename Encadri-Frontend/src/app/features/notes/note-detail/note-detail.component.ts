@@ -52,7 +52,7 @@ export class NoteDetailComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load note', err);
-        this.toastService.showError('Failed to load note');
+        this.toastService.error('Failed to load note');
         this.router.navigate(['/notes']);
       }
     });
@@ -66,11 +66,11 @@ export class NoteDetailComponent implements OnInit {
     this.noteService.togglePin(currentNote.id, newPinState).subscribe({
       next: () => {
         this.note.set({ ...currentNote, isPinned: newPinState });
-        this.toastService.showSuccess(newPinState ? 'Note pinned' : 'Note unpinned');
+        this.toastService.success(newPinState ? 'Note pinned' : 'Note unpinned');
       },
       error: (err) => {
         console.error('Failed to toggle pin', err);
-        this.toastService.showError('Failed to update note');
+        this.toastService.error('Failed to update note');
       }
     });
   }
@@ -82,12 +82,12 @@ export class NoteDetailComponent implements OnInit {
     this.deleting.set(true);
     this.noteService.deleteNote(currentNote.id).subscribe({
       next: () => {
-        this.toastService.showSuccess('Note deleted');
+        this.toastService.success('Note deleted');
         this.router.navigate(['/notes']);
       },
       error: (err) => {
         console.error('Failed to delete note', err);
-        this.toastService.showError('Failed to delete note');
+        this.toastService.error('Failed to delete note');
         this.deleting.set(false);
       }
     });
