@@ -40,6 +40,10 @@
         <app-icon name="event" [size]="20"></app-icon>
         <span>Meetings</span>
       </a>
+      <a routerLink="/calendar" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
+        <app-icon name="calendar_month" [size]="20"></app-icon>
+        <span>Calendar</span>
+      </a>
       <a routerLink="/chat" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
         <app-icon name="chat" [size]="20"></app-icon>
         <span>Chat</span>

@@ -1,0 +1,124 @@
+<div class="calendar-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h2>Calendar</h2>
+      <p>View all your meetings, deadlines, and milestones</p>
+    </div>
+    <div class="header-actions">
+      <app-ui-button variant="outline" (click)="today()">
+        Today
+      </app-ui-button>
+    </div>
+  </div>
+
+  <!-- Calendar Navigation -->
+  <div class="calendar-nav">
+    <button class="nav-btn" (click)="previousMonth()">
+      <app-icon name="chevron_left" [size]="20"></app-icon>
+    </button>
+    <h3 class="current-month">{{ currentMonth() }}</h3>
+    <button class="nav-btn" (click)="nextMonth()">
+      <app-icon name="chevron_right" [size]="20"></app-icon>
+    </button>
+  </div>
+
+  <!-- Calendar Grid -->
+  <div class="calendar-grid">
+    <!-- Weekday Headers -->
+    <div class="weekday-header">Sun</div>
+    <div class="weekday-header">Mon</div>
+    <div class="weekday-header">Tue</div>
+    <div class="weekday-header">Wed</div>
+    <div class="weekday-header">Thu</div>
+    <div class="weekday-header">Fri</div>
+    <div class="weekday-header">Sat</div>
+
+    <!-- Calendar Days -->
+    <div *ngFor="let day of calendarDays()"
+         class="calendar-day"
+         [class.other-month]="!day.isCurrentMonth"
+         [class.today]="day.isToday">
+      <div class="day-number">{{ day.date.getDate() }}</div>
+      <div class="day-events">
+        <div *ngFor="let event of day.events.slice(0, 3)"
+             class="event-item"
+             [style.background-color]="event.color"
+             (click)="selectEvent(event)">
+          <span class="event-title">{{ event.title }}</span>
+          <span class="event-time" *ngIf="!event.allDay">
+            {{ formatTime(event.start) }}
+          </span>
+        </div>
+        <div *ngIf="day.events.length > 3" class="more-events">
+          +{{ day.events.length - 3 }} more
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="calendar-legend">
+    <div class="legend-item">
+      <div class="legend-color" style="background: #3B82F6;"></div>
+      <span>Meetings</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #F97316;"></div>
+      <span>Submissions</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #8B5CF6;"></div>
+      <span>Milestones</span>
+    </div>
+  </div>
+</div>
+
+<!-- Event Detail Modal -->
+<div class="modal-overlay" *ngIf="selectedEvent()" (click)="closeEventDetail()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        <app-icon [name]="getEventIcon(selectedEvent()!.type)" [size]="24"></app-icon>
+        <h3>{{ selectedEvent()!.title }}</h3>
+      </div>
+      <button class="close-btn" (click)="closeEventDetail()">
+        <app-icon name="close" [size]="20"></app-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="event-detail-section">
+        <div class="detail-row">
+          <app-icon name="calendar_today" [size]="18"></app-icon>
+          <span>{{ formatDate(selectedEvent()!.start) }}</span>
+        </div>
+        <div class="detail-row" *ngIf="!selectedEvent()!.allDay">
+          <app-icon name="schedule" [size]="18"></app-icon>
+          <span>{{ formatTime(selectedEvent()!.start) }} - {{ formatTime(selectedEvent()!.end) }}</span>
+        </div>
+        <div class="detail-row" *ngIf="selectedEvent()!.location">
+          <app-icon name="location_on" [size]="18"></app-icon>
+          <span>{{ selectedEvent()!.location }}</span>
+        </div>
+        <div class="detail-row" *ngIf="selectedEvent()!.status">
+          <app-icon name="info" [size]="18"></app-icon>
+          <span class="status-badge" [class]="selectedEvent()!.status">
+            {{ selectedEvent()!.status }}
+          </span>
+        </div>
+      </div>
+      <div class="event-description" *ngIf="selectedEvent()!.description">
+        <h4>Description</h4>
+        <p>{{ selectedEvent()!.description }}</p>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <app-ui-button variant="outline" (click)="closeEventDetail()">
+        Close
+      </app-ui-button>
+      <app-ui-button variant="primary" (click)="navigateToEvent(selectedEvent()!)">
+        View Details
+      </app-ui-button>
+    </div>
+  </div>
+</div>
