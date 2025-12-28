@@ -4,7 +4,7 @@ using Encadri_Backend.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure port for Railway deployment - Updated: 2025-12-27
+// Configure port for Railway deployment - Updated: 2025-12-28
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
