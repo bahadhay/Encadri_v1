@@ -114,30 +114,56 @@ namespace Encadri_Backend.Controllers
             if (end.HasValue)
                 milestonesQuery = milestonesQuery.Where(m => m.DueDate <= end.Value);
 
-            var milestones = await milestonesQuery.ToListAsync();
-            foreach (var milestone in milestones)
+            var milestones = await milestonesQuery.OrderBy(m => m.ProjectId).ThenBy(m => m.Order).ToListAsync();
+
+            // Group milestones by project to calculate start dates
+            var milestonesByProject = milestones.GroupBy(m => m.ProjectId);
+
+            foreach (var projectGroup in milestonesByProject)
             {
-                var isOverdue = milestone.DueDate < DateTime.UtcNow && milestone.Status != "completed";
-                var isCompleted = milestone.Status == "completed";
+                var projectMilestones = projectGroup.OrderBy(m => m.Order ?? 0).ToList();
+                DateTime? previousDueDate = null;
 
                 // Get project name
-                var project = await _context.Projects.FindAsync(milestone.ProjectId);
+                var project = await _context.Projects.FindAsync(projectGroup.Key);
                 var projectName = project?.Title ?? "Unknown Project";
 
-                events.Add(new CalendarEvent
+                for (int i = 0; i < projectMilestones.Count; i++)
                 {
-                    Id = milestone.Id,
-                    Title = $"🎯 {milestone.Title}",
-                    Start = milestone.DueDate,
-                    End = milestone.DueDate,
-                    Type = "milestone",
-                    Color = isCompleted ? "#10B981" : (isOverdue ? "#EF4444" : "#8B5CF6"),
-                    Description = milestone.Description,
-                    Status = milestone.Status,
-                    ProjectId = milestone.ProjectId,
-                    ProjectName = projectName,
-                    AllDay = true
-                });
+                    var milestone = projectMilestones[i];
+                    var isOverdue = milestone.DueDate < DateTime.UtcNow && milestone.Status != "completed";
+                    var isCompleted = milestone.Status == "completed";
+
+                    // Calculate start date
+                    DateTime startDate;
+                    if (i == 0)
+                    {
+                        // First milestone: start from CreatedDate or 2 weeks before DueDate
+                        startDate = milestone.CreatedDate ?? milestone.DueDate.AddDays(-14);
+                    }
+                    else
+                    {
+                        // Subsequent milestones: start from previous milestone's due date
+                        startDate = previousDueDate ?? milestone.DueDate.AddDays(-14);
+                    }
+
+                    events.Add(new CalendarEvent
+                    {
+                        Id = milestone.Id,
+                        Title = milestone.Title,
+                        Start = startDate,
+                        End = milestone.DueDate,
+                        Type = "milestone",
+                        Color = isCompleted ? "#10B981" : (isOverdue ? "#EF4444" : "#8B5CF6"),
+                        Description = milestone.Description,
+                        Status = milestone.Status,
+                        ProjectId = milestone.ProjectId,
+                        ProjectName = projectName,
+                        AllDay = true
+                    });
+
+                    previousDueDate = milestone.DueDate;
+                }
             }
 
             // Sort by start date
