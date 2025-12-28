@@ -35,43 +35,17 @@
           </div>
         </div>
 
-        <!-- Editor Tabs -->
+        <!-- Simple Editor -->
         <div class="editor-section">
-          <div class="editor-tabs">
-            <button
-              type="button"
-              class="tab-btn"
-              [class.active]="!showPreview()"
-              (click)="showPreview.set(false)">
-              Write
-            </button>
-            <button
-              type="button"
-              class="tab-btn"
-              [class.active]="showPreview()"
-              (click)="showPreview.set(true)">
-              Preview
-            </button>
-          </div>
-
-          <!-- Write Mode -->
-          <div class="editor-content" *ngIf="!showPreview()">
+          <div class="editor-content">
             <textarea
-              class="markdown-editor"
+              class="simple-editor"
               [(ngModel)]="note.content"
               name="content"
-              placeholder="Write your note here... (Markdown supported: **bold**, *italic*, # heading, etc.)"
+              placeholder="Start writing..."
               [disabled]="loading()"
               rows="15">
             </textarea>
-            <div class="editor-help">
-              <span>Supports Markdown: **bold**, *italic*, # heading, [link](url)</span>
-            </div>
-          </div>
-
-          <!-- Preview Mode -->
-          <div class="editor-content" *ngIf="showPreview()">
-            <div class="markdown-preview" [innerHTML]="renderMarkdown(note.content || '')"></div>
           </div>
         </div>
 
