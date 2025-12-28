@@ -268,13 +268,18 @@ export class CalendarComponent implements OnInit {
     return Object.entries(grouped).map(([projectName, milestones]) => {
       const milestonesWithPosition = milestones.map(milestone => {
         const endDate = new Date(milestone.start); // DueDate
-        // Calculate start date (assume 2 weeks duration)
+        // Calculate start date (assume 4 weeks duration for better visibility)
         const startDate = new Date(endDate);
-        startDate.setDate(startDate.getDate() - 14);
+        startDate.setDate(startDate.getDate() - 28); // 4 weeks = 28 days
 
         const startPosition = this.calculatePosition(startDate, yearStart, yearEnd);
         const endPosition = this.calculatePosition(endDate, yearStart, yearEnd);
-        const width = endPosition - startPosition;
+        let width = endPosition - startPosition;
+
+        // Ensure minimum width of 5% for visibility
+        if (width < 5) {
+          width = 5;
+        }
 
         return {
           ...milestone,

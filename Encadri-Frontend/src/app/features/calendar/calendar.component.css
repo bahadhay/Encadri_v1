@@ -695,7 +695,8 @@
   pointer-events: all;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   transition: all 0.2s;
-  min-width: 40px;
+  min-width: 80px !important;
+  opacity: 0.95;
 }
 
 .gantt-task-bar:hover {
