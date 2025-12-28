@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { NoteService } from '../../../core/services/note.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { Note } from '../../../core/models/note.model';
+import { Note, NoteFolder } from '../../../core/models/note.model';
 import { UiCardComponent } from '../../../shared/components/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../../shared/components/ui-button/ui-button.component';
 import { UiInputComponent } from '../../../shared/components/ui-input/ui-input.component';
@@ -34,6 +34,7 @@ export class NoteFormComponent implements OnInit {
   note: Partial<Note> = this.getEmptyNote();
   loading = signal<boolean>(false);
   isEditMode = signal<boolean>(false);
+  folders = signal<NoteFolder[]>([]);
 
   colors = [
     { value: '', label: 'Default', class: '' },
@@ -47,11 +48,23 @@ export class NoteFormComponent implements OnInit {
   ];
 
   ngOnInit() {
+    this.loadFolders();
     const noteId = this.route.snapshot.paramMap.get('id');
     if (noteId) {
       this.isEditMode.set(true);
       this.loadNote(noteId);
     }
+  }
+
+  loadFolders() {
+    this.noteService.getFolders().subscribe({
+      next: (data) => {
+        this.folders.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load folders', err);
+      }
+    });
   }
 
   getEmptyNote(): Partial<Note> {

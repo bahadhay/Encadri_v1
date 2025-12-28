@@ -18,6 +18,21 @@
           [disabled]="loading()">
         </app-ui-input>
 
+        <!-- Folder Selection -->
+        <div class="form-group" *ngIf="folders().length > 0">
+          <label class="label">Folder</label>
+          <select
+            class="folder-select"
+            [(ngModel)]="note.folderId"
+            name="folderId"
+            [disabled]="loading()">
+            <option [ngValue]="null">No folder</option>
+            <option *ngFor="let folder of folders()" [ngValue]="folder.id">
+              {{ folder.name }}
+            </option>
+          </select>
+        </div>
+
         <!-- Color Selection -->
         <div class="form-group">
           <label class="label">Color</label>

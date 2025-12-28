@@ -5,10 +5,39 @@
       <h2>Notes</h2>
       <p>Your personal notebook</p>
     </div>
-    <app-ui-button variant="primary" routerLink="/notes/new">
-      <app-icon name="plus" [size]="16"></app-icon>
-      New Note
-    </app-ui-button>
+    <div class="header-actions">
+      <app-ui-button variant="outline" (click)="isCreateFolderOpen.set(true)">
+        <app-icon name="create_new_folder" [size]="16"></app-icon>
+        New Folder
+      </app-ui-button>
+      <app-ui-button variant="primary" routerLink="/notes/new">
+        <app-icon name="plus" [size]="16"></app-icon>
+        New Note
+      </app-ui-button>
+    </div>
+  </div>
+
+  <!-- Folders -->
+  <div class="folders-section" *ngIf="folders().length > 0">
+    <div class="folders-list">
+      <button
+        class="folder-btn"
+        [class.active]="!selectedFolder()"
+        (click)="selectedFolder.set(null)">
+        <app-icon name="folder" [size]="18"></app-icon>
+        All Notes
+        <span class="folder-count">{{ notes().length }}</span>
+      </button>
+      <button
+        *ngFor="let folder of folders()"
+        class="folder-btn"
+        [class.active]="selectedFolder()?.id === folder.id"
+        (click)="selectedFolder.set(folder)">
+        <app-icon name="folder" [size]="18"></app-icon>
+        {{ folder.name }}
+        <span class="folder-count">{{ getFolderNoteCount(folder.id!) }}</span>
+      </button>
+    </div>
   </div>
 
   <!-- Search -->
@@ -112,4 +141,23 @@
   [loading]="deleting()"
   (confirm)="confirmDelete()"
   (cancel)="isDeleteDialogOpen.set(false)">
+</app-confirm-dialog>
+
+<!-- Create Folder Dialog -->
+<app-confirm-dialog
+  [isOpen]="isCreateFolderOpen()"
+  title="Create Folder"
+  message="Enter folder name:"
+  confirmText="Create"
+  variant="info"
+  [loading]="creatingFolder()"
+  (confirm)="createFolder()"
+  (cancel)="cancelCreateFolder()">
+  <div style="margin-top: 1rem;">
+    <app-ui-input
+      placeholder="Folder name..."
+      [(ngModel)]="newFolderName"
+      name="folderName">
+    </app-ui-input>
+  </div>
 </app-confirm-dialog>

@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { NoteService } from '../../../core/services/note.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { Note } from '../../../core/models/note.model';
+import { Note, NoteFolder } from '../../../core/models/note.model';
 import { UiCardComponent } from '../../../shared/components/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../../shared/components/ui-button/ui-button.component';
 import { UiInputComponent } from '../../../shared/components/ui-input/ui-input.component';
@@ -36,13 +36,20 @@ export class NoteListComponent {
   private toastService = inject(ToastService);
 
   notes = signal<Note[]>([]);
+  folders = signal<NoteFolder[]>([]);
   loading = signal<boolean>(true);
   searchTerm = signal<string>('');
+  selectedFolder = signal<NoteFolder | null>(null);
 
   // Delete dialog state
   isDeleteDialogOpen = signal<boolean>(false);
   noteToDelete = signal<Note | null>(null);
   deleting = signal<boolean>(false);
+
+  // Create folder dialog state
+  isCreateFolderOpen = signal<boolean>(false);
+  creatingFolder = signal<boolean>(false);
+  newFolderName = '';
 
   deleteMessage = computed(() => {
     const noteTitle = this.noteToDelete()?.title || 'this note';
@@ -51,6 +58,7 @@ export class NoteListComponent {
 
   constructor() {
     this.loadNotes();
+    this.loadFolders();
   }
 
   loadNotes() {
@@ -68,14 +76,36 @@ export class NoteListComponent {
     });
   }
 
-  filteredNotes = computed(() => {
-    const search = this.searchTerm().toLowerCase();
-    if (!search) return this.notes();
+  loadFolders() {
+    this.noteService.getFolders().subscribe({
+      next: (data) => {
+        this.folders.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load folders', err);
+      }
+    });
+  }
 
-    return this.notes().filter(note =>
-      note.title.toLowerCase().includes(search) ||
-      note.content.toLowerCase().includes(search)
-    );
+  filteredNotes = computed(() => {
+    let result = this.notes();
+
+    // Filter by folder
+    const folder = this.selectedFolder();
+    if (folder) {
+      result = result.filter(note => note.folderId === folder.id);
+    }
+
+    // Filter by search term
+    const search = this.searchTerm().toLowerCase();
+    if (search) {
+      result = result.filter(note =>
+        note.title.toLowerCase().includes(search) ||
+        note.content.toLowerCase().includes(search)
+      );
+    }
+
+    return result;
   });
 
   pinnedNotes = computed(() => this.filteredNotes().filter(n => n.isPinned));
@@ -147,5 +177,42 @@ export class NoteListComponent {
       day: 'numeric',
       year: 'numeric'
     });
+  }
+
+  getFolderNoteCount(folderId: string): number {
+    return this.notes().filter(note => note.folderId === folderId).length;
+  }
+
+  createFolder() {
+    if (!this.newFolderName.trim()) {
+      this.toastService.error('Please enter a folder name');
+      return;
+    }
+
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return;
+
+    this.creatingFolder.set(true);
+    this.noteService.createFolder({
+      name: this.newFolderName.trim(),
+      userEmail: currentUser.email
+    }).subscribe({
+      next: (folder) => {
+        this.folders.set([...this.folders(), folder]);
+        this.toastService.success('Folder created');
+        this.cancelCreateFolder();
+      },
+      error: (err) => {
+        console.error('Failed to create folder', err);
+        this.toastService.error('Failed to create folder');
+        this.creatingFolder.set(false);
+      }
+    });
+  }
+
+  cancelCreateFolder() {
+    this.isCreateFolderOpen.set(false);
+    this.creatingFolder.set(false);
+    this.newFolderName = '';
   }
 }

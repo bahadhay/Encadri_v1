@@ -36,6 +36,29 @@
   color: var(--slate-700);
 }
 
+/* Folder Selection */
+.folder-select {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--slate-300);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  color: var(--slate-900);
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.folder-select:hover {
+  border-color: var(--slate-400);
+}
+
+.folder-select:focus {
+  outline: none;
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 3px rgba(91, 79, 245, 0.1);
+}
+
 /* Color Selection */
 .color-options {
   display: flex;
