@@ -65,20 +65,51 @@
 
   <!-- Gantt View -->
   <div *ngIf="viewMode() === 'gantt'" class="gantt-view">
-    <div class="gantt-container">
-      <div *ngFor="let project of ganttMilestones()" class="gantt-project">
-        <h3 class="project-title">Project: {{ project.projectId }}</h3>
-        <div class="gantt-timeline">
-          <div class="gantt-header">
-            <div class="gantt-months">
-              <!-- Month markers will be shown based on milestone range -->
+    <div class="gantt-wrapper">
+      <!-- Timeline Header -->
+      <div class="gantt-header-row">
+        <div class="gantt-sidebar-header">Projects / Milestones</div>
+        <div class="gantt-timeline-header">
+          <div class="gantt-months-header">
+            <div *ngFor="let month of timelineMonths()" class="month-column" [title]="month.fullMonth">
+              {{ month.month }}
             </div>
           </div>
-          <div class="gantt-bars">
-            <div *ngFor="let milestone of project.milestones" class="gantt-bar-row">
-              <div class="milestone-label">{{ milestone.title }}</div>
-              <div class="milestone-bar" [style.background-color]="milestone.color">
-                <span class="milestone-date">{{ formatDateShort(milestone.start) }}</span>
+        </div>
+      </div>
+
+      <!-- Gantt Rows -->
+      <div class="gantt-body">
+        <div *ngFor="let project of ganttData()" class="gantt-project-section">
+          <!-- Project Header Row -->
+          <div class="gantt-row project-row">
+            <div class="gantt-sidebar">
+              <div class="project-name">{{ project.projectId }}</div>
+            </div>
+            <div class="gantt-timeline">
+              <div class="gantt-grid">
+                <div *ngFor="let month of timelineMonths()" class="month-cell"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Milestone Rows -->
+          <div *ngFor="let milestone of project.milestones" class="gantt-row milestone-row">
+            <div class="gantt-sidebar">
+              <div class="milestone-name">{{ milestone.title }}</div>
+            </div>
+            <div class="gantt-timeline">
+              <div class="gantt-grid">
+                <div *ngFor="let month of timelineMonths()" class="month-cell"></div>
+              </div>
+              <div class="gantt-bar-container">
+                <div class="gantt-milestone-bar"
+                     [style.left.%]="milestone.position"
+                     [style.background-color]="milestone.color"
+                     [title]="milestone.title + ' - ' + formatDate(milestone.start)"
+                     (click)="selectEvent(milestone)">
+                  <span class="bar-label">{{ formatDateShort(milestone.start) }}</span>
+                </div>
               </div>
             </div>
           </div>

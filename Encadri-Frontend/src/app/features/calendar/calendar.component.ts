@@ -245,34 +245,64 @@ export class CalendarComponent implements OnInit {
     });
   });
 
-  // Gantt view: only milestones grouped by project
-  ganttMilestones = computed(() => {
+  // Gantt view: milestones grouped by project with timeline positioning
+  ganttData = computed(() => {
     const milestones = this.events().filter(e => e.type === 'milestone');
+
+    // Get current year
+    const currentYear = new Date().getFullYear();
+    const yearStart = new Date(currentYear, 0, 1); // Jan 1
+    const yearEnd = new Date(currentYear, 11, 31); // Dec 31
 
     // Group by project
     const grouped: { [key: string]: CalendarEvent[] } = {};
     milestones.forEach(milestone => {
-      const projectId = milestone.projectId || 'unknown';
+      const projectId = milestone.projectId || 'Unknown Project';
       if (!grouped[projectId]) {
         grouped[projectId] = [];
       }
       grouped[projectId].push(milestone);
     });
 
-    return Object.entries(grouped).map(([projectId, milestones]) => ({
-      projectId,
-      milestones: milestones.sort((a, b) =>
-        new Date(a.start).getTime() - new Date(b.start).getTime()
-      )
-    }));
+    // Calculate positions for each milestone
+    return Object.entries(grouped).map(([projectId, milestones]) => {
+      const milestonesWithPosition = milestones.map(milestone => {
+        const position = this.calculatePosition(new Date(milestone.start), yearStart, yearEnd);
+        return {
+          ...milestone,
+          position
+        };
+      });
+
+      return {
+        projectId,
+        milestones: milestonesWithPosition.sort((a, b) =>
+          new Date(a.start).getTime() - new Date(b.start).getTime()
+        )
+      };
+    });
   });
 
-  getMonthPosition(date: Date, startDate: Date, endDate: Date): number {
-    const eventTime = date.getTime();
-    const start = startDate.getTime();
-    const end = endDate.getTime();
-    const range = end - start;
-    return ((eventTime - start) / range) * 100;
+  // Generate 12 months for timeline header
+  timelineMonths = computed(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 12 }, (_, i) => {
+      const date = new Date(currentYear, i, 1);
+      return {
+        month: date.toLocaleDateString('en-US', { month: 'short' }),
+        fullMonth: date.toLocaleDateString('en-US', { month: 'long' }),
+        index: i
+      };
+    });
+  });
+
+  calculatePosition(date: Date, yearStart: Date, yearEnd: Date): number {
+    const dateTime = date.getTime();
+    const startTime = yearStart.getTime();
+    const endTime = yearEnd.getTime();
+    const totalDuration = endTime - startTime;
+    const elapsed = dateTime - startTime;
+    return (elapsed / totalDuration) * 100;
   }
 
   formatDateShort(date: Date | string): string {
