@@ -17,6 +17,13 @@ namespace Encadri_Backend.Controllers
             _context = context;
         }
 
+        // Health check endpoint for Notes feature
+        [HttpGet("health")]
+        public ActionResult Health()
+        {
+            return Ok(new { status = "healthy", feature = "notes", timestamp = DateTime.UtcNow });
+        }
+
         /// <summary>
         /// Get all notes for the current user with optional filters
         /// </summary>
