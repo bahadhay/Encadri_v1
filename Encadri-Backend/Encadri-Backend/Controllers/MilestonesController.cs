@@ -56,6 +56,7 @@ namespace Encadri_Backend.Controllers
             milestone.Id = Guid.NewGuid().ToString();
             milestone.CreatedDate = DateTime.UtcNow;
             milestone.UpdatedDate = DateTime.UtcNow;
+            milestone.StartDate = DateTimeHelper.EnsureUtc(milestone.StartDate);
             milestone.DueDate = DateTimeHelper.EnsureUtc(milestone.DueDate);
             milestone.CompletedDate = DateTimeHelper.EnsureUtc(milestone.CompletedDate);
             _context.Milestones.Add(milestone);
@@ -77,6 +78,7 @@ namespace Encadri_Backend.Controllers
 
             milestone.Title = updatedMilestone.Title;
             milestone.Description = updatedMilestone.Description;
+            milestone.StartDate = DateTimeHelper.EnsureUtc(updatedMilestone.StartDate);
             milestone.DueDate = DateTimeHelper.EnsureUtc(updatedMilestone.DueDate);
             milestone.Status = updatedMilestone.Status;
             milestone.CompletedDate = DateTimeHelper.EnsureUtc(updatedMilestone.CompletedDate);
