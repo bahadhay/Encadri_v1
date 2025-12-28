@@ -112,7 +112,7 @@ export class CalendarComponent implements OnInit {
     const start = new Date(date.getFullYear(), date.getMonth() - 1, 1);
     const end = new Date(date.getFullYear(), date.getMonth() + 2, 0);
 
-    this.calendarService.getEvents(currentUser.email, currentUser.role, start, end).subscribe({
+    this.calendarService.getEvents(currentUser.email, currentUser.userRole, start, end).subscribe({
       next: (events) => {
         // Convert string dates to Date objects
         const processedEvents = events.map(event => ({
