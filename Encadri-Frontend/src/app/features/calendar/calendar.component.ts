@@ -37,6 +37,7 @@ export class CalendarComponent implements OnInit {
   events = signal<CalendarEvent[]>([]);
   loading = signal<boolean>(false);
   selectedEvent = signal<CalendarEvent | null>(null);
+  viewMode = signal<'calendar' | 'timeline'>('calendar');
 
   // Computed values
   currentMonth = computed(() => {
@@ -201,4 +202,34 @@ export class CalendarComponent implements OnInit {
     // This will be implemented based on event type
     this.toastService.info(`Navigate to ${event.type}: ${event.title}`);
   }
+
+  setViewMode(mode: 'calendar' | 'timeline') {
+    this.viewMode.set(mode);
+  }
+
+  // Timeline view: events sorted by date with month headers
+  timelineEvents = computed(() => {
+    const events = this.events()
+      .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+
+    // Group by month
+    const grouped: { [key: string]: CalendarEvent[] } = {};
+    events.forEach(event => {
+      const date = new Date(event.start);
+      const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+      if (!grouped[monthKey]) {
+        grouped[monthKey] = [];
+      }
+      grouped[monthKey].push(event);
+    });
+
+    return Object.entries(grouped).map(([key, events]) => {
+      const [year, month] = key.split('-').map(Number);
+      const date = new Date(year, month, 1);
+      return {
+        monthYear: date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+        events
+      };
+    });
+  });
 }
