@@ -65,13 +65,8 @@ export class DashboardComponent implements OnInit {
     this.loadSubmissions();
     this.loadMeetings();
 
-    // Start tour for first-time users
-    if (!this.tourService.hasSeen('dashboard')) {
-      // Wait for page to fully load before starting tour
-      setTimeout(() => {
-        this.tourService.startDashboardTour();
-      }, 1500);
-    }
+    // Auto-start tour ONLY for brand new users (first visit ever)
+    this.tourService.autoStartTour('dashboard');
   }
 
   /**

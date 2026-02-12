@@ -278,6 +278,20 @@ export class TourService {
   }
 
   /**
+   * Check if user is a first-time visitor (brand new user)
+   */
+  isFirstTimeUser(): boolean {
+    return localStorage.getItem('encadri-first-visit') !== 'true';
+  }
+
+  /**
+   * Mark that the user has visited the app
+   */
+  markAsReturningUser(): void {
+    localStorage.setItem('encadri-first-visit', 'true');
+  }
+
+  /**
    * Check if user has seen a specific tour
    */
   hasSeen(tourId: string): boolean {
@@ -309,7 +323,7 @@ export class TourService {
   }
 
   /**
-   * Reset all tours
+   * Reset all tours and first-time user flag (for testing)
    */
   resetAllTours(): void {
     const keys = Object.keys(localStorage);
@@ -318,6 +332,8 @@ export class TourService {
         localStorage.removeItem(key);
       }
     });
+    // Also reset first-time user flag
+    localStorage.removeItem('encadri-first-visit');
   }
 
   /**
@@ -331,44 +347,22 @@ export class TourService {
   }
 
   /**
-   * Auto-start tour based on current page
+   * Auto-start tour ONLY for first-time users (brand new accounts)
+   * Only shows dashboard tour on first visit
    */
   autoStartTour(pageName: string): void {
-    if (this.hasSeen(pageName)) {
-      return; // Already seen, don't show again
+    // Only auto-start for brand new users
+    if (!this.isFirstTimeUser()) {
+      return; // Not a first-time user, don't auto-start
     }
 
-    // Wait for page to load
-    setTimeout(() => {
-      switch(pageName) {
-        case 'dashboard':
-          this.startDashboardTour();
-          break;
-        case 'projects':
-          this.startProjectsTour();
-          break;
-        case 'submissions':
-          this.startSubmissionsTour();
-          break;
-        case 'meetings':
-          this.startMeetingsTour();
-          break;
-        case 'chat':
-          this.startChatTour();
-          break;
-        case 'calendar':
-          this.startCalendarTour();
-          break;
-        case 'notes':
-          this.startNotesTour();
-          break;
-        case 'profile':
-          this.startProfileTour();
-          break;
-        case 'project-detail':
-          this.startProjectDetailTour();
-          break;
-      }
-    }, 1000);
+    // Only show dashboard tour for first-time users
+    if (pageName === 'dashboard' && !this.hasSeen('dashboard')) {
+      setTimeout(() => {
+        this.startDashboardTour();
+        // Mark user as returning after showing the tour
+        this.markAsReturningUser();
+      }, 1500);
+    }
   }
 }
