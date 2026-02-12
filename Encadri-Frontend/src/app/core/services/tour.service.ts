@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import Shepherd from 'shepherd.js';
 
+// TypeScript workaround for Shepherd
+const ShepherdTour = (Shepherd as any).Tour || Shepherd;
+
 @Injectable({
   providedIn: 'root'
 })
 export class TourService {
-  private tour: Shepherd.Tour | null = null;
+  private tour: any | null = null;
 
   constructor() {}
 
@@ -13,7 +16,7 @@ export class TourService {
    * Start the dashboard tour for new users
    */
   startDashboardTour(): void {
-    this.tour = new Shepherd.Tour({
+    this.tour = new ShepherdTour({
       useModalOverlay: true,
       defaultStepOptions: {
         classes: 'shepherd-theme-encadri',
@@ -229,7 +232,7 @@ export class TourService {
    * Start quick tour for document submission feature
    */
   startSubmissionTour(): void {
-    this.tour = new Shepherd.Tour({
+    this.tour = new ShepherdTour({
       useModalOverlay: true,
       defaultStepOptions: {
         classes: 'shepherd-theme-encadri',
@@ -285,7 +288,7 @@ export class TourService {
    * Start quick tour for meetings feature
    */
   startMeetingTour(): void {
-    this.tour = new Shepherd.Tour({
+    this.tour = new ShepherdTour({
       useModalOverlay: true,
       defaultStepOptions: {
         classes: 'shepherd-theme-encadri',
@@ -373,7 +376,7 @@ export class TourService {
    * Show a simple tooltip/hint
    */
   showHint(message: string, element?: string): void {
-    const tour = new Shepherd.Tour({
+    const tour = new ShepherdTour({
       useModalOverlay: false,
       defaultStepOptions: {
         classes: 'shepherd-theme-encadri-hint',
