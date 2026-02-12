@@ -40,7 +40,7 @@ export class TourService {
         <div class="tour-content">
           <span class="tour-icon">👋</span>
           <h3>Bienvenue sur Encadri</h3>
-          <p>Votre espace pour gérer vos projets PFE</p>
+          <p>Gérez tous vos projets facilement</p>
         </div>
       `,
       buttons: [
@@ -54,8 +54,8 @@ export class TourService {
       text: `
         <div class="tour-content">
           <span class="tour-icon">📊</span>
-          <h3>Vos statistiques</h3>
-          <p>Vue rapide de vos projets et tâches</p>
+          <h3>Vue d'ensemble</h3>
+          <p>Statistiques et activités récentes</p>
         </div>
       `,
       attachTo: { element: '.stats-grid', on: 'bottom' },
@@ -82,7 +82,7 @@ export class TourService {
         <div class="tour-content">
           <span class="tour-icon">📁</span>
           <h3>Vos Projets</h3>
-          <p>Créez et gérez vos projets PFE ici</p>
+          <p>Créez et gérez vos projets ici</p>
         </div>
       `,
       buttons: [
@@ -106,7 +106,7 @@ export class TourService {
         <div class="tour-content">
           <span class="tour-icon">📄</span>
           <h3>Soumissions</h3>
-          <p>Téléchargez vos chapitres et rapports</p>
+          <p>Partagez vos documents et livrables</p>
         </div>
       `,
       buttons: [
@@ -145,7 +145,7 @@ export class TourService {
         <div class="tour-content">
           <span class="tour-icon">📅</span>
           <h3>Réunions</h3>
-          <p>Planifiez vos rendez-vous avec votre encadreur</p>
+          <p>Planifiez et gérez vos réunions</p>
         </div>
       `,
       buttons: [
@@ -169,7 +169,7 @@ export class TourService {
         <div class="tour-content">
           <span class="tour-icon">💬</span>
           <h3>Messagerie</h3>
-          <p>Communiquez en temps réel avec votre encadreur</p>
+          <p>Communiquez en temps réel avec votre équipe</p>
         </div>
       `,
       buttons: [
@@ -193,7 +193,7 @@ export class TourService {
         <div class="tour-content">
           <span class="tour-icon">📆</span>
           <h3>Calendrier</h3>
-          <p>Visualisez toutes vos réunions et deadlines</p>
+          <p>Visualisez tous vos événements et échéances</p>
         </div>
       `,
       buttons: [
