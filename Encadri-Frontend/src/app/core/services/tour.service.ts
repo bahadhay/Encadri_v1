@@ -13,10 +13,10 @@ export class TourService {
   constructor() {}
 
   /**
-   * Start the dashboard tour for new users
+   * Default tour options - simple and clean
    */
-  startDashboardTour(): void {
-    this.tour = new ShepherdTour({
+  private getDefaultOptions() {
+    return {
       useModalOverlay: true,
       defaultStepOptions: {
         classes: 'shepherd-theme-encadri',
@@ -25,297 +25,255 @@ export class TourService {
           enabled: true
         }
       }
-    });
+    };
+  }
 
-    // Step 1: Welcome
+  /**
+   * DASHBOARD TOUR - Simple 3-step intro
+   */
+  startDashboardTour(): void {
+    this.tour = new ShepherdTour(this.getDefaultOptions());
+
     this.tour.addStep({
-      id: 'welcome',
+      id: 'dashboard-welcome',
       text: `
         <div class="tour-content">
-          <h3>Bienvenue sur Encadri! 👋</h3>
-          <p>Découvrons ensemble votre espace de gestion de projets académiques.</p>
-          <p class="tour-duration">⏱️ Durée: 2 minutes</p>
+          <span class="tour-icon">👋</span>
+          <h3>Bienvenue sur Encadri</h3>
+          <p>Votre espace pour gérer vos projets PFE</p>
         </div>
       `,
       buttons: [
-        {
-          text: 'Ignorer',
-          action: this.tour.cancel,
-          classes: 'shepherd-button-secondary'
-        },
-        {
-          text: 'Commencer',
-          action: this.tour.next,
-          classes: 'shepherd-button-primary'
-        }
+        { text: 'Passer', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
       ]
     });
 
-    // Step 2: Stats Overview
     this.tour.addStep({
-      id: 'stats',
+      id: 'dashboard-stats',
       text: `
         <div class="tour-content">
-          <h3>📊 Vue d'ensemble</h3>
-          <p>Ces statistiques vous donnent un aperçu rapide de vos projets actifs, révisions en attente et réunions à venir.</p>
+          <span class="tour-icon">📊</span>
+          <h3>Vos statistiques</h3>
+          <p>Vue rapide de vos projets et tâches</p>
         </div>
       `,
-      attachTo: {
-        element: '.stats-grid',
-        on: 'bottom'
-      },
+      attachTo: { element: '.stats-grid', on: 'bottom' },
       buttons: [
-        {
-          text: 'Précédent',
-          action: this.tour.back,
-          classes: 'shepherd-button-secondary'
-        },
-        {
-          text: 'Suivant',
-          action: this.tour.next,
-          classes: 'shepherd-button-primary'
-        }
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
       ]
     });
 
-    // Step 3: Projects Section
-    this.tour.addStep({
-      id: 'projects',
-      text: `
-        <div class="tour-content">
-          <h3>📁 Mes Projets</h3>
-          <p>Ici vous trouverez tous vos projets PFE. Vous pouvez créer un nouveau projet ou gérer les existants.</p>
-        </div>
-      `,
-      attachTo: {
-        element: '.content-grid section:first-child',
-        on: 'right'
-      },
-      buttons: [
-        {
-          text: 'Précédent',
-          action: this.tour.back,
-          classes: 'shepherd-button-secondary'
-        },
-        {
-          text: 'Suivant',
-          action: this.tour.next,
-          classes: 'shepherd-button-primary'
-        }
-      ]
-    });
-
-    // Step 4: Sidebar Navigation
-    this.tour.addStep({
-      id: 'sidebar',
-      text: `
-        <div class="tour-content">
-          <h3>🧭 Navigation</h3>
-          <p>Utilisez ce menu pour accéder rapidement à:</p>
-          <ul>
-            <li>📋 <strong>Submissions:</strong> Télécharger vos documents</li>
-            <li>📅 <strong>Meetings:</strong> Planifier des rendez-vous</li>
-            <li>💬 <strong>Chat:</strong> Communiquer avec votre encadreur</li>
-            <li>📝 <strong>Notes:</strong> Prendre des notes</li>
-          </ul>
-        </div>
-      `,
-      attachTo: {
-        element: '.nav-links',
-        on: 'right'
-      },
-      buttons: [
-        {
-          text: 'Précédent',
-          action: this.tour.back,
-          classes: 'shepherd-button-secondary'
-        },
-        {
-          text: 'Suivant',
-          action: this.tour.next,
-          classes: 'shepherd-button-primary'
-        }
-      ]
-    });
-
-    // Step 5: Notifications
-    this.tour.addStep({
-      id: 'notifications',
-      text: `
-        <div class="tour-content">
-          <h3>🔔 Notifications</h3>
-          <p>Restez informé des mises à jour importantes: nouveaux messages, évaluations, rappels de réunions, etc.</p>
-        </div>
-      `,
-      attachTo: {
-        element: 'app-notification-bell',
-        on: 'bottom'
-      },
-      buttons: [
-        {
-          text: 'Précédent',
-          action: this.tour.back,
-          classes: 'shepherd-button-secondary'
-        },
-        {
-          text: 'Suivant',
-          action: this.tour.next,
-          classes: 'shepherd-button-primary'
-        }
-      ]
-    });
-
-    // Step 6: Profile
-    this.tour.addStep({
-      id: 'profile',
-      text: `
-        <div class="tour-content">
-          <h3>👤 Profil</h3>
-          <p>Cliquez ici pour accéder à votre profil et gérer vos informations personnelles.</p>
-        </div>
-      `,
-      attachTo: {
-        element: 'a[routerLink="/profile"]',
-        on: 'right'
-      },
-      buttons: [
-        {
-          text: 'Précédent',
-          action: this.tour.back,
-          classes: 'shepherd-button-secondary'
-        },
-        {
-          text: 'Suivant',
-          action: this.tour.next,
-          classes: 'shepherd-button-primary'
-        }
-      ]
-    });
-
-    // Step 7: Completion
-    this.tour.addStep({
-      id: 'complete',
-      text: `
-        <div class="tour-content">
-          <h3>🎉 C'est tout!</h3>
-          <p>Vous êtes maintenant prêt à utiliser Encadri pour gérer votre projet PFE.</p>
-          <div class="tour-tips">
-            <p><strong>💡 Conseil:</strong> Vous pouvez relancer ce guide à tout moment depuis le menu d'aide en haut à droite.</p>
-          </div>
-          <p class="tour-cta">Bonne chance avec votre projet! 🚀</p>
-        </div>
-      `,
-      buttons: [
-        {
-          text: 'Terminer',
-          action: this.tour.complete,
-          classes: 'shepherd-button-primary'
-        }
-      ]
-    });
-
-    // Event listeners
-    this.tour.on('complete', () => {
-      this.markTourAsCompleted('dashboard');
-      console.log('Tour completed');
-    });
-
-    this.tour.on('cancel', () => {
-      this.markTourAsCancelled('dashboard');
-      console.log('Tour cancelled');
-    });
-
+    this.tour.on('complete', () => this.markTourAsCompleted('dashboard'));
+    this.tour.on('cancel', () => this.markTourAsCancelled('dashboard'));
     this.tour.start();
   }
 
   /**
-   * Start quick tour for document submission feature
+   * PROJECTS TOUR - 2 steps
    */
-  startSubmissionTour(): void {
-    this.tour = new ShepherdTour({
-      useModalOverlay: true,
-      defaultStepOptions: {
-        classes: 'shepherd-theme-encadri',
-        scrollTo: true,
-        cancelIcon: {
-          enabled: true
-        }
-      }
-    });
+  startProjectsTour(): void {
+    this.tour = new ShepherdTour(this.getDefaultOptions());
 
     this.tour.addStep({
-      id: 'submission-intro',
+      id: 'projects-list',
       text: `
         <div class="tour-content">
-          <h3>📄 Soumettre un document</h3>
-          <p>Apprenez comment télécharger vos chapitres et rapports pour évaluation.</p>
+          <span class="tour-icon">📁</span>
+          <h3>Vos Projets</h3>
+          <p>Créez et gérez vos projets PFE ici</p>
         </div>
       `,
       buttons: [
-        {
-          text: 'Commencer',
-          action: this.tour.next,
-          classes: 'shepherd-button-primary'
-        }
+        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
       ]
     });
 
-    this.tour.addStep({
-      id: 'upload-button',
-      text: `
-        <div class="tour-content">
-          <h3>1️⃣ Cliquez sur "Nouvelle Soumission"</h3>
-          <p>Pour commencer, cliquez sur ce bouton pour ouvrir le formulaire de téléchargement.</p>
-        </div>
-      `,
-      attachTo: {
-        element: '.create-submission-btn',
-        on: 'bottom'
-      },
-      buttons: [
-        {
-          text: 'Compris',
-          action: this.tour.complete,
-          classes: 'shepherd-button-primary'
-        }
-      ]
-    });
-
+    this.tour.on('complete', () => this.markTourAsCompleted('projects'));
     this.tour.start();
   }
 
   /**
-   * Start quick tour for meetings feature
+   * SUBMISSIONS TOUR - 3 steps
    */
-  startMeetingTour(): void {
-    this.tour = new ShepherdTour({
-      useModalOverlay: true,
-      defaultStepOptions: {
-        classes: 'shepherd-theme-encadri',
-        scrollTo: true,
-        cancelIcon: {
-          enabled: true
-        }
-      }
-    });
+  startSubmissionsTour(): void {
+    this.tour = new ShepherdTour(this.getDefaultOptions());
 
     this.tour.addStep({
-      id: 'meeting-intro',
+      id: 'submissions-intro',
       text: `
         <div class="tour-content">
-          <h3>📅 Planifier une réunion</h3>
-          <p>Organisez facilement vos rendez-vous avec votre encadreur.</p>
+          <span class="tour-icon">📄</span>
+          <h3>Soumissions</h3>
+          <p>Téléchargez vos chapitres et rapports</p>
         </div>
       `,
       buttons: [
-        {
-          text: 'Compris',
-          action: this.tour.complete,
-          classes: 'shepherd-button-primary'
-        }
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
       ]
     });
 
+    this.tour.addStep({
+      id: 'submissions-upload',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">⬆️</span>
+          <h3>Télécharger un document</h3>
+          <p>Cliquez ici pour soumettre</p>
+        </div>
+      `,
+      attachTo: { element: 'app-ui-button[routerLink*="new"], .create-submission-btn, .new-submission-btn', on: 'bottom' },
+      buttons: [
+        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.on('complete', () => this.markTourAsCompleted('submissions'));
+    this.tour.start();
+  }
+
+  /**
+   * MEETINGS TOUR - 2 steps
+   */
+  startMeetingsTour(): void {
+    this.tour = new ShepherdTour(this.getDefaultOptions());
+
+    this.tour.addStep({
+      id: 'meetings-intro',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">📅</span>
+          <h3>Réunions</h3>
+          <p>Planifiez vos rendez-vous avec votre encadreur</p>
+        </div>
+      `,
+      buttons: [
+        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.on('complete', () => this.markTourAsCompleted('meetings'));
+    this.tour.start();
+  }
+
+  /**
+   * CHAT TOUR - 2 steps
+   */
+  startChatTour(): void {
+    this.tour = new ShepherdTour(this.getDefaultOptions());
+
+    this.tour.addStep({
+      id: 'chat-intro',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">💬</span>
+          <h3>Messagerie</h3>
+          <p>Communiquez en temps réel avec votre encadreur</p>
+        </div>
+      `,
+      buttons: [
+        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.on('complete', () => this.markTourAsCompleted('chat'));
+    this.tour.start();
+  }
+
+  /**
+   * CALENDAR TOUR - 2 steps
+   */
+  startCalendarTour(): void {
+    this.tour = new ShepherdTour(this.getDefaultOptions());
+
+    this.tour.addStep({
+      id: 'calendar-intro',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">📆</span>
+          <h3>Calendrier</h3>
+          <p>Visualisez toutes vos réunions et deadlines</p>
+        </div>
+      `,
+      buttons: [
+        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.on('complete', () => this.markTourAsCompleted('calendar'));
+    this.tour.start();
+  }
+
+  /**
+   * NOTES TOUR - 2 steps
+   */
+  startNotesTour(): void {
+    this.tour = new ShepherdTour(this.getDefaultOptions());
+
+    this.tour.addStep({
+      id: 'notes-intro',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">📝</span>
+          <h3>Notes</h3>
+          <p>Prenez des notes sur votre projet</p>
+        </div>
+      `,
+      buttons: [
+        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.on('complete', () => this.markTourAsCompleted('notes'));
+    this.tour.start();
+  }
+
+  /**
+   * PROFILE TOUR - 2 steps
+   */
+  startProfileTour(): void {
+    this.tour = new ShepherdTour(this.getDefaultOptions());
+
+    this.tour.addStep({
+      id: 'profile-intro',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">👤</span>
+          <h3>Profil</h3>
+          <p>Gérez vos informations personnelles</p>
+        </div>
+      `,
+      buttons: [
+        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.on('complete', () => this.markTourAsCompleted('profile'));
+    this.tour.start();
+  }
+
+  /**
+   * PROJECT DETAIL TOUR - 3 steps
+   */
+  startProjectDetailTour(): void {
+    this.tour = new ShepherdTour(this.getDefaultOptions());
+
+    this.tour.addStep({
+      id: 'project-detail-intro',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">🎯</span>
+          <h3>Détails du Projet</h3>
+          <p>Toutes les infos de votre projet</p>
+        </div>
+      `,
+      buttons: [
+        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.on('complete', () => this.markTourAsCompleted('project-detail'));
     this.tour.start();
   }
 
@@ -373,37 +331,44 @@ export class TourService {
   }
 
   /**
-   * Show a simple tooltip/hint
+   * Auto-start tour based on current page
    */
-  showHint(message: string, element?: string): void {
-    const tour = new ShepherdTour({
-      useModalOverlay: false,
-      defaultStepOptions: {
-        classes: 'shepherd-theme-encadri-hint',
-        scrollTo: false
-      }
-    });
-
-    const stepOptions: any = {
-      id: 'hint',
-      text: `<div class="tour-hint">${message}</div>`,
-      buttons: [
-        {
-          text: 'Compris',
-          action: tour.complete,
-          classes: 'shepherd-button-primary'
-        }
-      ]
-    };
-
-    if (element) {
-      stepOptions.attachTo = {
-        element: element,
-        on: 'bottom'
-      };
+  autoStartTour(pageName: string): void {
+    if (this.hasSeen(pageName)) {
+      return; // Already seen, don't show again
     }
 
-    tour.addStep(stepOptions);
-    tour.start();
+    // Wait for page to load
+    setTimeout(() => {
+      switch(pageName) {
+        case 'dashboard':
+          this.startDashboardTour();
+          break;
+        case 'projects':
+          this.startProjectsTour();
+          break;
+        case 'submissions':
+          this.startSubmissionsTour();
+          break;
+        case 'meetings':
+          this.startMeetingsTour();
+          break;
+        case 'chat':
+          this.startChatTour();
+          break;
+        case 'calendar':
+          this.startCalendarTour();
+          break;
+        case 'notes':
+          this.startNotesTour();
+          break;
+        case 'profile':
+          this.startProfileTour();
+          break;
+        case 'project-detail':
+          this.startProjectDetailTour();
+          break;
+      }
+    }, 1000);
   }
 }
