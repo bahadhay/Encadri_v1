@@ -71,31 +71,88 @@ export class TourService {
   }
 
   /**
-   * PROJECTS TOUR - 2 steps
+   * PROJECTS TOUR - Enhanced with detailed explanations
    */
   startProjectsTour(): void {
     this.tour = new ShepherdTour(this.getDefaultOptions());
 
     this.tour.addStep({
-      id: 'projects-list',
+      id: 'projects-intro',
       text: `
         <div class="tour-content">
           <span class="tour-icon">📁</span>
-          <h3>Vos Projets</h3>
-          <p>Créez et gérez vos projets ici</p>
+          <h3>Gestion des Projets</h3>
+          <p>Créez, modifiez et suivez tous vos projets académiques</p>
         </div>
       `,
       buttons: [
-        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
+        { text: 'Passer', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'projects-create',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">➕</span>
+          <h3>Créer un Projet</h3>
+          <p>Cliquez sur "Nouveau Projet" pour créer un nouveau projet</p>
+          <p><small>Remplissez le titre, description, technologies et objectifs</small></p>
+        </div>
+      `,
+      attachTo: { element: 'app-ui-button[routerLink*="new"], .create-project-btn, button:has-text("Nouveau Projet")', on: 'bottom' },
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'projects-search',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">🔍</span>
+          <h3>Rechercher</h3>
+          <p>Utilisez la barre de recherche pour filtrer vos projets</p>
+        </div>
+      `,
+      attachTo: { element: 'app-ui-input[type="search"], input[placeholder*="Search"], input[placeholder*="Rechercher"]', on: 'bottom' },
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'projects-actions',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">⚙️</span>
+          <h3>Actions sur Projet</h3>
+          <p>Cliquez sur un projet pour:</p>
+          <ul style="text-align: left; font-size: 12px; margin-top: 8px;">
+            <li>Voir les détails</li>
+            <li>Modifier les informations</li>
+            <li>Ajouter des soumissions</li>
+            <li>Gérer les réunions</li>
+            <li>Suivre les jalons</li>
+          </ul>
+        </div>
+      `,
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Terminé', action: this.tour.complete, classes: 'shepherd-button-primary' }
       ]
     });
 
     this.tour.on('complete', () => this.markTourAsCompleted('projects'));
+    this.tour.on('cancel', () => this.markTourAsCancelled('projects'));
     this.tour.start();
   }
 
   /**
-   * SUBMISSIONS TOUR - 3 steps
+   * SUBMISSIONS TOUR - Enhanced with detailed explanations
    */
   startSubmissionsTour(): void {
     this.tour = new ShepherdTour(this.getDefaultOptions());
@@ -105,36 +162,65 @@ export class TourService {
       text: `
         <div class="tour-content">
           <span class="tour-icon">📄</span>
-          <h3>Soumissions</h3>
-          <p>Partagez vos documents et livrables</p>
+          <h3>Soumissions de Documents</h3>
+          <p>Partagez vos rapports, présentations et livrables</p>
         </div>
       `,
       buttons: [
+        { text: 'Passer', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
         { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
       ]
     });
 
     this.tour.addStep({
-      id: 'submissions-upload',
+      id: 'submissions-create',
       text: `
         <div class="tour-content">
           <span class="tour-icon">⬆️</span>
-          <h3>Télécharger un document</h3>
-          <p>Cliquez ici pour soumettre</p>
+          <h3>Créer une Soumission</h3>
+          <p>Cliquez ici pour soumettre un nouveau document</p>
+          <ul style="text-align: left; font-size: 12px; margin-top: 8px;">
+            <li>Rapports (PDF, Word)</li>
+            <li>Présentations (PPT, PDF)</li>
+            <li>Code source (ZIP)</li>
+          </ul>
         </div>
       `,
-      attachTo: { element: 'app-ui-button[routerLink*="new"], .create-submission-btn, .new-submission-btn', on: 'bottom' },
+      attachTo: { element: 'app-ui-button[routerLink*="new"], .create-submission-btn, .new-submission-btn, button:has-text("Nouvelle"), button:has-text("New")', on: 'bottom' },
       buttons: [
-        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'submissions-status',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">🏷️</span>
+          <h3>Statuts des Soumissions</h3>
+          <p>Suivez l'état de vos soumissions:</p>
+          <ul style="text-align: left; font-size: 12px; margin-top: 8px;">
+            <li><span style="color: #f59e0b;">⚠️ En attente</span> - En cours de révision</li>
+            <li><span style="color: #10b981;">✅ Approuvé</span> - Validé</li>
+            <li><span style="color: #3b82f6;">👁️ Révisé</span> - Avec commentaires</li>
+            <li><span style="color: #ef4444;">❌ Rejeté</span> - À refaire</li>
+          </ul>
+        </div>
+      `,
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Terminé', action: this.tour.complete, classes: 'shepherd-button-primary' }
       ]
     });
 
     this.tour.on('complete', () => this.markTourAsCompleted('submissions'));
+    this.tour.on('cancel', () => this.markTourAsCancelled('submissions'));
     this.tour.start();
   }
 
   /**
-   * MEETINGS TOUR - 2 steps
+   * MEETINGS TOUR - Enhanced with detailed explanations
    */
   startMeetingsTour(): void {
     this.tour = new ShepherdTour(this.getDefaultOptions());
@@ -144,21 +230,82 @@ export class TourService {
       text: `
         <div class="tour-content">
           <span class="tour-icon">📅</span>
-          <h3>Réunions</h3>
-          <p>Planifiez et gérez vos réunions</p>
+          <h3>Gestion des Réunions</h3>
+          <p>Planifiez, demandez et suivez vos réunions</p>
         </div>
       `,
       buttons: [
-        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
+        { text: 'Passer', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'meetings-tabs',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">🗂️</span>
+          <h3>Onglets de Navigation</h3>
+          <ul style="text-align: left; font-size: 12px; margin-top: 8px;">
+            <li><strong>À venir</strong> - Prochaines réunions planifiées</li>
+            <li><strong>Demandes</strong> - Demandes en attente</li>
+            <li><strong>Disponibilité</strong> - Horaires disponibles (superviseurs)</li>
+            <li><strong>Historique</strong> - Réunions passées</li>
+          </ul>
+        </div>
+      `,
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'meetings-request',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">📝</span>
+          <h3>Demander une Réunion</h3>
+          <p><strong>Étudiants:</strong> Cliquez sur "Demander une réunion"</p>
+          <p><small>Choisissez date, heure et ajoutez notes</small></p>
+          <p><strong>Superviseurs:</strong> Définissez vos disponibilités</p>
+        </div>
+      `,
+      attachTo: { element: 'button:has-text("Demander"), button:has-text("Request"), .request-meeting-btn', on: 'bottom' },
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'meetings-actions',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">🎥</span>
+          <h3>Actions Réunion</h3>
+          <p>Pour chaque réunion:</p>
+          <ul style="text-align: left; font-size: 12px; margin-top: 8px;">
+            <li>🎥 Rejoindre l'appel vidéo</li>
+            <li>👁️ Voir les détails</li>
+            <li>✏️ Modifier (avant l'heure)</li>
+            <li>❌ Annuler avec raison</li>
+          </ul>
+        </div>
+      `,
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Terminé', action: this.tour.complete, classes: 'shepherd-button-primary' }
       ]
     });
 
     this.tour.on('complete', () => this.markTourAsCompleted('meetings'));
+    this.tour.on('cancel', () => this.markTourAsCancelled('meetings'));
     this.tour.start();
   }
 
   /**
-   * CHAT TOUR - 2 steps
+   * CHAT TOUR - Enhanced with detailed explanations
    */
   startChatTour(): void {
     this.tour = new ShepherdTour(this.getDefaultOptions());
@@ -168,21 +315,61 @@ export class TourService {
       text: `
         <div class="tour-content">
           <span class="tour-icon">💬</span>
-          <h3>Messagerie</h3>
-          <p>Communiquez en temps réel avec votre équipe</p>
+          <h3>Messagerie en Temps Réel</h3>
+          <p>Communiquez directement avec votre équipe projet</p>
         </div>
       `,
       buttons: [
-        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
+        { text: 'Passer', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'chat-contacts',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">👥</span>
+          <h3>Liste de Contacts</h3>
+          <p>Tous les membres de vos projets apparaissent ici</p>
+          <p><small>Cliquez sur un contact pour démarrer la conversation</small></p>
+        </div>
+      `,
+      attachTo: { element: '.contacts-sidebar, .contacts-list', on: 'right' },
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'chat-features',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">✨</span>
+          <h3>Fonctionnalités</h3>
+          <ul style="text-align: left; font-size: 12px; margin-top: 8px;">
+            <li>💬 Messages instantanés</li>
+            <li>📎 Partage de fichiers</li>
+            <li>👁️ Statut de lecture</li>
+            <li>🔔 Notifications en temps réel</li>
+            <li>📁 Organisation par projet</li>
+          </ul>
+        </div>
+      `,
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Terminé', action: this.tour.complete, classes: 'shepherd-button-primary' }
       ]
     });
 
     this.tour.on('complete', () => this.markTourAsCompleted('chat'));
+    this.tour.on('cancel', () => this.markTourAsCancelled('chat'));
     this.tour.start();
   }
 
   /**
-   * CALENDAR TOUR - 2 steps
+   * CALENDAR TOUR - Enhanced with detailed explanations
    */
   startCalendarTour(): void {
     this.tour = new ShepherdTour(this.getDefaultOptions());
@@ -192,21 +379,58 @@ export class TourService {
       text: `
         <div class="tour-content">
           <span class="tour-icon">📆</span>
-          <h3>Calendrier</h3>
-          <p>Visualisez tous vos événements et échéances</p>
+          <h3>Calendrier des Événements</h3>
+          <p>Visualisez tous vos événements et échéances en un coup d'œil</p>
         </div>
       `,
       buttons: [
-        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
+        { text: 'Passer', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'calendar-types',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">🎨</span>
+          <h3>Types d'Événements</h3>
+          <ul style="text-align: left; font-size: 12px; margin-top: 8px;">
+            <li>📅 <strong>Réunions</strong> - Rendez-vous planifiés</li>
+            <li>📄 <strong>Soumissions</strong> - Dates limites de documents</li>
+            <li>🏁 <strong>Jalons</strong> - Étapes du projet</li>
+          </ul>
+        </div>
+      `,
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'calendar-navigation',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">🔄</span>
+          <h3>Navigation</h3>
+          <p>Utilisez les flèches pour naviguer entre les mois</p>
+          <p><small>Cliquez sur "Aujourd'hui" pour revenir au mois actuel</small></p>
+        </div>
+      `,
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Terminé', action: this.tour.complete, classes: 'shepherd-button-primary' }
       ]
     });
 
     this.tour.on('complete', () => this.markTourAsCompleted('calendar'));
+    this.tour.on('cancel', () => this.markTourAsCancelled('calendar'));
     this.tour.start();
   }
 
   /**
-   * NOTES TOUR - 2 steps
+   * NOTES TOUR - Enhanced with detailed explanations
    */
   startNotesTour(): void {
     this.tour = new ShepherdTour(this.getDefaultOptions());
@@ -216,21 +440,61 @@ export class TourService {
       text: `
         <div class="tour-content">
           <span class="tour-icon">📝</span>
-          <h3>Notes</h3>
-          <p>Prenez des notes sur votre projet</p>
+          <h3>Prise de Notes</h3>
+          <p>Organisez vos idées, réflexions et informations de projet</p>
         </div>
       `,
       buttons: [
-        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
+        { text: 'Passer', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'notes-create',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">➕</span>
+          <h3>Créer une Note</h3>
+          <p>Cliquez sur "Nouvelle Note" pour commencer</p>
+          <p><small>Ajoutez titre, contenu et choisissez une couleur</small></p>
+        </div>
+      `,
+      attachTo: { element: 'button:has-text("Nouvelle"), button:has-text("New"), .create-note-btn', on: 'bottom' },
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'notes-features',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">✨</span>
+          <h3>Fonctionnalités</h3>
+          <ul style="text-align: left; font-size: 12px; margin-top: 8px;">
+            <li>📌 Épingler les notes importantes</li>
+            <li>🎨 Codes couleur pour organisation</li>
+            <li>📁 Dossiers pour regrouper</li>
+            <li>🔍 Recherche dans les notes</li>
+            <li>✏️ Édition rapide</li>
+          </ul>
+        </div>
+      `,
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Terminé', action: this.tour.complete, classes: 'shepherd-button-primary' }
       ]
     });
 
     this.tour.on('complete', () => this.markTourAsCompleted('notes'));
+    this.tour.on('cancel', () => this.markTourAsCancelled('notes'));
     this.tour.start();
   }
 
   /**
-   * PROFILE TOUR - 2 steps
+   * PROFILE TOUR - Enhanced with detailed explanations
    */
   startProfileTour(): void {
     this.tour = new ShepherdTour(this.getDefaultOptions());
@@ -240,21 +504,44 @@ export class TourService {
       text: `
         <div class="tour-content">
           <span class="tour-icon">👤</span>
-          <h3>Profil</h3>
-          <p>Gérez vos informations personnelles</p>
+          <h3>Votre Profil</h3>
+          <p>Gérez vos informations personnelles et préférences</p>
         </div>
       `,
       buttons: [
-        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
+        { text: 'Passer', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'profile-edit',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">✏️</span>
+          <h3>Modifier le Profil</h3>
+          <p>Cliquez sur "Modifier" pour mettre à jour:</p>
+          <ul style="text-align: left; font-size: 12px; margin-top: 8px;">
+            <li>📝 Nom complet</li>
+            <li>📧 Email</li>
+            <li>🖼️ Photo de profil</li>
+          </ul>
+        </div>
+      `,
+      attachTo: { element: 'button:has-text("Modifier"), button:has-text("Edit"), .edit-profile-btn', on: 'bottom' },
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Terminé', action: this.tour.complete, classes: 'shepherd-button-primary' }
       ]
     });
 
     this.tour.on('complete', () => this.markTourAsCompleted('profile'));
+    this.tour.on('cancel', () => this.markTourAsCancelled('profile'));
     this.tour.start();
   }
 
   /**
-   * PROJECT DETAIL TOUR - 3 steps
+   * PROJECT DETAIL TOUR - Enhanced with detailed explanations
    */
   startProjectDetailTour(): void {
     this.tour = new ShepherdTour(this.getDefaultOptions());
@@ -264,16 +551,78 @@ export class TourService {
       text: `
         <div class="tour-content">
           <span class="tour-icon">🎯</span>
-          <h3>Détails du Projet</h3>
-          <p>Toutes les infos de votre projet</p>
+          <h3>Centre de Contrôle du Projet</h3>
+          <p>Toutes les informations et actions pour votre projet</p>
         </div>
       `,
       buttons: [
-        { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
+        { text: 'Passer', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'project-detail-tabs',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">🗂️</span>
+          <h3>Onglets du Projet</h3>
+          <ul style="text-align: left; font-size: 12px; margin-top: 8px;">
+            <li>📋 <strong>Vue d'ensemble</strong> - Infos générales</li>
+            <li>📄 <strong>Soumissions</strong> - Documents livrables</li>
+            <li>📅 <strong>Réunions</strong> - Rendez-vous</li>
+            <li>⭐ <strong>Évaluations</strong> - Notes et feedback</li>
+            <li>🏁 <strong>Jalons</strong> - Étapes du projet</li>
+            <li>📁 <strong>Documents</strong> - Fichiers partagés</li>
+          </ul>
+        </div>
+      `,
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'project-detail-progress',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">📊</span>
+          <h3>Barre de Progression</h3>
+          <p>Suivez l'avancement automatique basé sur les jalons complétés</p>
+          <p><small>La progression se met à jour quand vous marquez les jalons comme terminés</small></p>
+        </div>
+      `,
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
+      ]
+    });
+
+    this.tour.addStep({
+      id: 'project-detail-actions',
+      text: `
+        <div class="tour-content">
+          <span class="tour-icon">⚙️</span>
+          <h3>Actions Rapides</h3>
+          <p>En haut de page:</p>
+          <ul style="text-align: left; font-size: 12px; margin-top: 8px;">
+            <li>💬 Ouvrir le chat avec votre équipe</li>
+            <li>➕ Inviter un étudiant/superviseur</li>
+            <li>✏️ Modifier les détails du projet</li>
+            <li>🚪 Quitter le projet (membres)</li>
+            <li>🗑️ Supprimer le projet (propriétaire)</li>
+          </ul>
+        </div>
+      `,
+      buttons: [
+        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Terminé', action: this.tour.complete, classes: 'shepherd-button-primary' }
       ]
     });
 
     this.tour.on('complete', () => this.markTourAsCompleted('project-detail'));
+    this.tour.on('cancel', () => this.markTourAsCancelled('project-detail'));
     this.tour.start();
   }
 

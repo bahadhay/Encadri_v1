@@ -1,0 +1,62 @@
+<div class="help-container">
+  <!-- Sidebar Navigation -->
+  <aside class="help-sidebar">
+    <div class="sidebar-header">
+      <h2>📚 Centre d'Aide</h2>
+      <p>Guide complet d'utilisation</p>
+    </div>
+
+    <nav class="help-nav">
+      <button
+        *ngFor="let section of helpSections"
+        [class.active]="selectedSection() === section.id"
+        (click)="selectSection(section.id)"
+        class="nav-item">
+        <span class="nav-icon">{{section.icon}}</span>
+        <span class="nav-title">{{section.title}}</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button (click)="resetAllTours()" class="reset-btn">
+        🔄 Réinitialiser tous les guides
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="help-content">
+    <div *ngIf="currentSection" class="section-content">
+      <!-- Section Header -->
+      <header class="section-header">
+        <div class="header-icon">{{currentSection.icon}}</div>
+        <div class="header-text">
+          <h1>{{currentSection.title}}</h1>
+          <p>{{currentSection.description}}</p>
+        </div>
+        <button
+          *ngIf="currentSection.tourId"
+          (click)="startTour(currentSection.tourId)"
+          class="tour-btn">
+          🎯 Lancer le guide interactif
+        </button>
+      </header>
+
+      <!-- Features List -->
+      <div class="features-grid">
+        <app-ui-card *ngFor="let feature of currentSection.features" class="feature-card">
+          <h3 class="feature-title">{{feature.title}}</h3>
+          <p class="feature-description">{{feature.description}}</p>
+
+          <!-- Actions/Steps List -->
+          <ul *ngIf="feature.actions && feature.actions.length > 0" class="actions-list">
+            <li *ngFor="let action of feature.actions" class="action-item">
+              <span class="action-icon">{{action.icon}}</span>
+              <span class="action-text">{{action.text}}</span>
+            </li>
+          </ul>
+        </app-ui-card>
+      </div>
+    </div>
+  </main>
+</div>

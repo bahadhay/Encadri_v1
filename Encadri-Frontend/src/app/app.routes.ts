@@ -115,6 +115,11 @@ export const routes: Routes = [
         path: 'calendar',
         loadComponent: () => import('./features/calendar/calendar.component').then(m => m.CalendarComponent)
       },
+      // Help/Documentation Route
+      {
+        path: 'help',
+        loadComponent: () => import('./features/help/help.component').then(m => m.HelpComponent)
+      },
       // Other features will go here
     ]
   },
