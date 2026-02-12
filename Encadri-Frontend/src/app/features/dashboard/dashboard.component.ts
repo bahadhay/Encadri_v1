@@ -5,6 +5,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { ProjectService } from '../../core/services/project.service';
 import { SubmissionService } from '../../core/services/submission.service';
 import { MeetingService } from '../../core/services/meeting.service';
+import { TourService } from '../../core/services/tour.service';
 import { Project } from '../../core/models/project.model';
 import { Submission } from '../../core/models/submission.model';
 import { Meeting } from '../../core/models/meeting.model';
@@ -23,6 +24,7 @@ export class DashboardComponent implements OnInit {
   private projectService = inject(ProjectService);
   private submissionService = inject(SubmissionService);
   private meetingService = inject(MeetingService);
+  private tourService = inject(TourService);
 
   myProjects = signal<Project[]>([]);
   collaborations = signal<Project[]>([]);
@@ -62,6 +64,21 @@ export class DashboardComponent implements OnInit {
     this.loadProjects();
     this.loadSubmissions();
     this.loadMeetings();
+
+    // Start tour for first-time users
+    if (!this.tourService.hasSeen('dashboard')) {
+      // Wait for page to fully load before starting tour
+      setTimeout(() => {
+        this.tourService.startDashboardTour();
+      }, 1500);
+    }
+  }
+
+  /**
+   * Method to manually restart tour (called from help menu)
+   */
+  startTour() {
+    this.tourService.startDashboardTour();
   }
 
   loadProjects() {

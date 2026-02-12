@@ -480,3 +480,95 @@
     flex-wrap: wrap;
   }
 }
+
+/* ========================================
+   Help Menu Styles
+   ======================================== */
+
+.help-menu-wrapper {
+  position: relative;
+}
+
+.help-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--slate-600);
+}
+
+.help-button:hover {
+  background: var(--slate-100);
+  color: var(--primary-600);
+}
+
+.help-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  padding: 8px;
+  z-index: 1000;
+  animation: dropdownFadeIn 0.2s ease-out;
+  border: 1px solid var(--slate-200);
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.help-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--slate-700);
+  font-size: 14px;
+  text-decoration: none;
+  text-align: left;
+}
+
+.help-menu-item:hover {
+  background: var(--primary-50);
+  color: var(--primary-700);
+}
+
+.help-menu-item app-icon,
+.help-menu-item ::ng-deep .icon {
+  color: var(--slate-500);
+  transition: color 0.2s ease;
+}
+
+.help-menu-item:hover app-icon,
+.help-menu-item:hover ::ng-deep .icon {
+  color: var(--primary-600);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .help-dropdown {
+    right: -8px;
+  }
+}

@@ -84,6 +84,27 @@
       </div>
 
       <div class="top-actions">
+        <!-- Help Menu -->
+        <div class="help-menu-wrapper">
+          <button
+            class="help-button"
+            (click)="toggleHelpMenu()"
+            title="Aide">
+            <app-icon name="help" [size]="20"></app-icon>
+          </button>
+
+          <div class="help-dropdown" *ngIf="isHelpMenuOpen" (click)="closeHelpMenu()">
+            <button (click)="restartTour()" class="help-menu-item">
+              <app-icon name="tour" [size]="18"></app-icon>
+              <span>Relancer le guide</span>
+            </button>
+            <a routerLink="/faq" class="help-menu-item">
+              <app-icon name="help" [size]="18"></app-icon>
+              <span>FAQ</span>
+            </a>
+          </div>
+        </div>
+
         <!-- Notification Bell (New SignalR Real-time) -->
         <app-notification-bell></app-notification-bell>
       </div>
