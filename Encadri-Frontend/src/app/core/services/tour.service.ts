@@ -347,22 +347,46 @@ export class TourService {
   }
 
   /**
-   * Auto-start tour ONLY for first-time users (brand new accounts)
-   * Only shows dashboard tour on first visit
+   * Auto-start tour for EACH page on first visit (progressive onboarding)
+   * Shows relevant guide when user visits a page for the first time
    */
   autoStartTour(pageName: string): void {
-    // Only auto-start for brand new users
-    if (!this.isFirstTimeUser()) {
-      return; // Not a first-time user, don't auto-start
+    // Check if user has already seen this specific page's tour
+    if (this.hasSeen(pageName)) {
+      return; // Already seen this page's tour
     }
 
-    // Only show dashboard tour for first-time users
-    if (pageName === 'dashboard' && !this.hasSeen('dashboard')) {
-      setTimeout(() => {
-        this.startDashboardTour();
-        // Mark user as returning after showing the tour
-        this.markAsReturningUser();
-      }, 1500);
-    }
+    // Wait for page to load, then show the appropriate tour
+    setTimeout(() => {
+      switch(pageName) {
+        case 'dashboard':
+          this.startDashboardTour();
+          break;
+        case 'projects':
+          this.startProjectsTour();
+          break;
+        case 'submissions':
+          this.startSubmissionsTour();
+          break;
+        case 'meetings':
+          this.startMeetingsTour();
+          break;
+        case 'chat':
+          this.startChatTour();
+          break;
+        case 'calendar':
+          this.startCalendarTour();
+          break;
+        case 'notes':
+          this.startNotesTour();
+          break;
+        case 'profile':
+          this.startProfileTour();
+          break;
+        case 'project-detail':
+          this.startProjectDetailTour();
+          break;
+      }
+    }, 1000);
   }
 }
