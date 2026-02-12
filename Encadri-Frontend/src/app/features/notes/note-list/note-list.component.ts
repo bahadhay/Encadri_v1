@@ -1,9 +1,10 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NoteService } from '../../../core/services/note.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { TourService } from '../../../core/services/tour.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Note, NoteFolder } from '../../../core/models/note.model';
 import { UiCardComponent } from '../../../shared/components/ui-card/ui-card.component';
@@ -30,9 +31,10 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
   templateUrl: './note-list.component.html',
   styleUrls: ['./note-list.component.css']
 })
-export class NoteListComponent {
+export class NoteListComponent implements OnInit {
   private noteService = inject(NoteService);
   private authService = inject(AuthService);
+  private tourService = inject(TourService);
   private toastService = inject(ToastService);
 
   notes = signal<Note[]>([]);
@@ -59,6 +61,11 @@ export class NoteListComponent {
   constructor() {
     this.loadNotes();
     this.loadFolders();
+  }
+
+  ngOnInit() {
+    // Auto-start tour for first-time visitors
+    this.tourService.autoStartTour('notes');
   }
 
   loadNotes() {

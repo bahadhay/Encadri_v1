@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { TourService } from '../../core/services/tour.service';
 import { UiCardComponent } from '../../shared/components/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../shared/components/ui-button/ui-button.component';
 import { UiInputComponent } from '../../shared/components/ui-input/ui-input.component';
@@ -16,7 +17,8 @@ import { User } from '../../core/models/user.model';
 })
 export class ProfileComponent implements OnInit {
   authService = inject(AuthService);
-  
+  private tourService = inject(TourService);
+
   user = signal<User | null>(null);
   isEditing = signal<boolean>(false);
   loading = signal<boolean>(false);
@@ -36,6 +38,8 @@ export class ProfileComponent implements OnInit {
       this.user.set(currentUser);
       this.resetForm();
     }
+    // Auto-start tour for first-time visitors
+    this.tourService.autoStartTour('profile');
   }
 
   resetForm() {

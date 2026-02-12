@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { TourService } from '../../core/services/tour.service';
 import { ChatComponent } from './chat.component';
 import { environment } from '../../../environments/environment';
 
@@ -544,7 +545,8 @@ export class ChatContainerComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private http: HttpClient,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private tourService: TourService
   ) {}
 
   async ngOnInit() {
@@ -555,6 +557,9 @@ export class ChatContainerComponent implements OnInit {
     }
 
     await this.loadContacts();
+
+    // Auto-start tour for first-time visitors
+    this.tourService.autoStartTour('chat');
   }
 
   async loadContacts() {

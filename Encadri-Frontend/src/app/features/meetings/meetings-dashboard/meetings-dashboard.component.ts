@@ -4,6 +4,7 @@ import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MeetingService } from '../../../core/services/meeting.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { TourService } from '../../../core/services/tour.service';
 import { Meeting, MeetingRequest, SupervisorAvailability } from '../../../core/models/meeting.model';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { SkeletonCardComponent } from '../../../shared/components/skeleton-card/skeleton-card.component';
@@ -18,6 +19,7 @@ import { SkeletonCardComponent } from '../../../shared/components/skeleton-card/
 export class MeetingsDashboardComponent implements OnInit {
   private meetingService = inject(MeetingService);
   private authService = inject(AuthService);
+  private tourService = inject(TourService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -81,6 +83,9 @@ export class MeetingsDashboardComponent implements OnInit {
     });
 
     this.loadData();
+
+    // Auto-start tour for first-time visitors
+    this.tourService.autoStartTour('meetings');
   }
 
   loadData() {
