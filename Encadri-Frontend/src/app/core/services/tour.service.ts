@@ -44,7 +44,7 @@ export class TourService {
         </div>
       `,
       buttons: [
-        { text: 'Passer', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
+        { text: 'Passer <span class="tour-progress">1/2</span>', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
         { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
       ]
     });
@@ -60,7 +60,7 @@ export class TourService {
       `,
       attachTo: { element: '.stats-grid', on: 'bottom' },
       buttons: [
-        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Précédent <span class="tour-progress">2/2</span>', action: this.tour.back, classes: 'shepherd-button-secondary' },
         { text: 'Compris', action: this.tour.complete, classes: 'shepherd-button-primary' }
       ]
     });
@@ -86,7 +86,7 @@ export class TourService {
         </div>
       `,
       buttons: [
-        { text: 'Passer', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
+        { text: 'Passer <span class="tour-progress">1/4</span>', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
         { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
       ]
     });
@@ -103,7 +103,7 @@ export class TourService {
       `,
       attachTo: { element: 'app-ui-button[routerLink*="new"], .create-project-btn, button:has-text("Nouveau Projet")', on: 'bottom' },
       buttons: [
-        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Précédent <span class="tour-progress">2/4</span>', action: this.tour.back, classes: 'shepherd-button-secondary' },
         { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
       ]
     });
@@ -119,7 +119,7 @@ export class TourService {
       `,
       attachTo: { element: 'app-ui-input[type="search"], input[placeholder*="Search"], input[placeholder*="Rechercher"]', on: 'bottom' },
       buttons: [
-        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Précédent <span class="tour-progress">3/4</span>', action: this.tour.back, classes: 'shepherd-button-secondary' },
         { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
       ]
     });
@@ -141,7 +141,7 @@ export class TourService {
         </div>
       `,
       buttons: [
-        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Précédent <span class="tour-progress">4/4</span>', action: this.tour.back, classes: 'shepherd-button-secondary' },
         { text: 'Terminé', action: this.tour.complete, classes: 'shepherd-button-primary' }
       ]
     });
@@ -167,7 +167,7 @@ export class TourService {
         </div>
       `,
       buttons: [
-        { text: 'Passer', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
+        { text: 'Passer <span class="tour-progress">1/3</span>', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
         { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
       ]
     });
@@ -188,7 +188,7 @@ export class TourService {
       `,
       attachTo: { element: 'app-ui-button[routerLink*="new"], .create-submission-btn, .new-submission-btn, button:has-text("Nouvelle"), button:has-text("New")', on: 'bottom' },
       buttons: [
-        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Précédent <span class="tour-progress">2/3</span>', action: this.tour.back, classes: 'shepherd-button-secondary' },
         { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
       ]
     });
@@ -209,7 +209,7 @@ export class TourService {
         </div>
       `,
       buttons: [
-        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Précédent <span class="tour-progress">3/3</span>', action: this.tour.back, classes: 'shepherd-button-secondary' },
         { text: 'Terminé', action: this.tour.complete, classes: 'shepherd-button-primary' }
       ]
     });
@@ -235,7 +235,7 @@ export class TourService {
         </div>
       `,
       buttons: [
-        { text: 'Passer', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
+        { text: 'Passer <span class="tour-progress">1/4</span>', action: this.tour.cancel, classes: 'shepherd-button-secondary' },
         { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
       ]
     });
@@ -255,7 +255,7 @@ export class TourService {
         </div>
       `,
       buttons: [
-        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Précédent <span class="tour-progress">2/4</span>', action: this.tour.back, classes: 'shepherd-button-secondary' },
         { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
       ]
     });
@@ -273,7 +273,7 @@ export class TourService {
       `,
       attachTo: { element: 'button:has-text("Demander"), button:has-text("Request"), .request-meeting-btn', on: 'bottom' },
       buttons: [
-        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Précédent <span class="tour-progress">3/4</span>', action: this.tour.back, classes: 'shepherd-button-secondary' },
         { text: 'Suivant', action: this.tour.next, classes: 'shepherd-button-primary' }
       ]
     });
@@ -294,7 +294,7 @@ export class TourService {
         </div>
       `,
       buttons: [
-        { text: 'Précédent', action: this.tour.back, classes: 'shepherd-button-secondary' },
+        { text: 'Précédent <span class="tour-progress">4/4</span>', action: this.tour.back, classes: 'shepherd-button-secondary' },
         { text: 'Terminé', action: this.tour.complete, classes: 'shepherd-button-primary' }
       ]
     });
