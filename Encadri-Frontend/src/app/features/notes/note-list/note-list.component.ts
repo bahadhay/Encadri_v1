@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NoteService } from '../../../core/services/note.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { TourService } from '../../../core/services/tour.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Note, NoteFolder } from '../../../core/models/note.model';
 import { UiCardComponent } from '../../../shared/components/ui-card/ui-card.component';
@@ -34,7 +33,6 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 export class NoteListComponent implements OnInit {
   private noteService = inject(NoteService);
   private authService = inject(AuthService);
-  private tourService = inject(TourService);
   private toastService = inject(ToastService);
 
   notes = signal<Note[]>([]);
@@ -64,8 +62,6 @@ export class NoteListComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Auto-start tour for first-time visitors
-    this.tourService.autoStartTour('notes');
   }
 
   loadNotes() {

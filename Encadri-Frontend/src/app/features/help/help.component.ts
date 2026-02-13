@@ -1,7 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { TourService } from '../../core/services/tour.service';
+import { RouterModule } from '@angular/router';
 import { UiCardComponent } from '../../shared/components/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../shared/components/ui-button/ui-button.component';
 import { IconComponent } from '../../shared/components/icon/icon.component';
@@ -16,7 +15,6 @@ interface HelpSection {
     description: string;
     actions?: Array<{icon: string; text: string}>;
   }>;
-  tourId?: string;
 }
 
 @Component({
@@ -27,9 +25,6 @@ interface HelpSection {
   styleUrls: ['./help.component.css']
 })
 export class HelpComponent {
-  private router = inject(Router);
-  private tourService = inject(TourService);
-
   selectedSection = signal<string>('overview');
 
   helpSections: HelpSection[] = [
@@ -54,7 +49,6 @@ export class HelpComponent {
       icon: '📁',
       title: 'Gestion des Projets',
       description: 'Créez, modifiez et suivez vos projets académiques',
-      tourId: 'projects',
       features: [
         {
           title: 'Créer un projet',
@@ -86,7 +80,6 @@ export class HelpComponent {
       icon: '📄',
       title: 'Soumissions',
       description: 'Partagez vos documents et livrables',
-      tourId: 'submissions',
       features: [
         {
           title: 'Créer une soumission',
@@ -119,7 +112,6 @@ export class HelpComponent {
       icon: '📅',
       title: 'Réunions',
       description: 'Planifiez et gérez vos réunions',
-      tourId: 'meetings',
       features: [
         {
           title: 'Demander une réunion (Étudiants)',
@@ -157,7 +149,6 @@ export class HelpComponent {
       icon: '💬',
       title: 'Messagerie',
       description: 'Communication en temps réel',
-      tourId: 'chat',
       features: [
         {
           title: 'Démarrer une conversation',
@@ -185,7 +176,6 @@ export class HelpComponent {
       icon: '📆',
       title: 'Calendrier',
       description: 'Vue d\'ensemble de vos événements',
-      tourId: 'calendar',
       features: [
         {
           title: 'Types d\'événements',
@@ -211,7 +201,6 @@ export class HelpComponent {
       icon: '📝',
       title: 'Notes',
       description: 'Organisez vos idées et informations',
-      tourId: 'notes',
       features: [
         {
           title: 'Créer une note',
@@ -266,7 +255,6 @@ export class HelpComponent {
       icon: '👤',
       title: 'Profil',
       description: 'Gérez vos informations personnelles',
-      tourId: 'profile',
       features: [
         {
           title: 'Modifier le profil',
@@ -315,46 +303,5 @@ export class HelpComponent {
 
   get currentSection(): HelpSection | undefined {
     return this.helpSections.find(s => s.id === this.selectedSection());
-  }
-
-  startTour(tourId: string) {
-    // Close help page and navigate to the relevant page, then start tour
-    const tourRouteMap: {[key: string]: string} = {
-      'projects': '/projects',
-      'submissions': '/submissions',
-      'meetings': '/meetings',
-      'chat': '/chat',
-      'calendar': '/calendar',
-      'notes': '/notes',
-      'profile': '/profile'
-    };
-
-    const route = tourRouteMap[tourId];
-    if (route) {
-      // Reset the tour first
-      this.tourService.resetTour(tourId);
-      // Navigate to the page
-      this.router.navigate([route]).then(() => {
-        // Start the tour after navigation
-        setTimeout(() => {
-          switch(tourId) {
-            case 'projects': this.tourService.startProjectsTour(); break;
-            case 'submissions': this.tourService.startSubmissionsTour(); break;
-            case 'meetings': this.tourService.startMeetingsTour(); break;
-            case 'chat': this.tourService.startChatTour(); break;
-            case 'calendar': this.tourService.startCalendarTour(); break;
-            case 'notes': this.tourService.startNotesTour(); break;
-            case 'profile': this.tourService.startProfileTour(); break;
-          }
-        }, 500);
-      });
-    }
-  }
-
-  resetAllTours() {
-    if (confirm('Êtes-vous sûr de vouloir réinitialiser tous les guides? Vous reverrez tous les guides lors de votre prochaine visite.')) {
-      this.tourService.resetAllTours();
-      alert('Tous les guides ont été réinitialisés!');
-    }
   }
 }

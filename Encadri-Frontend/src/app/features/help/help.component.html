@@ -16,12 +16,6 @@
         <span class="nav-title">{{section.title}}</span>
       </button>
     </nav>
-
-    <div class="sidebar-footer">
-      <button (click)="resetAllTours()" class="reset-btn">
-        🔄 Réinitialiser tous les guides
-      </button>
-    </div>
   </aside>
 
   <!-- Main Content -->
@@ -34,12 +28,6 @@
           <h1>{{currentSection.title}}</h1>
           <p>{{currentSection.description}}</p>
         </div>
-        <button
-          *ngIf="currentSection.tourId"
-          (click)="startTour(currentSection.tourId)"
-          class="tour-btn">
-          🎯 Lancer le guide interactif
-        </button>
       </header>
 
       <!-- Features List -->

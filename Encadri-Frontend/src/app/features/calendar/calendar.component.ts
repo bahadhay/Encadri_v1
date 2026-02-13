@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CalendarService, CalendarEvent } from '../../core/services/calendar.service';
 import { AuthService } from '../../core/services/auth.service';
-import { TourService } from '../../core/services/tour.service';
 import { ToastService } from '../../core/services/toast.service';
 import { UiCardComponent } from '../../shared/components/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../shared/components/ui-button/ui-button.component';
@@ -32,7 +31,6 @@ interface CalendarDay {
 export class CalendarComponent implements OnInit {
   private calendarService = inject(CalendarService);
   private authService = inject(AuthService);
-  private tourService = inject(TourService);
   private toastService = inject(ToastService);
 
   currentDate = signal<Date>(new Date());
@@ -102,8 +100,6 @@ export class CalendarComponent implements OnInit {
 
   ngOnInit() {
     this.loadEvents();
-    // Auto-start tour for first-time visitors
-    this.tourService.autoStartTour('calendar');
   }
 
   loadEvents() {

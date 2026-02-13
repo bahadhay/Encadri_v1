@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProjectService } from '../../../core/services/project.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { TourService } from '../../../core/services/tour.service';
 import { Project } from '../../../core/models/project.model';
 import { UiCardComponent } from '../../../shared/components/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../../shared/components/ui-button/ui-button.component';
@@ -23,7 +22,6 @@ import { FormsModule } from '@angular/forms';
 export class ProjectListComponent implements OnInit {
   private projectService = inject(ProjectService);
   private authService = inject(AuthService);
-  private tourService = inject(TourService);
 
   projects = signal<Project[]>([]);
   loading = signal<boolean>(true);
@@ -49,8 +47,6 @@ export class ProjectListComponent implements OnInit {
 
   ngOnInit() {
     this.loadProjects();
-    // Auto-start tour for first-time visitors
-    this.tourService.autoStartTour('projects');
   }
 
   getEmptyProject(): Partial<Project> {

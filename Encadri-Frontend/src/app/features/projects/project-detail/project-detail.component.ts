@@ -5,7 +5,6 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProjectService } from '../../../core/services/project.service';
 import { Project } from '../../../core/models/project.model';
 import { ToastService } from '../../../core/services/toast.service';
-import { TourService } from '../../../core/services/tour.service';
 import { UiCardComponent } from '../../../shared/components/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../../shared/components/ui-button/ui-button.component';
 import { UiInputComponent } from '../../../shared/components/ui-input/ui-input.component';
@@ -32,7 +31,6 @@ export class ProjectDetailComponent implements OnInit {
   private projectService = inject(ProjectService);
   private milestoneService = inject(MilestoneService);
   private toastService = inject(ToastService);
-  private tourService = inject(TourService);
   public authService = inject(AuthService);
 
   project = signal<Project | null>(null);
@@ -87,8 +85,6 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Auto-start tour for first-time visitors
-    this.tourService.autoStartTour('project-detail');
   }
 
   // Get saved tab from localStorage for specific project

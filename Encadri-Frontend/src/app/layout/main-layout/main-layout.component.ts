@@ -2,7 +2,6 @@ import { Component, inject, OnInit, OnDestroy, HostListener } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { TourService } from '../../core/services/tour.service';
 import { NotificationBellComponent } from '../../shared/components/notification-bell/notification-bell.component';
 import { NotificationToastComponent } from '../../shared/components/notification-toast/notification-toast.component';
 import { IconComponent } from '../../shared/components/icon/icon.component';
@@ -17,7 +16,6 @@ import { IconComponent } from '../../shared/components/icon/icon.component';
 export class MainLayoutComponent implements OnInit, OnDestroy {
   authService = inject(AuthService);
   router = inject(Router);
-  private tourService = inject(TourService);
 
   isSidebarOpen = true; // Start open by default
   isHelpMenuOpen = false; // Help menu dropdown state
@@ -107,13 +105,5 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
    */
   closeHelpMenu() {
     this.isHelpMenuOpen = false;
-  }
-
-  /**
-   * Restart the dashboard tour
-   */
-  restartTour() {
-    this.closeHelpMenu();
-    this.tourService.startDashboardTour();
   }
 }

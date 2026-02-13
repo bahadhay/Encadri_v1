@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SubmissionService } from '../../../core/services/submission.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { TourService } from '../../../core/services/tour.service';
 import { Submission } from '../../../core/models/submission.model';
 import { UiCardComponent } from '../../../shared/components/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../../shared/components/ui-button/ui-button.component';
@@ -22,7 +21,6 @@ import { FormsModule } from '@angular/forms';
 export class SubmissionListComponent implements OnInit, OnChanges {
   private submissionService = inject(SubmissionService);
   private authService = inject(AuthService);
-  private tourService = inject(TourService);
 
   @Input() projectId?: string;
 
@@ -56,8 +54,6 @@ export class SubmissionListComponent implements OnInit, OnChanges {
     if (!this.projectId) {
       this.loadSubmissions();
     }
-    // Auto-start tour for first-time visitors
-    this.tourService.autoStartTour('submissions');
   }
 
   ngOnChanges(changes: SimpleChanges) {
