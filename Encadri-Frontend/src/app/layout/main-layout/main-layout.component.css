@@ -73,7 +73,7 @@
     transform: translateX(0);
     z-index: 1000;
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow-y: auto;
+    overflow: hidden; /* Changed from overflow-y: auto */
     -webkit-overflow-scrolling: touch;
   }
 
@@ -181,6 +181,27 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-1);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0; /* Important for proper flexbox scrolling */
+}
+
+/* Better scrollbar styling for nav-links */
+.nav-links::-webkit-scrollbar {
+  width: 4px;
+}
+
+.nav-links::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nav-links::-webkit-scrollbar-thumb {
+  background: var(--slate-300);
+  border-radius: 2px;
+}
+
+.nav-links::-webkit-scrollbar-thumb:hover {
+  background: var(--slate-400);
 }
 
 .nav-item {
@@ -222,12 +243,16 @@
   padding: var(--spacing-4);
   border-top: 1px solid var(--slate-100);
   background-color: var(--slate-50);
+  flex-shrink: 0; /* Prevent shrinking - always visible */
+  position: relative;
+  z-index: 10; /* Stay above nav-links */
 }
 
 /* Add safe area padding on mobile to avoid Safari bottom bar */
 @media (max-width: 1023px) {
   .user-area {
     padding-bottom: calc(var(--spacing-4) + env(safe-area-inset-bottom, 20px));
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05); /* Subtle shadow to show it's above */
   }
 }
 
