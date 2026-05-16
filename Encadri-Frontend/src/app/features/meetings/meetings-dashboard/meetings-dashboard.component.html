@@ -131,9 +131,14 @@
                     {{ meeting.meetingType }}
                   </span>
                 </div>
-                <span class="status-badge" [style.background-color]="getStatusColor(meeting.status)">
-                  {{ meeting.status }}
-                </span>
+                <div class="status-badges">
+                  <span class="status-badge" [style.background-color]="getStatusColor(meeting.status)">
+                    {{ meeting.status }}
+                  </span>
+                  <span class="status-badge-current" [class]="getStatusBadgeClass(getMeetingCurrentStatus(meeting))">
+                    {{ getStatusLabel(getMeetingCurrentStatus(meeting)) }}
+                  </span>
+                </div>
               </div>
 
               <div class="meeting-details">
@@ -173,15 +178,17 @@
                   <button class="btn btn-sm btn-secondary" (click)="viewMeetingDetails(meeting.id)">
                     Details
                   </button>
-                  @if (meeting.meetingType === 'virtual') {
+                  @if (meeting.meetingType === 'virtual' && isMeetingJoinable(meeting)) {
                     <button class="btn btn-sm btn-primary" (click)="joinVideoCall(meeting.id)">
                       <app-icon name="videocam" [size]="16"></app-icon>
                       Join
                     </button>
                   }
-                  <button class="btn btn-sm btn-danger" (click)="cancelMeeting(meeting)">
-                    Cancel
-                  </button>
+                  @if (getMeetingCurrentStatus(meeting) !== 'ended') {
+                    <button class="btn btn-sm btn-danger" (click)="cancelMeeting(meeting)">
+                      Cancel
+                    </button>
+                  }
                 </div>
               </div>
             </div>

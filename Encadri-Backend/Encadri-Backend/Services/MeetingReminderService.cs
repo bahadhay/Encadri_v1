@@ -62,7 +62,7 @@ namespace Encadri_Backend.Services
             foreach (var meeting in upcomingMeetings)
             {
                 // Define reminder intervals (in minutes before meeting)
-                var reminderIntervals = new[] { 1440, 60, 30 }; // 24 hours, 1 hour, 30 minutes
+                var reminderIntervals = new[] { 1440, 60, 15, 0 }; // 24 hours, 1 hour, 15 minutes, NOW
 
                 foreach (var minutesBefore in reminderIntervals)
                 {

@@ -55,6 +55,10 @@ export class MeetingsDashboardComponent implements OnInit {
   statusFilter = signal<string>('all');
   pastMeetings = signal<Meeting[]>([]);
 
+  // Grace period configuration (must match backend)
+  private readonly GRACE_PERIOD_MINUTES = 60;
+  private readonly EARLY_JOIN_MINUTES = 15;
+
   ngOnInit() {
     // Check for meeting ID in route params (from notification links)
     this.route.params.subscribe(params => {
@@ -109,12 +113,17 @@ export class MeetingsDashboardComponent implements OnInit {
       }
     });
 
-    // Load past meetings for history
+    // Load past meetings for history (respecting grace period)
     this.meetingService.getMeetings({ userEmail }).subscribe({
       next: (meetings) => {
         const now = new Date();
         this.pastMeetings.set(
-          meetings.filter(m => new Date(m.scheduledAt) < now)
+          meetings.filter(m => {
+            const gracePeriodEnd = new Date(m.scheduledAt);
+            gracePeriodEnd.setMinutes(gracePeriodEnd.getMinutes() + this.GRACE_PERIOD_MINUTES);
+            // Only show in history if grace period has expired OR meeting is cancelled/completed
+            return now >= gracePeriodEnd || m.status === 'cancelled' || m.status === 'completed';
+          })
             .sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime())
         );
       },
@@ -335,5 +344,73 @@ export class MeetingsDashboardComponent implements OnInit {
 
   joinVideoCall(meetingId: string) {
     this.router.navigate(['/video-call', meetingId]);
+  }
+
+  /**
+   * Get the current real-time status of a meeting based on grace period logic
+   * Returns: 'scheduled' | 'can-join-early' | 'in-progress' | 'ended'
+   */
+  getMeetingCurrentStatus(meeting: Meeting): string {
+    const now = new Date();
+    const scheduledAt = new Date(meeting.scheduledAt);
+    const earlyJoinTime = new Date(scheduledAt.getTime() - this.EARLY_JOIN_MINUTES * 60000);
+    const gracePeriodEnd = new Date(scheduledAt.getTime() + this.GRACE_PERIOD_MINUTES * 60000);
+
+    // Check if meeting is cancelled or completed manually
+    if (meeting.status === 'cancelled' || meeting.status === 'completed') {
+      return 'ended';
+    }
+
+    // Scheduled (not yet in early join window)
+    if (now < earlyJoinTime) {
+      return 'scheduled';
+    }
+
+    // Can join early (15 min before start)
+    if (now >= earlyJoinTime && now < scheduledAt) {
+      return 'can-join-early';
+    }
+
+    // In progress or grace period (from start time to grace period end)
+    if (now >= scheduledAt && now < gracePeriodEnd) {
+      return 'in-progress';
+    }
+
+    // Grace period expired
+    return 'ended';
+  }
+
+  /**
+   * Check if a meeting is currently joinable
+   */
+  isMeetingJoinable(meeting: Meeting): boolean {
+    const status = this.getMeetingCurrentStatus(meeting);
+    return status === 'can-join-early' || status === 'in-progress';
+  }
+
+  /**
+   * Get badge styling for meeting current status
+   */
+  getStatusBadgeClass(status: string): string {
+    switch (status) {
+      case 'scheduled': return 'status-scheduled';
+      case 'can-join-early': return 'status-can-join';
+      case 'in-progress': return 'status-in-progress';
+      case 'ended': return 'status-ended';
+      default: return '';
+    }
+  }
+
+  /**
+   * Get human-readable status label
+   */
+  getStatusLabel(status: string): string {
+    switch (status) {
+      case 'scheduled': return 'Scheduled';
+      case 'can-join-early': return 'Ready to Join';
+      case 'in-progress': return 'In Progress';
+      case 'ended': return 'Ended';
+      default: return status;
+    }
   }
 }

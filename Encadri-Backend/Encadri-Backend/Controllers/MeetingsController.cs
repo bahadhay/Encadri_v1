@@ -41,10 +41,15 @@ namespace Encadri_Backend.Controllers
             if (!string.IsNullOrEmpty(status))
                 meetings = meetings.Where(m => m.Status == status);
 
-            if (upcomingOnly)
-                meetings = meetings.Where(m => m.ScheduledAt > DateTime.UtcNow && m.Status != "cancelled");
+            var meetingList = await meetings.OrderByDescending(m => m.ScheduledAt).ToListAsync();
 
-            return Ok(await meetings.OrderByDescending(m => m.ScheduledAt).ToListAsync());
+            // Apply grace period logic for upcomingOnly filter
+            if (upcomingOnly)
+            {
+                meetingList = meetingList.Where(m => m.IsUpcoming()).ToList();
+            }
+
+            return Ok(meetingList);
         }
 
         /// <summary>
@@ -221,23 +226,45 @@ namespace Encadri_Backend.Controllers
         }
 
         /// <summary>
-        /// Get upcoming meetings for a user
+        /// Get upcoming meetings for a user (includes meetings in grace period)
         /// </summary>
         [HttpGet("upcoming/{userEmail}")]
-        public async Task<ActionResult<IEnumerable<Meeting>>> GetUpcoming(string userEmail, [FromQuery] int hours = 24)
+        public async Task<ActionResult<IEnumerable<Meeting>>> GetUpcoming(string userEmail, [FromQuery] int hours = 168)
         {
             var now = DateTime.UtcNow;
             var futureTime = now.AddHours(hours);
 
+            // Get meetings in the time window (with buffer for grace period)
             var meetings = await _context.Meetings
                 .Where(m => (m.StudentEmail == userEmail || m.SupervisorEmail == userEmail)
-                    && m.ScheduledAt >= now
                     && m.ScheduledAt <= futureTime
                     && m.Status != "cancelled")
                 .OrderBy(m => m.ScheduledAt)
                 .ToListAsync();
 
-            return Ok(meetings);
+            // Filter using grace period logic (meetings that are upcoming OR in grace period)
+            var upcomingMeetings = meetings.Where(m => m.IsUpcoming()).ToList();
+
+            return Ok(upcomingMeetings);
+        }
+
+        /// <summary>
+        /// Get meetings currently in progress (joinable now) for a user
+        /// </summary>
+        [HttpGet("in-progress/{userEmail}")]
+        public async Task<ActionResult<IEnumerable<Meeting>>> GetInProgress(string userEmail)
+        {
+            var meetings = await _context.Meetings
+                .Where(m => (m.StudentEmail == userEmail || m.SupervisorEmail == userEmail)
+                    && m.Status != "cancelled"
+                    && m.Status != "completed")
+                .OrderBy(m => m.ScheduledAt)
+                .ToListAsync();
+
+            // Filter to only joinable meetings (can join early or in progress/grace period)
+            var inProgressMeetings = meetings.Where(m => m.IsJoinable()).ToList();
+
+            return Ok(inProgressMeetings);
         }
     }
 

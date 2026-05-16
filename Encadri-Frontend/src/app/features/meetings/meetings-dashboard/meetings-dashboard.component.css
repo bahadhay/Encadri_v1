@@ -165,6 +165,13 @@
   color: #1e40af;
 }
 
+.status-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
 .status-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
@@ -172,6 +179,52 @@
   font-weight: 600;
   color: white;
   text-transform: capitalize;
+}
+
+.status-badge-current {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  border: 2px solid;
+  animation: fadeIn 0.3s ease-in;
+}
+
+/* Real-time status badge styles */
+.status-scheduled {
+  background-color: #eff6ff;
+  color: #1e40af;
+  border-color: #3b82f6;
+}
+
+.status-can-join {
+  background-color: #fef3c7;
+  color: #92400e;
+  border-color: #f59e0b;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.status-in-progress {
+  background-color: #d1fae5;
+  color: #065f46;
+  border-color: #10b981;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.status-ended {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border-color: #9ca3af;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(245, 158, 11, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+  }
 }
 
 .meeting-details {
