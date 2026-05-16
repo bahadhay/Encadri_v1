@@ -42,6 +42,8 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   private deviceManager?: DeviceManager;
   private call?: Call;
   private localVideoStream?: LocalVideoStream;
+  private localVideoRenderer?: VideoStreamRenderer;
+  private previewVideoRenderer?: VideoStreamRenderer;
   private remoteParticipantStreams: Map<string, any> = new Map();
 
   async ngOnInit() {
@@ -121,9 +123,18 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.previewVideoRef && this.previewVideoRef.nativeElement) {
           const renderer = new VideoStreamRenderer(this.localVideoStream);
           const view = await renderer.createView();
-          // Cast to MediaStream for video element compatibility
-          const videoElement = this.previewVideoRef.nativeElement;
-          videoElement.srcObject = view.target as unknown as MediaStream;
+
+          // Azure SDK returns an HTMLElement (video element) that we append to the container
+          const placeholderVideo = this.previewVideoRef.nativeElement;
+          const container = placeholderVideo.parentElement;
+          if (container) {
+            // Remove placeholder and append Azure SDK's video element
+            placeholderVideo.remove();
+            container.appendChild(view.target);
+
+            // Store renderer for cleanup
+            this.previewVideoRenderer = renderer;
+          }
         }
       }
     } catch (err: any) {
@@ -259,9 +270,18 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
     try {
       const renderer = new VideoStreamRenderer(this.localVideoStream);
       const view = await renderer.createView();
-      // Cast to MediaStream for video element compatibility
-      const videoElement = this.localVideoRef.nativeElement;
-      videoElement.srcObject = view.target as unknown as MediaStream;
+
+      // Azure SDK returns an HTMLElement (video element) that we append to the container
+      const placeholderVideo = this.localVideoRef.nativeElement;
+      const container = placeholderVideo.parentElement;
+      if (container) {
+        // Remove placeholder and append Azure SDK's video element
+        placeholderVideo.remove();
+        container.appendChild(view.target);
+
+        // Store renderer for cleanup
+        this.localVideoRenderer = renderer;
+      }
     } catch (err: any) {
       console.error('Failed to render local video:', err);
       this.error.set('Failed to display your camera. Please try again.');
@@ -294,10 +314,9 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
         videoTile.id = `remote-${participantId.communicationUserId}`;
         videoTile.className = 'video-tile remote-video';
 
-        const videoElement = document.createElement('video');
-        videoElement.autoplay = true;
-        // Cast to MediaStream for video element compatibility
-        videoElement.srcObject = view.target as unknown as MediaStream;
+        // Azure SDK returns an HTMLElement (video element) - use it directly
+        const videoElement = view.target as HTMLElement;
+        videoElement.setAttribute('autoplay', 'true');
 
         const label = document.createElement('div');
         label.className = 'video-label';
@@ -307,10 +326,19 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
         videoTile.appendChild(label);
         videoContainer.appendChild(videoTile);
       } else {
-        const videoElement = videoTile.querySelector('video');
-        if (videoElement) {
-          // Cast to MediaStream for video element compatibility
-          videoElement.srcObject = view.target as unknown as MediaStream;
+        // Replace existing video element with new one
+        const existingVideo = videoTile.querySelector('video');
+        if (existingVideo) {
+          existingVideo.remove();
+        }
+        const videoElement = view.target as HTMLElement;
+        videoElement.setAttribute('autoplay', 'true');
+        // Insert video before the label
+        const label = videoTile.querySelector('.video-label');
+        if (label) {
+          videoTile.insertBefore(videoElement, label);
+        } else {
+          videoTile.appendChild(videoElement);
         }
       }
 
@@ -427,6 +455,18 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
       renderer.dispose();
     });
     this.remoteParticipantStreams.clear();
+
+    // Dispose local video renderer
+    if (this.localVideoRenderer) {
+      this.localVideoRenderer.dispose();
+      this.localVideoRenderer = undefined;
+    }
+
+    // Dispose preview video renderer
+    if (this.previewVideoRenderer) {
+      this.previewVideoRenderer.dispose();
+      this.previewVideoRenderer = undefined;
+    }
 
     // Dispose local video stream
     if (this.localVideoStream) {
