@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { VideoCallService } from '../../core/services/video-call.service';
 import { UiButtonComponent } from '../../shared/components/ui-button/ui-button.component';
 import { UiCardComponent } from '../../shared/components/ui-card/ui-card.component';
@@ -75,7 +76,7 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
       this.callClient = new CallClient();
 
       // Get a token to initialize the device manager
-      const tokenResponse = await this.videoCallService.getCallToken().toPromise();
+      const tokenResponse = await firstValueFrom(this.videoCallService.getCallToken());
       if (!tokenResponse) {
         throw new Error('Failed to get call token');
       }
@@ -92,7 +93,17 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
 
     } catch (err: any) {
       console.error('Failed to initialize device manager:', err);
-      this.error.set('Failed to access camera and microphone. Please grant permissions.');
+
+      // Provide specific error messages based on error type
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        this.error.set('Camera and microphone access denied. Please grant permissions in your browser settings.');
+      } else if (err.name === 'NotFoundError') {
+        this.error.set('No camera or microphone found. Please connect a device and try again.');
+      } else if (err.message?.includes('not configured') || err.message?.includes('token')) {
+        this.error.set('Video call service is not configured. Please contact your administrator.');
+      } else {
+        this.error.set('Failed to access camera and microphone. Please grant permissions and try again.');
+      }
     }
   }
 
@@ -107,10 +118,12 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
       if (cameras.length > 0) {
         this.localVideoStream = new LocalVideoStream(cameras[0]);
 
-        if (this.previewVideoRef) {
+        if (this.previewVideoRef && this.previewVideoRef.nativeElement) {
           const renderer = new VideoStreamRenderer(this.localVideoStream);
           const view = await renderer.createView();
-          this.previewVideoRef.nativeElement.srcObject = view.target;
+          // Cast to MediaStream for video element compatibility
+          const videoElement = this.previewVideoRef.nativeElement;
+          videoElement.srcObject = view.target as unknown as MediaStream;
         }
       }
     } catch (err: any) {
@@ -238,14 +251,20 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
    * Render local video stream
    */
   private async renderLocalVideo() {
-    if (!this.localVideoStream || !this.localVideoRef) return;
+    if (!this.localVideoStream || !this.localVideoRef || !this.localVideoRef.nativeElement) {
+      console.warn('Cannot render local video: missing stream or video element');
+      return;
+    }
 
     try {
       const renderer = new VideoStreamRenderer(this.localVideoStream);
       const view = await renderer.createView();
-      this.localVideoRef.nativeElement.srcObject = view.target;
+      // Cast to MediaStream for video element compatibility
+      const videoElement = this.localVideoRef.nativeElement;
+      videoElement.srcObject = view.target as unknown as MediaStream;
     } catch (err: any) {
       console.error('Failed to render local video:', err);
+      this.error.set('Failed to display your camera. Please try again.');
     }
   }
 
@@ -277,7 +296,8 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
 
         const videoElement = document.createElement('video');
         videoElement.autoplay = true;
-        videoElement.srcObject = view.target;
+        // Cast to MediaStream for video element compatibility
+        videoElement.srcObject = view.target as unknown as MediaStream;
 
         const label = document.createElement('div');
         label.className = 'video-label';
@@ -289,7 +309,8 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         const videoElement = videoTile.querySelector('video');
         if (videoElement) {
-          videoElement.srcObject = view.target;
+          // Cast to MediaStream for video element compatibility
+          videoElement.srcObject = view.target as unknown as MediaStream;
         }
       }
 
@@ -389,7 +410,7 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.call) {
       try {
         await this.call.hangUp();
-        this.call = null;
+        this.call = undefined;
         this.isCallActive.set(false);
       } catch (err: any) {
         console.error('Failed to end call:', err);
@@ -407,9 +428,10 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     this.remoteParticipantStreams.clear();
 
-    // Stop local video stream
+    // Dispose local video stream
     if (this.localVideoStream) {
-      this.localVideoStream.getSource().stop();
+      // LocalVideoStream doesn't have a stop method, we just set it to undefined
+      this.localVideoStream = undefined;
     }
 
     // Hang up call

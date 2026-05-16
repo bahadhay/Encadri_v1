@@ -12,7 +12,7 @@ namespace Encadri_Backend.Services
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<MeetingReminderService> _logger;
-        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(5); // Check every 5 minutes
+        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(1); // Check every 1 minute for reliable notifications
 
         public MeetingReminderService(
             IServiceProvider serviceProvider,
@@ -68,8 +68,14 @@ namespace Encadri_Backend.Services
                 {
                     var reminderTime = meeting.ScheduledAt.AddMinutes(-minutesBefore);
 
-                    // Check if it's time to send this reminder
-                    if (now >= reminderTime && now < reminderTime.AddMinutes(5)) // 5-minute window
+                    // Debug logging to trace reminder detection
+                    _logger.LogDebug(
+                        "Checking reminder for meeting {MeetingId} ({Title}): reminderTime={ReminderTime:yyyy-MM-dd HH:mm:ss}, now={Now:yyyy-MM-dd HH:mm:ss}, minutesBefore={MinutesBefore}",
+                        meeting.Id, meeting.Title, reminderTime, now, minutesBefore
+                    );
+
+                    // Check if it's time to send this reminder (10-minute window to ensure reliability)
+                    if (now >= reminderTime && now < reminderTime.AddMinutes(10))
                     {
                         // Check if reminder already sent
                         var reminderExists = await context.MeetingReminders

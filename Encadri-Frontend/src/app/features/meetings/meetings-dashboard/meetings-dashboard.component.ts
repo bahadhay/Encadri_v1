@@ -329,6 +329,34 @@ export class MeetingsDashboardComponent implements OnInit {
     const meetingDate = new Date(dateString);
     const diff = meetingDate.getTime() - now.getTime();
 
+    // Calculate time boundaries based on grace period constants
+    const earlyJoinTime = new Date(meetingDate.getTime() - this.EARLY_JOIN_MINUTES * 60000);
+    const gracePeriodEnd = new Date(meetingDate.getTime() + this.GRACE_PERIOD_MINUTES * 60000);
+
+    // Meeting has ended (past grace period)
+    if (now >= gracePeriodEnd) {
+      return 'Ended';
+    }
+
+    // Meeting is in progress (within grace period after start)
+    if (now >= meetingDate && now < gracePeriodEnd) {
+      const minutesInProgress = Math.floor((now.getTime() - meetingDate.getTime()) / (1000 * 60));
+      if (minutesInProgress === 0) {
+        return 'Starting now';
+      }
+      return `Started ${minutesInProgress}m ago`;
+    }
+
+    // Early join window (15 min before start)
+    if (now >= earlyJoinTime && now < meetingDate) {
+      const minutesUntilStart = Math.floor((meetingDate.getTime() - now.getTime()) / (1000 * 60));
+      if (minutesUntilStart === 0) {
+        return 'Starting now';
+      }
+      return `Starting in ${minutesUntilStart}m`;
+    }
+
+    // Future meeting (more than 15 min away)
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
