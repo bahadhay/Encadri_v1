@@ -110,6 +110,11 @@ export const routes: Routes = [
         path: 'notes',
         loadComponent: () => import('./features/notes/note-list/note-list.component').then(m => m.NoteListComponent)
       },
+      // Evaluations Route
+      {
+        path: 'evaluations',
+        loadComponent: () => import('./features/evaluations/evaluations-page.component').then(m => m.EvaluationsPageComponent)
+      },
       // Calendar Route
       {
         path: 'calendar',
