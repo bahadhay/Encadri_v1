@@ -36,6 +36,9 @@
       <button class="tab-btn" [class.active]="activeTab() === 'documents'" (click)="setActiveTab('documents')">
         📁 Documents
       </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'evaluations'" (click)="setActiveTab('evaluations')">
+        ✅ Evaluations
+      </button>
     </div>
   </div>
 
@@ -188,6 +191,11 @@
     <!-- Documents Tab -->
     <div *ngIf="activeTab() === 'documents'">
       <app-document-repository [projectId]="p.id"></app-document-repository>
+    </div>
+
+    <!-- Evaluations Tab -->
+    <div *ngIf="activeTab() === 'evaluations'">
+      <app-evaluation-list [projectId]="p.id"></app-evaluation-list>
     </div>
   </div>
 </div>
