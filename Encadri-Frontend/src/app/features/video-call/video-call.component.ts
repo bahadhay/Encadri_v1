@@ -21,8 +21,8 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   private videoCallService = inject(VideoCallService);
   private route = inject(ActivatedRoute);
 
-  @ViewChild('localVideo') localVideoRef!: ElementRef<HTMLVideoElement>;
-  @ViewChild('previewVideo') previewVideoRef!: ElementRef<HTMLVideoElement>;
+  @ViewChild('localVideoContainer') localVideoContainerRef!: ElementRef<HTMLDivElement>;
+  @ViewChild('previewVideoContainer') previewVideoContainerRef!: ElementRef<HTMLDivElement>;
 
   // Meeting info from route params
   meetingId?: string;
@@ -68,6 +68,14 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async ngOnDestroy() {
     await this.cleanup();
+  }
+
+  /**
+   * Get user initials for avatar display
+   */
+  getUserInitials(): string {
+    // You can customize this to get from user profile
+    return 'FI'; // For now, using default initials
   }
 
   /**
@@ -123,32 +131,29 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
         this.localVideoStream = new LocalVideoStream(cameras[0]);
         console.log('Created local video stream');
 
-        if (this.previewVideoRef && this.previewVideoRef.nativeElement) {
+        if (this.previewVideoContainerRef && this.previewVideoContainerRef.nativeElement) {
           const renderer = new VideoStreamRenderer(this.localVideoStream);
           const view = await renderer.createView();
 
           console.log('Preview view.target:', view.target);
           console.log('Preview view.target type:', view.target.tagName);
 
-          // Azure SDK returns an HTMLElement (video element) that we append to the container
-          const placeholderVideo = this.previewVideoRef.nativeElement;
-          const container = placeholderVideo.parentElement;
-          if (container) {
-            // Remove placeholder and append Azure SDK's video element
-            placeholderVideo.remove();
+          const container = this.previewVideoContainerRef.nativeElement;
 
-            // Ensure the video element has proper styling
-            const videoElement = view.target as HTMLVideoElement;
-            videoElement.style.width = '100%';
-            videoElement.style.height = '100%';
-            videoElement.style.objectFit = 'cover';
+          // Clear container first
+          container.innerHTML = '';
 
-            container.appendChild(videoElement);
-            console.log('Appended preview video to container');
+          // Ensure the video element has proper styling
+          const videoElement = view.target as HTMLVideoElement;
+          videoElement.style.width = '100%';
+          videoElement.style.height = '100%';
+          videoElement.style.objectFit = 'cover';
 
-            // Store renderer for cleanup
-            this.previewVideoRenderer = renderer;
-          }
+          container.appendChild(videoElement);
+          console.log('Appended preview video to container');
+
+          // Store renderer for cleanup
+          this.previewVideoRenderer = renderer;
         }
       }
     } catch (err: any) {
@@ -276,8 +281,8 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
    * Render local video stream
    */
   private async renderLocalVideo() {
-    if (!this.localVideoStream || !this.localVideoRef || !this.localVideoRef.nativeElement) {
-      console.warn('Cannot render local video: missing stream or video element');
+    if (!this.localVideoStream || !this.localVideoContainerRef || !this.localVideoContainerRef.nativeElement) {
+      console.warn('Cannot render local video: missing stream or container');
       return;
     }
 
@@ -288,25 +293,22 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
       console.log('Local view.target:', view.target);
       console.log('Local view.target type:', view.target.tagName);
 
-      // Azure SDK returns an HTMLElement (video element) that we append to the container
-      const placeholderVideo = this.localVideoRef.nativeElement;
-      const container = placeholderVideo.parentElement;
-      if (container) {
-        // Remove placeholder and append Azure SDK's video element
-        placeholderVideo.remove();
+      const container = this.localVideoContainerRef.nativeElement;
 
-        // Ensure the video element has proper styling
-        const videoElement = view.target as HTMLVideoElement;
-        videoElement.style.width = '100%';
-        videoElement.style.height = '100%';
-        videoElement.style.objectFit = 'cover';
+      // Clear container first
+      container.innerHTML = '';
 
-        container.appendChild(videoElement);
-        console.log('Appended local video to container');
+      // Ensure the video element has proper styling
+      const videoElement = view.target as HTMLVideoElement;
+      videoElement.style.width = '100%';
+      videoElement.style.height = '100%';
+      videoElement.style.objectFit = 'cover';
 
-        // Store renderer for cleanup
-        this.localVideoRenderer = renderer;
-      }
+      container.appendChild(videoElement);
+      console.log('Appended local video to container');
+
+      // Store renderer for cleanup
+      this.localVideoRenderer = renderer;
     } catch (err: any) {
       console.error('Failed to render local video:', err);
       this.error.set('Failed to display your camera. Please try again.');
@@ -325,57 +327,49 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
       console.log('Remote view.target type:', view.target.tagName);
 
       // Create video element for remote participant
-      const videoContainer = document.querySelector('.video-grid');
-      if (!videoContainer) return;
-
-      // Remove placeholder if exists
-      const placeholder = videoContainer.querySelector('.video-placeholder');
-      if (placeholder) {
-        placeholder.remove();
-      }
+      const videoGrid = document.querySelector('.video-grid');
+      if (!videoGrid) return;
 
       // Create or update video tile for this participant
       let videoTile = document.getElementById(`remote-${participantId.communicationUserId}`);
 
       if (!videoTile) {
+        // Create new video tile
         videoTile = document.createElement('div');
         videoTile.id = `remote-${participantId.communicationUserId}`;
         videoTile.className = 'video-tile remote-video';
 
-        // Azure SDK returns an HTMLElement (video element) - use it directly
+        // Create video container
+        const videoContainer = document.createElement('div');
+        videoContainer.className = 'video-container';
+
+        // Append Azure SDK video element to container
         const videoElement = view.target as HTMLVideoElement;
         videoElement.style.width = '100%';
         videoElement.style.height = '100%';
         videoElement.style.objectFit = 'cover';
-        videoElement.setAttribute('autoplay', 'true');
+        videoContainer.appendChild(videoElement);
 
+        // Create label
         const label = document.createElement('div');
         label.className = 'video-label';
-        label.textContent = 'Participant';
+        label.innerHTML = '<span>Participant</span>';
 
-        videoTile.appendChild(videoElement);
+        videoTile.appendChild(videoContainer);
         videoTile.appendChild(label);
-        videoContainer.appendChild(videoTile);
+        videoGrid.appendChild(videoTile);
 
         console.log('Appended remote participant video');
       } else {
-        // Replace existing video element with new one
-        const existingVideo = videoTile.querySelector('video');
-        if (existingVideo) {
-          existingVideo.remove();
-        }
-        const videoElement = view.target as HTMLVideoElement;
-        videoElement.style.width = '100%';
-        videoElement.style.height = '100%';
-        videoElement.style.objectFit = 'cover';
-        videoElement.setAttribute('autoplay', 'true');
-
-        // Insert video before the label
-        const label = videoTile.querySelector('.video-label');
-        if (label) {
-          videoTile.insertBefore(videoElement, label);
-        } else {
-          videoTile.appendChild(videoElement);
+        // Update existing video tile
+        const videoContainer = videoTile.querySelector('.video-container');
+        if (videoContainer) {
+          videoContainer.innerHTML = '';
+          const videoElement = view.target as HTMLVideoElement;
+          videoElement.style.width = '100%';
+          videoElement.style.height = '100%';
+          videoElement.style.objectFit = 'cover';
+          videoContainer.appendChild(videoElement);
         }
 
         console.log('Updated remote participant video');
@@ -443,11 +437,23 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
 
     try {
       if (this.isVideoOn()) {
+        // Turn off video
         await this.call.stopVideo(this.localVideoStream);
         this.isVideoOn.set(false);
+
+        // Clear video container to show avatar
+        if (this.localVideoContainerRef && this.localVideoContainerRef.nativeElement) {
+          this.localVideoContainerRef.nativeElement.innerHTML = '';
+        }
+        console.log('Video turned off - showing avatar');
       } else {
+        // Turn on video
         await this.call.startVideo(this.localVideoStream);
         this.isVideoOn.set(true);
+
+        // Re-render video
+        await this.renderLocalVideo();
+        console.log('Video turned on - showing camera');
       }
     } catch (err: any) {
       console.error('Failed to toggle video:', err);

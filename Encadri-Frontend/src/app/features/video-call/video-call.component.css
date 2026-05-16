@@ -40,10 +40,11 @@
 .video-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
-  padding: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
   overflow-y: auto;
+  align-items: start;
 }
 
 .video-tile {
@@ -55,26 +56,94 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
-.video-tile video {
+.video-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.video-container video {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
 .local-video {
-  border: 2px solid #3b82f6;
+  border: 3px solid #3b82f6;
 }
 
 .video-label {
   position: absolute;
   bottom: 0.75rem;
   left: 0.75rem;
-  background: rgba(0, 0, 0, 0.7);
-  padding: 0.375rem 0.75rem;
-  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
   font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.mic-status {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+/* Avatar Display (when video is off) */
+.video-avatar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index: 5;
+}
+
+.avatar-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+}
+
+.avatar-initials {
+  font-size: 3rem;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+}
+
+.camera-off-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.875rem;
+}
+
+.camera-off-indicator span:first-child {
+  font-size: 1.5rem;
+}
+
+.off-text {
   font-weight: 500;
 }
 
@@ -110,8 +179,15 @@
   border-radius: 12px;
   overflow: hidden;
   aspect-ratio: 16 / 9;
+  position: relative;
 }
 
+.preview-container {
+  width: 100%;
+  height: 100%;
+}
+
+.preview-container video,
 .camera-preview video {
   width: 100%;
   height: 100%;
