@@ -1,4 +1,10 @@
 <div class="evaluations-container">
+  <!-- Read-Only Badge for Students -->
+  <div class="read-only-badge" *ngIf="isStudent && !loading()">
+    <span class="badge-icon">👁️</span>
+    <span>Read-Only View - You can view your evaluation results below</span>
+  </div>
+
   <div class="evaluations-list" *ngIf="loading()">
     <app-skeleton-card *ngFor="let i of [1,2,3]"></app-skeleton-card>
   </div>
@@ -7,14 +13,15 @@
     <div class="empty-icon">📊</div>
     <h3>No evaluations yet</h3>
     <p>Evaluations and grades will appear here.</p>
-    <app-ui-button variant="primary" (click)="openCreateModal()">
+    <app-ui-button *ngIf="isSupervisor" variant="primary" (click)="openCreateModal()">
       + Add Evaluation
     </app-ui-button>
+    <p *ngIf="isStudent" class="student-message">Your evaluation will be posted here once your supervisor completes it.</p>
   </div>
 
   <div class="evaluations-list" *ngIf="!loading() && evaluations().length > 0">
     <app-ui-card *ngFor="let evaluation of evaluations()">
-      <div class="evaluation-detail-header">
+      <div class="evaluation-detail-header" *ngIf="isSupervisor">
         <app-ui-button size="sm" variant="outline" [routerLink]="['/projects', projectId, 'evaluations', evaluation.id, 'edit']">
           Edit Evaluation
         </app-ui-button>

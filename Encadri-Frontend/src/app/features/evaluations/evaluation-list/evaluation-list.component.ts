@@ -46,6 +46,17 @@ export class EvaluationListComponent implements OnChanges {
     };
   }
 
+  // Role-based access control
+  get isSupervisor(): boolean {
+    const user = this.authService.currentUser();
+    return user?.userRole === 'supervisor' || user?.userRole === 'admin';
+  }
+
+  get isStudent(): boolean {
+    const user = this.authService.currentUser();
+    return user?.userRole === 'student';
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes['projectId'] && this.projectId) {
       this.loadEvaluations();
