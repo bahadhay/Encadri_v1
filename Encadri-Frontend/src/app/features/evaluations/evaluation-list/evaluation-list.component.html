@@ -1,10 +1,4 @@
 <div class="evaluations-container">
-  <!-- Read-Only Badge for Students -->
-  <div class="read-only-badge" *ngIf="isStudent && !loading()">
-    <span class="badge-icon">👁️</span>
-    <span>Read-Only View - You can view your evaluation results below</span>
-  </div>
-
   <div class="evaluations-list" *ngIf="loading()">
     <app-skeleton-card *ngFor="let i of [1,2,3]"></app-skeleton-card>
   </div>

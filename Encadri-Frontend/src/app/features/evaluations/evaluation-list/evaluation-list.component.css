@@ -4,25 +4,6 @@
   gap: var(--spacing-6);
 }
 
-/* Read-Only Badge for Students */
-.read-only-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border: 2px solid #fbbf24;
-  border-radius: 0.5rem;
-  color: #92400e;
-  font-weight: 500;
-  font-size: 0.875rem;
-  margin-bottom: var(--spacing-4);
-}
-
-.badge-icon {
-  font-size: 1.25rem;
-}
-
 .student-message {
   margin-top: var(--spacing-4);
   color: var(--slate-600);
