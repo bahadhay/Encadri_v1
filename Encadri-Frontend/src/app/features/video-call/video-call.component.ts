@@ -78,7 +78,7 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
       // Fetch meeting details
       if (this.meetingId) {
         try {
-          const meetingData = await firstValueFrom(this.meetingService.getMeetingById(this.meetingId));
+          const meetingData = await firstValueFrom(this.meetingService.getMeeting(this.meetingId));
           this.meeting.set(meetingData);
           this.meetingTitle = meetingData.title;
 
@@ -509,7 +509,6 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Poll for remote participants to detect them even without media streams
    */
-  private participantPollingInterval?: any;
   private startParticipantPolling() {
     let pollCount = 0;
     const maxPolls = 15; // Poll for 30 seconds (15 * 2s)
