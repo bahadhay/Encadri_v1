@@ -659,13 +659,31 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
       if (isCurrentlyMuted) {
         console.log('Unmuting microphone...');
         await this.call.unmute();
-        this.isMuted.set(false);
-        console.log('✅ Microphone unmuted');
+
+        // Verify unmute succeeded by checking state after a brief delay
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        if (!this.call.isMuted) {
+          this.isMuted.set(false);
+          console.log('✅ Microphone unmuted');
+        } else {
+          console.warn('⚠️ Unmute command executed but state still shows muted');
+          this.isMuted.set(this.call.isMuted);
+        }
       } else {
         console.log('Muting microphone...');
         await this.call.mute();
-        this.isMuted.set(true);
-        console.log('✅ Microphone muted');
+
+        // Verify mute succeeded by checking state after a brief delay
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        if (this.call.isMuted) {
+          this.isMuted.set(true);
+          console.log('✅ Microphone muted');
+        } else {
+          console.warn('⚠️ Mute command executed but state still shows unmuted');
+          this.isMuted.set(this.call.isMuted);
+        }
       }
     } catch (err: any) {
       console.error('❌ Failed to toggle mute:', err);
@@ -778,13 +796,27 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
         await this.call.startVideo(newStream);
         console.log('   Started video in call');
 
+        // CRITICAL FIX: Wait for stream to appear in call.localVideoStreams[]
+        // This ensures Azure SDK has fully registered the stream
+        let streamRegistered = false;
+        let attempts = 0;
+        while (!streamRegistered && attempts < 20) {
+          await new Promise(resolve => setTimeout(resolve, 50)); // Wait 50ms
+          streamRegistered = this.call.localVideoStreams &&
+                            this.call.localVideoStreams.length > 0 &&
+                            this.call.localVideoStreams.some(s => s === newStream);
+          attempts++;
+          if (streamRegistered) {
+            console.log('   ✓ Stream registered in call.localVideoStreams[] after', attempts * 50, 'ms');
+          }
+        }
+
+        if (!streamRegistered) {
+          console.warn('   ⚠️ Stream not found in call.localVideoStreams[] after 1 second, proceeding anyway');
+        }
+
         // IMPORTANT: Store the stream reference that's now in the call
-        // This ensures we use the same reference when stopping
         this.localVideoStream = newStream;
-
-        // Wait a brief moment for stream to be fully active
-        await new Promise(resolve => setTimeout(resolve, 100));
-
         this.isVideoOn.set(true);
 
         // Render video
