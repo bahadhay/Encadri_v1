@@ -259,22 +259,30 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
    * Subscribe to remote participant video streams
    */
   private subscribeToRemoteParticipant(participant: RemoteParticipant) {
+    // Create participant tile immediately (with or without video)
+    this.createRemoteParticipantTile(participant);
+
     participant.on('videoStreamsUpdated', async (e: any) => {
-      // Video streams added
+      // Video streams added (participant turned on camera)
       e.added.forEach(async (stream: any) => {
         await this.renderRemoteVideo(stream, participant.identifier);
       });
 
-      // Video streams removed
+      // Video streams removed (participant turned off camera)
       e.removed.forEach((stream: any) => {
-        this.removeRemoteParticipantVideo(participant.identifier);
+        this.showRemoteParticipantAvatar(participant.identifier);
       });
     });
 
-    // Render existing video streams
-    participant.videoStreams.forEach(async (stream: any) => {
-      await this.renderRemoteVideo(stream, participant.identifier);
-    });
+    // Render existing video streams or show avatar
+    if (participant.videoStreams && participant.videoStreams.length > 0) {
+      participant.videoStreams.forEach(async (stream: any) => {
+        await this.renderRemoteVideo(stream, participant.identifier);
+      });
+    } else {
+      // No video stream, show avatar
+      this.showRemoteParticipantAvatar(participant.identifier);
+    }
   }
 
   /**
@@ -316,6 +324,74 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
+   * Create remote participant tile structure
+   */
+  private createRemoteParticipantTile(participant: RemoteParticipant) {
+    const participantId = (participant.identifier as any).communicationUserId;
+    const videoGrid = document.querySelector('.video-grid');
+    if (!videoGrid) return;
+
+    // Check if tile already exists
+    if (document.getElementById(`remote-${participantId}`)) {
+      return;
+    }
+
+    // Create video tile
+    const videoTile = document.createElement('div');
+    videoTile.id = `remote-${participantId}`;
+    videoTile.className = 'video-tile remote-video';
+
+    // Create video container
+    const videoContainer = document.createElement('div');
+    videoContainer.className = 'video-container';
+    videoContainer.id = `remote-video-container-${participantId}`;
+
+    // Create avatar container (hidden by default)
+    const avatarContainer = document.createElement('div');
+    avatarContainer.className = 'video-avatar';
+    avatarContainer.id = `remote-avatar-${participantId}`;
+    avatarContainer.style.display = 'none';
+    avatarContainer.innerHTML = `
+      <div class="avatar-circle">
+        <span class="avatar-initials">P</span>
+      </div>
+      <div class="camera-off-indicator">
+        <span>📹</span>
+        <span class="off-text">Camera is off</span>
+      </div>
+    `;
+
+    // Create label
+    const label = document.createElement('div');
+    label.className = 'video-label';
+    label.innerHTML = '<span>Participant</span>';
+
+    videoTile.appendChild(videoContainer);
+    videoTile.appendChild(avatarContainer);
+    videoTile.appendChild(label);
+    videoGrid.appendChild(videoTile);
+
+    console.log('Created remote participant tile:', participantId);
+  }
+
+  /**
+   * Show avatar for remote participant (when camera is off)
+   */
+  private showRemoteParticipantAvatar(participantId: any) {
+    const userId = participantId.communicationUserId;
+    const videoContainer = document.getElementById(`remote-video-container-${userId}`);
+    const avatarContainer = document.getElementById(`remote-avatar-${userId}`);
+
+    if (videoContainer && avatarContainer) {
+      // Clear video container
+      videoContainer.innerHTML = '';
+      // Show avatar
+      avatarContainer.style.display = 'flex';
+      console.log('Showing avatar for participant:', userId);
+    }
+  }
+
+  /**
    * Render remote participant video stream
    */
   private async renderRemoteVideo(stream: any, participantId: any) {
@@ -326,57 +402,29 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
       console.log('Remote view.target:', view.target);
       console.log('Remote view.target type:', view.target.tagName);
 
-      // Create video element for remote participant
-      const videoGrid = document.querySelector('.video-grid');
-      if (!videoGrid) return;
+      const userId = participantId.communicationUserId;
+      const videoContainer = document.getElementById(`remote-video-container-${userId}`);
+      const avatarContainer = document.getElementById(`remote-avatar-${userId}`);
 
-      // Create or update video tile for this participant
-      let videoTile = document.getElementById(`remote-${participantId.communicationUserId}`);
-
-      if (!videoTile) {
-        // Create new video tile
-        videoTile = document.createElement('div');
-        videoTile.id = `remote-${participantId.communicationUserId}`;
-        videoTile.className = 'video-tile remote-video';
-
-        // Create video container
-        const videoContainer = document.createElement('div');
-        videoContainer.className = 'video-container';
-
-        // Append Azure SDK video element to container
+      if (videoContainer) {
+        // Clear container and add video
+        videoContainer.innerHTML = '';
         const videoElement = view.target as HTMLVideoElement;
         videoElement.style.width = '100%';
         videoElement.style.height = '100%';
         videoElement.style.objectFit = 'cover';
         videoContainer.appendChild(videoElement);
 
-        // Create label
-        const label = document.createElement('div');
-        label.className = 'video-label';
-        label.innerHTML = '<span>Participant</span>';
-
-        videoTile.appendChild(videoContainer);
-        videoTile.appendChild(label);
-        videoGrid.appendChild(videoTile);
-
-        console.log('Appended remote participant video');
-      } else {
-        // Update existing video tile
-        const videoContainer = videoTile.querySelector('.video-container');
-        if (videoContainer) {
-          videoContainer.innerHTML = '';
-          const videoElement = view.target as HTMLVideoElement;
-          videoElement.style.width = '100%';
-          videoElement.style.height = '100%';
-          videoElement.style.objectFit = 'cover';
-          videoContainer.appendChild(videoElement);
+        // Hide avatar, show video
+        if (avatarContainer) {
+          avatarContainer.style.display = 'none';
         }
 
-        console.log('Updated remote participant video');
+        console.log('Rendered remote participant video:', userId);
       }
 
       // Store renderer for cleanup
-      this.remoteParticipantStreams.set(participantId.communicationUserId, renderer);
+      this.remoteParticipantStreams.set(userId, renderer);
 
     } catch (err: any) {
       console.error('Failed to render remote video:', err);
