@@ -642,11 +642,18 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Check if call is in a valid state for audio operations
-    if (this.call.state !== 'Connected') {
-      console.warn('Cannot toggle mute: call not in Connected state. Current state:', this.call.state);
-      this.error.set('Please wait for the call to connect');
+    // Allow if call is Connected, Connecting, or even None (some calls work in None state)
+    const invalidStates = ['Disconnected', 'Disconnecting'];
+    if (invalidStates.includes(this.call.state)) {
+      console.warn('Cannot toggle mute: call is disconnected. Current state:', this.call.state);
+      this.error.set('Call is disconnected');
       setTimeout(() => this.error.set(''), 3000);
       return;
+    }
+
+    // If not yet connected, warn but allow the attempt
+    if (this.call.state !== 'Connected' && this.call.state !== 'Connecting') {
+      console.warn('⚠️ Attempting toggle in state:', this.call.state, '(may work anyway)');
     }
 
     this.isTogglingMute = true;
@@ -719,11 +726,18 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Check if call is in a valid state for video operations
-    if (this.call.state !== 'Connected') {
-      console.warn('Cannot toggle video: call not in Connected state. Current state:', this.call.state);
-      this.error.set('Please wait for the call to connect');
+    // Allow if call is Connected, Connecting, or even None (some calls work in None state)
+    const invalidStates = ['Disconnected', 'Disconnecting'];
+    if (invalidStates.includes(this.call.state)) {
+      console.warn('Cannot toggle video: call is disconnected. Current state:', this.call.state);
+      this.error.set('Call is disconnected');
       setTimeout(() => this.error.set(''), 3000);
       return;
+    }
+
+    // If not yet connected, warn but allow the attempt
+    if (this.call.state !== 'Connected' && this.call.state !== 'Connecting') {
+      console.warn('⚠️ Attempting video toggle in state:', this.call.state, '(may work anyway)');
     }
 
     this.isTogglingVideo = true;
