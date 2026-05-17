@@ -543,23 +543,26 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.call) return;
 
     try {
-      // Check actual call mute state
+      // Check actual call mute state (use Azure SDK as source of truth)
       const isCurrentlyMuted = this.call.isMuted;
 
       if (isCurrentlyMuted) {
+        console.log('Unmuting microphone...');
         await this.call.unmute();
         this.isMuted.set(false);
         console.log('✅ Microphone unmuted');
       } else {
+        console.log('Muting microphone...');
         await this.call.mute();
         this.isMuted.set(true);
         console.log('✅ Microphone muted');
       }
     } catch (err: any) {
-      console.error('Failed to toggle mute:', err);
+      console.error('❌ Failed to toggle mute:', err);
       // Sync UI state with actual state
       if (this.call) {
         this.isMuted.set(this.call.isMuted);
+        console.log('Synced mute state to:', this.call.isMuted);
       }
     }
   }
@@ -571,11 +574,12 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.call) return;
 
     try {
-      // Check if video is actually streaming in the call
+      // Check if video is actually streaming in the call (use Azure SDK as source of truth)
       const hasActiveVideo = this.call.localVideoStreams && this.call.localVideoStreams.length > 0;
 
-      if (hasActiveVideo && this.isVideoOn()) {
-        // Turn off video - only if it's actually streaming
+      if (hasActiveVideo) {
+        // Video is currently ON - turn it OFF
+        console.log('Turning video OFF...');
         if (this.localVideoStream) {
           await this.call.stopVideo(this.localVideoStream);
         }
@@ -586,8 +590,10 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
           this.localVideoContainerRef.nativeElement.innerHTML = '';
         }
         console.log('✅ Video turned off - showing avatar');
-      } else if (!hasActiveVideo && !this.isVideoOn()) {
-        // Turn on video - camera is currently off
+      } else {
+        // Video is currently OFF - turn it ON
+        console.log('Turning video ON...');
+
         // Create video stream if it doesn't exist
         if (!this.localVideoStream && this.deviceManager) {
           const cameras = await this.deviceManager.getCameras();
@@ -604,10 +610,6 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
           await this.renderLocalVideo();
           console.log('✅ Video turned on - showing camera');
         }
-      } else {
-        // State mismatch - sync UI with actual state
-        console.warn('Video state mismatch detected, syncing...');
-        this.isVideoOn.set(hasActiveVideo);
       }
     } catch (err: any) {
       console.error('❌ Failed to toggle video:', err);
@@ -615,6 +617,7 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
       if (this.call) {
         const hasActiveVideo = this.call.localVideoStreams && this.call.localVideoStreams.length > 0;
         this.isVideoOn.set(hasActiveVideo);
+        console.log('Synced video state to:', hasActiveVideo);
       }
     }
   }
