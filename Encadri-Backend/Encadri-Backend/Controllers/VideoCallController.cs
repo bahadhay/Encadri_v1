@@ -1,5 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Encadri_Backend.Services;
+using Encadri_Backend.Data;
+using Encadri_Backend.Hubs;
 
 namespace Encadri_Backend.Controllers
 {
@@ -8,10 +12,17 @@ namespace Encadri_Backend.Controllers
     public class VideoCallController : ControllerBase
     {
         private readonly IAzureCommunicationService _acsService;
+        private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly ApplicationDbContext _context;
 
-        public VideoCallController(IAzureCommunicationService acsService)
+        public VideoCallController(
+            IAzureCommunicationService acsService,
+            IHubContext<NotificationHub> hubContext,
+            ApplicationDbContext context)
         {
             _acsService = acsService;
+            _hubContext = hubContext;
+            _context = context;
         }
 
         /// <summary>
@@ -53,6 +64,52 @@ namespace Encadri_Backend.Controllers
                 service = "Azure Communication Services",
                 message = "Video calling service is operational"
             });
+        }
+
+        /// <summary>
+        /// Notify all meeting participants that supervisor has started the call
+        /// This broadcasts a real-time SignalR message to all participants
+        /// </summary>
+        [HttpPost("notify-meeting-started/{meetingId}")]
+        public async Task<ActionResult> NotifyMeetingStarted(string meetingId)
+        {
+            try
+            {
+                // Get meeting details
+                var meeting = await _context.Meetings.FindAsync(meetingId);
+                if (meeting == null)
+                {
+                    return NotFound(new { message = "Meeting not found" });
+                }
+
+                // Get all participant emails (supervisor + student)
+                var participantEmails = new List<string>
+                {
+                    meeting.StudentEmail,
+                    meeting.SupervisorEmail
+                };
+
+                // Broadcast via SignalR
+                await NotificationHub.NotifyMeetingStarted(_hubContext, meetingId, participantEmails);
+
+                Console.WriteLine($"✅ Meeting start notification broadcasted for meeting: {meetingId}");
+
+                return Ok(new
+                {
+                    message = "Meeting start notification sent",
+                    meetingId = meetingId,
+                    participants = participantEmails.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Failed to notify meeting start: {ex.Message}");
+                return StatusCode(500, new
+                {
+                    error = "Failed to notify meeting start",
+                    message = ex.Message
+                });
+            }
         }
     }
 }

@@ -189,5 +189,29 @@ namespace Encadri_Backend.Hubs
                 Console.WriteLine($"📭 User not connected, notification saved to database: {userEmail}");
             }
         }
+
+        /// <summary>
+        /// Notify participants that a meeting has started (called when supervisor starts the call)
+        /// </summary>
+        public static async Task NotifyMeetingStarted(
+            IHubContext<NotificationHub> hubContext,
+            string meetingId,
+            List<string> participantEmails)
+        {
+            Console.WriteLine($"📞 Broadcasting meeting start for meeting: {meetingId}");
+
+            foreach (var email in participantEmails)
+            {
+                if (_userConnections.TryGetValue(email, out var connectionId))
+                {
+                    await hubContext.Clients.Client(connectionId).SendAsync("MeetingStarted", meetingId);
+                    Console.WriteLine($"✅ Sent meeting start notification to: {email}");
+                }
+                else
+                {
+                    Console.WriteLine($"⚠️ User not connected: {email}");
+                }
+            }
+        }
     }
 }
