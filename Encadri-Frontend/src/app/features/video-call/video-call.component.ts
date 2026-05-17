@@ -714,20 +714,34 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
       // Check if video is actually streaming in the call (use Azure SDK as source of truth)
       const hasActiveVideo = this.call.localVideoStreams && this.call.localVideoStreams.length > 0;
       console.log('Current video state - hasActiveVideo:', hasActiveVideo);
-      console.log('   localVideoStreams:', this.call.localVideoStreams);
+      console.log('   localVideoStreams count:', this.call.localVideoStreams?.length || 0);
 
       if (hasActiveVideo) {
         // Video is currently ON - turn it OFF
         console.log('Turning video OFF...');
 
-        // Get the actual stream from the call
-        const streamToStop = this.call.localVideoStreams[0];
-        if (streamToStop) {
-          await this.call.stopVideo(streamToStop);
-          console.log('   Stopped video stream from call');
+        // IMPORTANT: Use ALL streams in the array, not just the first one
+        // Copy array to avoid modification during iteration
+        const streamsToStop = [...this.call.localVideoStreams];
+        console.log('   Stopping', streamsToStop.length, 'stream(s)');
+
+        for (const stream of streamsToStop) {
+          try {
+            await this.call.stopVideo(stream);
+            console.log('   ✓ Stopped stream:', stream);
+          } catch (err: any) {
+            // If already stopped, ignore the error
+            if (err.message?.includes('already stopped')) {
+              console.log('   ℹ️ Stream already stopped, ignoring');
+            } else {
+              throw err; // Re-throw other errors
+            }
+          }
         }
 
+        // Update state
         this.isVideoOn.set(false);
+        this.localVideoStream = undefined;
 
         // Clear video container to show avatar
         if (this.localVideoContainerRef && this.localVideoContainerRef.nativeElement) {
@@ -757,12 +771,19 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         // Create fresh LocalVideoStream
-        this.localVideoStream = new LocalVideoStream(cameras[0]);
+        const newStream = new LocalVideoStream(cameras[0]);
         console.log('   Created fresh LocalVideoStream');
 
         // Start video in the call
-        await this.call.startVideo(this.localVideoStream);
+        await this.call.startVideo(newStream);
         console.log('   Started video in call');
+
+        // IMPORTANT: Store the stream reference that's now in the call
+        // This ensures we use the same reference when stopping
+        this.localVideoStream = newStream;
+
+        // Wait a brief moment for stream to be fully active
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         this.isVideoOn.set(true);
 
