@@ -37,6 +37,10 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   isVideoOn = signal(false); // Start with camera off by default
   previewVideoRendered = false;
 
+  // Loading states for toggles (prevent rapid successive clicks)
+  isTogglingVideo = false;
+  isTogglingMute = false;
+
   // Azure Communication Services objects
   private callClient?: CallClient;
   private callAgent?: CallAgent;
@@ -210,19 +214,33 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
     this.error.set('');
 
     try {
+      // Clean up preview video stream and renderer before joining call
+      if (this.previewVideoRenderer) {
+        this.previewVideoRenderer.dispose();
+        this.previewVideoRenderer = undefined;
+        console.log('Cleaned up preview renderer');
+      }
+      if (this.previewVideoContainerRef && this.previewVideoContainerRef.nativeElement) {
+        this.previewVideoContainerRef.nativeElement.innerHTML = '';
+      }
+      this.previewVideoRendered = false;
+
       // Get cameras
       const cameras = await this.deviceManager.getCameras();
       if (cameras.length === 0 && this.isVideoOn()) {
         throw new Error('No camera found');
       }
 
-      // Create local video stream only if camera should be on
+      // Create fresh local video stream for the call (don't reuse preview stream)
       const localVideoStreams = [];
       if (this.isVideoOn()) {
-        if (!this.localVideoStream) {
-          this.localVideoStream = new LocalVideoStream(cameras[0]);
-        }
+        // Create a fresh LocalVideoStream for the call
+        this.localVideoStream = new LocalVideoStream(cameras[0]);
         localVideoStreams.push(this.localVideoStream);
+        console.log('Created fresh video stream for call');
+      } else {
+        // Ensure no leftover stream if camera is off
+        this.localVideoStream = undefined;
       }
 
       // Join the group call using the meetingId as the group ID
@@ -239,18 +257,26 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       );
 
+      console.log('Call object created, waiting for connection...');
+
       // Subscribe to call events
       this.subscribeToCall(this.call);
 
+      // Wait a moment for call to establish before rendering
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       // Render local video only if camera is on
-      if (this.isVideoOn()) {
+      if (this.isVideoOn() && this.localVideoStream) {
         await this.renderLocalVideo();
       }
 
       this.isCallActive.set(true);
       this.isConnecting.set(false);
 
-      console.log('✅ Joined call with camera:', this.isVideoOn(), 'mic:', !this.isMuted());
+      console.log('✅ Joined call successfully');
+      console.log('   Call state:', this.call.state);
+      console.log('   Camera:', this.isVideoOn());
+      console.log('   Mic:', this.isMuted() ? 'muted' : 'unmuted');
 
     } catch (err: any) {
       console.error('Failed to start call:', err);
@@ -540,11 +566,31 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
    * Toggle microphone mute
    */
   async toggleMute() {
-    if (!this.call) return;
+    if (!this.call) {
+      console.warn('Cannot toggle mute: no active call');
+      return;
+    }
+
+    // Prevent multiple simultaneous toggle operations
+    if (this.isTogglingMute) {
+      console.log('Toggle mute already in progress, ignoring...');
+      return;
+    }
+
+    // Check if call is in a valid state for audio operations
+    if (this.call.state !== 'Connected') {
+      console.warn('Cannot toggle mute: call not in Connected state. Current state:', this.call.state);
+      this.error.set('Please wait for the call to connect');
+      setTimeout(() => this.error.set(''), 3000);
+      return;
+    }
+
+    this.isTogglingMute = true;
 
     try {
       // Check actual call mute state (use Azure SDK as source of truth)
       const isCurrentlyMuted = this.call.isMuted;
+      console.log('Current mute state:', isCurrentlyMuted);
 
       if (isCurrentlyMuted) {
         console.log('Unmuting microphone...');
@@ -559,11 +605,19 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     } catch (err: any) {
       console.error('❌ Failed to toggle mute:', err);
+      console.error('   Error details:', err.message, err.code);
+
       // Sync UI state with actual state
       if (this.call) {
         this.isMuted.set(this.call.isMuted);
-        console.log('Synced mute state to:', this.call.isMuted);
+        console.log('   Synced mute state to:', this.call.isMuted);
       }
+
+      // Show user-friendly error
+      this.error.set('Failed to toggle microphone. Please try again.');
+      setTimeout(() => this.error.set(''), 3000);
+    } finally {
+      this.isTogglingMute = false;
     }
   }
 
@@ -571,54 +625,103 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
    * Toggle video on/off
    */
   async toggleVideo() {
-    if (!this.call) return;
+    if (!this.call) {
+      console.warn('Cannot toggle video: no active call');
+      return;
+    }
+
+    // Prevent multiple simultaneous toggle operations
+    if (this.isTogglingVideo) {
+      console.log('Toggle video already in progress, ignoring...');
+      return;
+    }
+
+    // Check if call is in a valid state for video operations
+    if (this.call.state !== 'Connected') {
+      console.warn('Cannot toggle video: call not in Connected state. Current state:', this.call.state);
+      this.error.set('Please wait for the call to connect');
+      setTimeout(() => this.error.set(''), 3000);
+      return;
+    }
+
+    this.isTogglingVideo = true;
 
     try {
       // Check if video is actually streaming in the call (use Azure SDK as source of truth)
       const hasActiveVideo = this.call.localVideoStreams && this.call.localVideoStreams.length > 0;
+      console.log('Current video state - hasActiveVideo:', hasActiveVideo);
+      console.log('   localVideoStreams:', this.call.localVideoStreams);
 
       if (hasActiveVideo) {
         // Video is currently ON - turn it OFF
         console.log('Turning video OFF...');
-        if (this.localVideoStream) {
-          await this.call.stopVideo(this.localVideoStream);
+
+        // Get the actual stream from the call
+        const streamToStop = this.call.localVideoStreams[0];
+        if (streamToStop) {
+          await this.call.stopVideo(streamToStop);
+          console.log('   Stopped video stream from call');
         }
+
         this.isVideoOn.set(false);
 
         // Clear video container to show avatar
         if (this.localVideoContainerRef && this.localVideoContainerRef.nativeElement) {
           this.localVideoContainerRef.nativeElement.innerHTML = '';
         }
+
+        // Dispose renderer
+        if (this.localVideoRenderer) {
+          this.localVideoRenderer.dispose();
+          this.localVideoRenderer = undefined;
+          console.log('   Disposed video renderer');
+        }
+
         console.log('✅ Video turned off - showing avatar');
       } else {
         // Video is currently OFF - turn it ON
         console.log('Turning video ON...');
 
-        // Create video stream if it doesn't exist
-        if (!this.localVideoStream && this.deviceManager) {
-          const cameras = await this.deviceManager.getCameras();
-          if (cameras.length > 0) {
-            this.localVideoStream = new LocalVideoStream(cameras[0]);
-          }
+        // Create a fresh video stream
+        if (!this.deviceManager) {
+          throw new Error('Device manager not available');
         }
 
-        if (this.localVideoStream) {
-          await this.call.startVideo(this.localVideoStream);
-          this.isVideoOn.set(true);
-
-          // Re-render video
-          await this.renderLocalVideo();
-          console.log('✅ Video turned on - showing camera');
+        const cameras = await this.deviceManager.getCameras();
+        if (cameras.length === 0) {
+          throw new Error('No camera found');
         }
+
+        // Create fresh LocalVideoStream
+        this.localVideoStream = new LocalVideoStream(cameras[0]);
+        console.log('   Created fresh LocalVideoStream');
+
+        // Start video in the call
+        await this.call.startVideo(this.localVideoStream);
+        console.log('   Started video in call');
+
+        this.isVideoOn.set(true);
+
+        // Render video
+        await this.renderLocalVideo();
+        console.log('✅ Video turned on - showing camera');
       }
     } catch (err: any) {
       console.error('❌ Failed to toggle video:', err);
+      console.error('   Error details:', err.message, err.code);
+
       // Sync UI state with actual state
       if (this.call) {
         const hasActiveVideo = this.call.localVideoStreams && this.call.localVideoStreams.length > 0;
         this.isVideoOn.set(hasActiveVideo);
-        console.log('Synced video state to:', hasActiveVideo);
+        console.log('   Synced video state to:', hasActiveVideo);
       }
+
+      // Show user-friendly error
+      this.error.set('Failed to toggle camera. Please try again.');
+      setTimeout(() => this.error.set(''), 3000);
+    } finally {
+      this.isTogglingVideo = false;
     }
   }
 
