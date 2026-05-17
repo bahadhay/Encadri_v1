@@ -33,8 +33,9 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   isConnecting = signal(false);
   error = signal<string>('');
   participantCount = signal(1); // Start with 1 (yourself)
-  isMuted = signal(false);
-  isVideoOn = signal(true);
+  isMuted = signal(true); // Start muted by default
+  isVideoOn = signal(false); // Start with camera off by default
+  previewVideoRendered = false;
 
   // Azure Communication Services objects
   private callClient?: CallClient;
@@ -76,6 +77,35 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   getUserInitials(): string {
     // You can customize this to get from user profile
     return 'FI'; // For now, using default initials
+  }
+
+  /**
+   * Toggle camera in preview (before joining call)
+   */
+  async togglePreviewCamera() {
+    if (this.isVideoOn()) {
+      // Turn off camera in preview
+      this.isVideoOn.set(false);
+      if (this.previewVideoContainerRef && this.previewVideoContainerRef.nativeElement) {
+        this.previewVideoContainerRef.nativeElement.innerHTML = '';
+      }
+      if (this.previewVideoRenderer) {
+        this.previewVideoRenderer.dispose();
+        this.previewVideoRenderer = undefined;
+      }
+      this.previewVideoRendered = false;
+    } else {
+      // Turn on camera in preview
+      this.isVideoOn.set(true);
+      await this.showPreview();
+    }
+  }
+
+  /**
+   * Toggle microphone in preview (before joining call)
+   */
+  togglePreviewMic() {
+    this.isMuted.set(!this.isMuted());
   }
 
   /**
@@ -121,15 +151,15 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
    * Show camera preview in waiting room
    */
   private async showPreview() {
-    if (!this.deviceManager) return;
+    if (!this.deviceManager || this.previewVideoRendered) return;
 
     try {
       const cameras = await this.deviceManager.getCameras();
       console.log('Available cameras:', cameras.length);
 
-      if (cameras.length > 0) {
+      if (cameras.length > 0 && this.isVideoOn()) {
         this.localVideoStream = new LocalVideoStream(cameras[0]);
-        console.log('Created local video stream');
+        console.log('Created local video stream for preview');
 
         if (this.previewVideoContainerRef && this.previewVideoContainerRef.nativeElement) {
           const renderer = new VideoStreamRenderer(this.localVideoStream);
@@ -150,10 +180,11 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
           videoElement.style.objectFit = 'cover';
 
           container.appendChild(videoElement);
-          console.log('Appended preview video to container');
+          console.log('✅ Appended preview video to container');
 
           // Store renderer for cleanup
           this.previewVideoRenderer = renderer;
+          this.previewVideoRendered = true;
         }
       }
     } catch (err: any) {
@@ -181,13 +212,17 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
     try {
       // Get cameras
       const cameras = await this.deviceManager.getCameras();
-      if (cameras.length === 0) {
+      if (cameras.length === 0 && this.isVideoOn()) {
         throw new Error('No camera found');
       }
 
-      // Create local video stream if not already created
-      if (!this.localVideoStream) {
-        this.localVideoStream = new LocalVideoStream(cameras[0]);
+      // Create local video stream only if camera should be on
+      const localVideoStreams = [];
+      if (this.isVideoOn()) {
+        if (!this.localVideoStream) {
+          this.localVideoStream = new LocalVideoStream(cameras[0]);
+        }
+        localVideoStreams.push(this.localVideoStream);
       }
 
       // Join the group call using the meetingId as the group ID
@@ -196,10 +231,10 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
         { groupId: this.meetingId },
         {
           videoOptions: {
-            localVideoStreams: [this.localVideoStream]
+            localVideoStreams: localVideoStreams
           },
           audioOptions: {
-            muted: false
+            muted: this.isMuted() // Use current mute state
           }
         }
       );
@@ -207,11 +242,15 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
       // Subscribe to call events
       this.subscribeToCall(this.call);
 
-      // Render local video
-      await this.renderLocalVideo();
+      // Render local video only if camera is on
+      if (this.isVideoOn()) {
+        await this.renderLocalVideo();
+      }
 
       this.isCallActive.set(true);
       this.isConnecting.set(false);
+
+      console.log('✅ Joined call with camera:', this.isVideoOn(), 'mic:', !this.isMuted());
 
     } catch (err: any) {
       console.error('Failed to start call:', err);
@@ -520,12 +559,14 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
    * Toggle video on/off
    */
   async toggleVideo() {
-    if (!this.call || !this.localVideoStream) return;
+    if (!this.call) return;
 
     try {
       if (this.isVideoOn()) {
         // Turn off video
-        await this.call.stopVideo(this.localVideoStream);
+        if (this.localVideoStream) {
+          await this.call.stopVideo(this.localVideoStream);
+        }
         this.isVideoOn.set(false);
 
         // Clear video container to show avatar
@@ -535,12 +576,22 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
         console.log('Video turned off - showing avatar');
       } else {
         // Turn on video
-        await this.call.startVideo(this.localVideoStream);
-        this.isVideoOn.set(true);
+        // Create video stream if it doesn't exist
+        if (!this.localVideoStream && this.deviceManager) {
+          const cameras = await this.deviceManager.getCameras();
+          if (cameras.length > 0) {
+            this.localVideoStream = new LocalVideoStream(cameras[0]);
+          }
+        }
 
-        // Re-render video
-        await this.renderLocalVideo();
-        console.log('Video turned on - showing camera');
+        if (this.localVideoStream) {
+          await this.call.startVideo(this.localVideoStream);
+          this.isVideoOn.set(true);
+
+          // Re-render video
+          await this.renderLocalVideo();
+          console.log('Video turned on - showing camera');
+        }
       }
     } catch (err: any) {
       console.error('Failed to toggle video:', err);

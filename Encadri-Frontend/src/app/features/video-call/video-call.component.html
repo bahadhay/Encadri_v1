@@ -37,21 +37,45 @@
   <div *ngIf="!isCallActive() && !isConnecting()" class="waiting-room">
     <app-ui-card>
       <div class="waiting-content">
-        <div class="camera-preview">
+        <div class="camera-preview" [class.video-off]="!isVideoOn()">
           <div #previewVideoContainer class="preview-container"></div>
+          <div class="preview-avatar" *ngIf="!isVideoOn()">
+            <div class="avatar-circle">
+              <span class="avatar-initials">{{ getUserInitials() }}</span>
+            </div>
+            <div class="camera-off-indicator">
+              <span>📹</span>
+              <span class="off-text">Camera is off</span>
+            </div>
+          </div>
         </div>
+
         <h3>Ready to join?</h3>
-        <p>Check your camera and microphone before joining</p>
-        <div class="device-checks">
-          <div class="check-item">
-            <span class="icon">📹</span>
-            <span>Camera: Ready</span>
-          </div>
-          <div class="check-item">
-            <span class="icon">🎤</span>
-            <span>Microphone: Ready</span>
-          </div>
+        <p>Setup your camera and microphone</p>
+
+        <!-- Preview Controls -->
+        <div class="preview-controls">
+          <button
+            class="preview-control-btn"
+            [class.active]="!isMuted()"
+            (click)="togglePreviewMic()"
+            title="Toggle Microphone">
+            <span *ngIf="!isMuted()">🎤</span>
+            <span *ngIf="isMuted()" class="muted">🎤</span>
+            <span class="btn-label">{{ isMuted() ? 'Mic Off' : 'Mic On' }}</span>
+          </button>
+
+          <button
+            class="preview-control-btn"
+            [class.active]="isVideoOn()"
+            (click)="togglePreviewCamera()"
+            title="Toggle Camera">
+            <span *ngIf="isVideoOn()">📹</span>
+            <span *ngIf="!isVideoOn()" class="off">📹</span>
+            <span class="btn-label">{{ isVideoOn() ? 'Camera On' : 'Camera Off' }}</span>
+          </button>
         </div>
+
         <app-ui-button
           variant="primary"
           size="lg"
