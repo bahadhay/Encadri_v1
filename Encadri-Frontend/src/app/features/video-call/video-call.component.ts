@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { VideoCallService } from '../../core/services/video-call.service';
+import { MeetingService } from '../../core/services/meeting.service';
+import { AuthService } from '../../core/services/auth.service';
+import { Meeting } from '../../core/models/meeting.model';
 import { UiButtonComponent } from '../../shared/components/ui-button/ui-button.component';
 import { UiCardComponent } from '../../shared/components/ui-card/ui-card.component';
 
@@ -19,6 +22,8 @@ import { AzureCommunicationTokenCredential } from '@azure/communication-common';
 })
 export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   private videoCallService = inject(VideoCallService);
+  private meetingService = inject(MeetingService);
+  private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
 
   @ViewChild('localVideoContainer') localVideoContainerRef!: ElementRef<HTMLDivElement>;
@@ -27,6 +32,14 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   // Meeting info from route params
   meetingId?: string;
   meetingTitle?: string;
+
+  // Meeting data and control
+  meeting = signal<Meeting | null>(null);
+  currentUser = this.authService.currentUser;
+  isSupervisor = signal(false);
+  callStartedBySupervisor = signal(false);
+  countdownText = signal<string>('');
+  private countdownInterval?: any;
 
   // State
   isCallActive = signal(false);
@@ -53,13 +66,40 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async ngOnInit() {
     // Get meeting ID from route
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe(async params => {
       this.meetingId = params.get('meetingId') || undefined;
+
+      // Fetch meeting details
+      if (this.meetingId) {
+        try {
+          const meetingData = await firstValueFrom(this.meetingService.getMeetingById(this.meetingId));
+          this.meeting.set(meetingData);
+          this.meetingTitle = meetingData.title;
+
+          // Check if current user is supervisor
+          const userEmail = this.currentUser()?.email;
+          if (userEmail && userEmail === meetingData.supervisorEmail) {
+            this.isSupervisor.set(true);
+            console.log('✅ User is supervisor - can start the call');
+          } else {
+            this.isSupervisor.set(false);
+            console.log('👤 User is student - waiting for supervisor to start');
+          }
+
+          // Start countdown timer
+          this.startCountdownTimer();
+        } catch (err) {
+          console.error('Failed to fetch meeting details:', err);
+          this.error.set('Failed to load meeting details');
+        }
+      }
     });
 
-    // Get meeting title from query params if provided
+    // Get meeting title from query params if provided (backup)
     this.route.queryParamMap.subscribe(params => {
-      this.meetingTitle = params.get('title') || 'Video Meeting';
+      if (!this.meetingTitle) {
+        this.meetingTitle = params.get('title') || 'Video Meeting';
+      }
     });
 
     // Initialize device manager
@@ -72,6 +112,10 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async ngOnDestroy() {
+    // Clear countdown timer
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
     await this.cleanup();
   }
 
@@ -81,6 +125,68 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   getUserInitials(): string {
     // You can customize this to get from user profile
     return 'FI'; // For now, using default initials
+  }
+
+  /**
+   * Start countdown timer to meeting start time
+   */
+  private startCountdownTimer() {
+    const meeting = this.meeting();
+    if (!meeting) return;
+
+    const updateCountdown = () => {
+      const now = new Date();
+      const scheduledAt = new Date(meeting.scheduledAt);
+      const diff = scheduledAt.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        this.countdownText.set('Meeting time has arrived');
+        return;
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      if (hours > 0) {
+        this.countdownText.set(`Meeting starts in ${hours}h ${minutes}m`);
+      } else if (minutes > 0) {
+        this.countdownText.set(`Meeting starts in ${minutes}m ${seconds}s`);
+      } else {
+        this.countdownText.set(`Meeting starts in ${seconds}s`);
+      }
+    };
+
+    // Update immediately
+    updateCountdown();
+
+    // Update every second
+    this.countdownInterval = setInterval(updateCountdown, 1000);
+  }
+
+  /**
+   * Supervisor starts the call (only supervisors can call this)
+   */
+  supervisorStartCall() {
+    if (!this.isSupervisor()) {
+      console.error('Only supervisors can start the call');
+      return;
+    }
+
+    console.log('👨‍🏫 Supervisor starting the call...');
+    this.callStartedBySupervisor.set(true);
+
+    // Proceed to start call
+    this.startCall();
+  }
+
+  /**
+   * Check if user can join call
+   * - Supervisors can always start the call (even before meeting time)
+   * - Students must wait for supervisor to start
+   */
+  canJoinCall(): boolean {
+    return this.isSupervisor() || this.callStartedBySupervisor();
   }
 
   /**

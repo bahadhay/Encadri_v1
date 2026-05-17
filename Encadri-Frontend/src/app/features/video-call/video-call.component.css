@@ -288,6 +288,51 @@
   font-size: 1.5rem;
 }
 
+/* Countdown Banner */
+.countdown-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.countdown-banner span {
+  font-size: 1.125rem;
+}
+
+/* Waiting Message (for students) */
+.waiting-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  margin: 1.5rem 0;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 12px;
+  border: 2px dashed rgba(102, 126, 234, 0.3);
+}
+
+.waiting-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(102, 126, 234, 0.2);
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.waiting-text {
+  margin: 0;
+  color: #667eea;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
 /* Connecting State */
 .connecting-state {
   flex: 1;

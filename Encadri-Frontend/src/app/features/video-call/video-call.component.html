@@ -50,10 +50,35 @@
           </div>
         </div>
 
-        <h3>Ready to join?</h3>
-        <p>Setup your camera and microphone</p>
+        <!-- Supervisor View -->
+        <div *ngIf="isSupervisor()">
+          <h3>👨‍🏫 Ready to start the meeting?</h3>
+          <p>You are the meeting host. Setup your camera and microphone.</p>
 
-        <!-- Preview Controls -->
+          <!-- Countdown Timer -->
+          <div *ngIf="countdownText()" class="countdown-banner">
+            <span>⏰ {{ countdownText() }}</span>
+          </div>
+        </div>
+
+        <!-- Student View -->
+        <div *ngIf="!isSupervisor()">
+          <h3>👤 Waiting for supervisor</h3>
+          <p>The meeting host will start the call soon. Please wait.</p>
+
+          <!-- Countdown Timer -->
+          <div *ngIf="countdownText()" class="countdown-banner">
+            <span>⏰ {{ countdownText() }}</span>
+          </div>
+
+          <!-- Waiting message -->
+          <div class="waiting-message">
+            <div class="waiting-spinner"></div>
+            <p class="waiting-text">Waiting for supervisor to start the meeting...</p>
+          </div>
+        </div>
+
+        <!-- Preview Controls (for both supervisor and student) -->
         <div class="preview-controls">
           <button
             class="preview-control-btn"
@@ -76,11 +101,13 @@
           </button>
         </div>
 
+        <!-- Join Button (only for supervisor) -->
         <app-ui-button
+          *ngIf="isSupervisor()"
           variant="primary"
           size="lg"
-          (click)="startCall()">
-          Join Meeting
+          (click)="supervisorStartCall()">
+          Start Meeting
         </app-ui-button>
       </div>
     </app-ui-card>
