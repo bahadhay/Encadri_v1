@@ -349,6 +349,50 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.updateParticipantCount();
     console.log('=== CALL EVENT SUBSCRIPTION COMPLETE ===');
+
+    // CRITICAL FIX: Poll for participants periodically
+    // Azure SDK sometimes fails to fire remoteParticipantsUpdated when users join without media
+    // Poll every 2 seconds for the first 30 seconds to catch late-joining participants
+    this.startParticipantPolling();
+  }
+
+  /**
+   * Poll for remote participants to detect them even without media streams
+   */
+  private participantPollingInterval?: any;
+  private startParticipantPolling() {
+    let pollCount = 0;
+    const maxPolls = 15; // Poll for 30 seconds (15 * 2s)
+
+    console.log('🔄 Starting participant polling (every 2s for 30s)');
+
+    this.participantPollingInterval = setInterval(() => {
+      pollCount++;
+
+      if (!this.call || pollCount > maxPolls) {
+        console.log('🛑 Stopping participant polling');
+        if (this.participantPollingInterval) {
+          clearInterval(this.participantPollingInterval);
+          this.participantPollingInterval = undefined;
+        }
+        return;
+      }
+
+      const currentCount = this.call.remoteParticipants.length;
+      console.log(`🔍 Poll ${pollCount}/${maxPolls}: Checking for participants... Found: ${currentCount}`);
+
+      // Check if there are any unsubscribed participants
+      this.call.remoteParticipants.forEach((participant: RemoteParticipant) => {
+        const participantId = (participant.identifier as any).communicationUserId;
+        const tileExists = document.getElementById(`remote-${participantId}`);
+
+        if (!tileExists) {
+          console.log(`   ➕ Found unsubscribed participant via polling: ${participantId}`);
+          this.subscribeToRemoteParticipant(participant);
+          this.updateParticipantCount();
+        }
+      });
+    }, 2000); // Poll every 2 seconds
   }
 
   /**
@@ -760,7 +804,7 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
         for (const stream of streamsToStop) {
           try {
             await this.call.stopVideo(stream);
-            console.log('   ✓ Stopped stream:', stream);
+            console.log('   ✓ Stopped stream');
           } catch (err: any) {
             // If already stopped, ignore the error
             if (err.message?.includes('already stopped')) {
@@ -769,6 +813,24 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
               throw err; // Re-throw other errors
             }
           }
+        }
+
+        // CRITICAL: Wait for stream to be removed from call.localVideoStreams[]
+        // Mirror the logic from turning ON - wait for state to sync
+        let streamRemoved = false;
+        let attempts = 0;
+        while (!streamRemoved && attempts < 20) {
+          await new Promise(resolve => setTimeout(resolve, 50)); // Wait 50ms
+          streamRemoved = !this.call.localVideoStreams || this.call.localVideoStreams.length === 0;
+          attempts++;
+          if (streamRemoved) {
+            console.log('   ✓ Stream removed from call.localVideoStreams[] after', attempts * 50, 'ms');
+          }
+        }
+
+        if (!streamRemoved) {
+          console.warn('   ⚠️ Stream still in call.localVideoStreams[] after 1 second');
+          console.warn('   ⚠️ Forcing state update anyway');
         }
 
         // Update state
@@ -891,6 +953,13 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
    * Cleanup resources
    */
   private async cleanup() {
+    // Stop participant polling
+    if (this.participantPollingInterval) {
+      clearInterval(this.participantPollingInterval);
+      this.participantPollingInterval = undefined;
+      console.log('Cleaned up participant polling');
+    }
+
     // Dispose all remote participant renderers
     this.remoteParticipantStreams.forEach(renderer => {
       renderer.dispose();
