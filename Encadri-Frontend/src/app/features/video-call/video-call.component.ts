@@ -289,49 +289,97 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
    * Subscribe to call state changes and participant events
    */
   private subscribeToCall(call: Call) {
+    console.log('=== SUBSCRIBING TO CALL EVENTS ===');
+    console.log('   Meeting/Group ID:', this.meetingId);
+    console.log('   Initial call state:', call.state);
+    console.log('   Initial remote participants:', call.remoteParticipants.length);
+
     // Listen for state changes
     call.on('stateChanged', () => {
-      console.log('Call state:', call.state);
+      console.log('📞 Call state changed to:', call.state);
       if (call.state === 'Disconnected') {
         this.isCallActive.set(false);
+        console.log('Call disconnected, cleaning up...');
+      }
+      if (call.state === 'Connected') {
+        console.log('✅ Call fully connected!');
+        console.log('   Remote participants in call:', call.remoteParticipants.length);
       }
     });
 
     // Listen for remote participants
     call.on('remoteParticipantsUpdated', (e: any) => {
+      console.log('👥 Remote participants updated:');
+      console.log('   Participants added:', e.added.length);
+      console.log('   Participants removed:', e.removed.length);
+      console.log('   Total remote participants now:', call.remoteParticipants.length);
+
       // Participants added
       e.added.forEach((participant: RemoteParticipant) => {
+        console.log('   ➕ New participant joined:', {
+          id: (participant.identifier as any).communicationUserId || 'unknown',
+          state: participant.state,
+          isMuted: participant.isMuted,
+          videoStreams: participant.videoStreams.length
+        });
         this.subscribeToRemoteParticipant(participant);
         this.updateParticipantCount();
       });
 
       // Participants removed
       e.removed.forEach((participant: RemoteParticipant) => {
+        const participantId = (participant.identifier as any).communicationUserId || 'unknown';
+        console.log('   ➖ Participant left:', participantId);
         this.removeRemoteParticipantVideo(participant.identifier);
         this.updateParticipantCount();
       });
     });
 
     // Handle existing participants (already in the call when we join)
-    call.remoteParticipants.forEach((participant: RemoteParticipant) => {
-      this.subscribeToRemoteParticipant(participant);
-    });
+    console.log('Checking for existing participants in call...');
+    if (call.remoteParticipants.length > 0) {
+      console.log(`Found ${call.remoteParticipants.length} existing participant(s) - subscribing to them...`);
+      call.remoteParticipants.forEach((participant: RemoteParticipant) => {
+        console.log('   Subscribing to existing participant:', (participant.identifier as any).communicationUserId || 'unknown');
+        this.subscribeToRemoteParticipant(participant);
+      });
+    } else {
+      console.log('No existing participants in call yet. Waiting for others to join...');
+    }
 
     this.updateParticipantCount();
+    console.log('=== CALL EVENT SUBSCRIPTION COMPLETE ===');
   }
 
   /**
    * Subscribe to remote participant video streams
    */
   private subscribeToRemoteParticipant(participant: RemoteParticipant) {
+    const participantId = (participant.identifier as any).communicationUserId || 'unknown';
+    console.log(`📹 Subscribing to participant: ${participantId}`);
+    console.log('   Participant state:', participant.state);
+    console.log('   Has video streams:', participant.videoStreams.length);
+    console.log('   Is muted:', participant.isMuted);
+
     // Create participant tile immediately (with or without video)
     this.createRemoteParticipantTile(participant);
 
+    // Listen for participant state changes
+    participant.on('stateChanged', () => {
+      console.log(`   Participant ${participantId} state changed to:`, participant.state);
+    });
+
     participant.on('videoStreamsUpdated', async (e: any) => {
+      console.log(`   📹 Video streams updated for ${participantId}:`);
+      console.log('      Added:', e.added.length, 'Removed:', e.removed.length);
+
       // Video streams added (participant turned on camera)
       e.added.forEach(async (stream: any) => {
+        console.log(`      ➕ Stream added - isAvailable: ${stream.isAvailable}`);
+
         // Subscribe to isAvailable changes
         stream.on('isAvailableChanged', async () => {
+          console.log(`      Stream availability changed for ${participantId}:`, stream.isAvailable);
           if (stream.isAvailable) {
             await this.renderRemoteVideo(stream, participant.identifier);
           } else {
@@ -341,21 +389,27 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
 
         // Render immediately if already available
         if (stream.isAvailable) {
+          console.log(`      Rendering stream immediately for ${participantId}`);
           await this.renderRemoteVideo(stream, participant.identifier);
         }
       });
 
       // Video streams removed (participant turned off camera)
       e.removed.forEach((stream: any) => {
+        console.log(`      ➖ Stream removed for ${participantId} - showing avatar`);
         this.showRemoteParticipantAvatar(participant.identifier);
       });
     });
 
     // Render existing video streams or show avatar
     if (participant.videoStreams && participant.videoStreams.length > 0) {
+      console.log(`   Processing ${participant.videoStreams.length} existing video stream(s) for ${participantId}`);
       participant.videoStreams.forEach(async (stream: any) => {
+        console.log(`      Stream isAvailable: ${stream.isAvailable}`);
+
         // Subscribe to isAvailable changes
         stream.on('isAvailableChanged', async () => {
+          console.log(`      Stream availability changed for ${participantId}:`, stream.isAvailable);
           if (stream.isAvailable) {
             await this.renderRemoteVideo(stream, participant.identifier);
           } else {
@@ -365,14 +419,17 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
 
         // Render immediately if already available
         if (stream.isAvailable) {
+          console.log(`      Rendering existing stream for ${participantId}`);
           await this.renderRemoteVideo(stream, participant.identifier);
         } else {
           // Stream exists but not available yet, show avatar
+          console.log(`      Stream not available yet for ${participantId} - showing avatar`);
           this.showRemoteParticipantAvatar(participant.identifier);
         }
       });
     } else {
       // No video stream, show avatar
+      console.log(`   No video streams for ${participantId} - showing avatar`);
       this.showRemoteParticipantAvatar(participant.identifier);
     }
   }
@@ -420,11 +477,17 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   private createRemoteParticipantTile(participant: RemoteParticipant) {
     const participantId = (participant.identifier as any).communicationUserId;
+    console.log(`🎨 Creating tile for participant: ${participantId}`);
+
     const videoGrid = document.querySelector('.video-grid');
-    if (!videoGrid) return;
+    if (!videoGrid) {
+      console.error('   ❌ Video grid not found! Cannot create participant tile.');
+      return;
+    }
 
     // Check if tile already exists
     if (document.getElementById(`remote-${participantId}`)) {
+      console.log(`   ℹ️ Tile already exists for ${participantId}, skipping creation`);
       return;
     }
 
@@ -438,11 +501,11 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
     videoContainer.className = 'video-container';
     videoContainer.id = `remote-video-container-${participantId}`;
 
-    // Create avatar container (hidden by default)
+    // Create avatar container (visible by default since most join with camera off)
     const avatarContainer = document.createElement('div');
     avatarContainer.className = 'video-avatar';
     avatarContainer.id = `remote-avatar-${participantId}`;
-    avatarContainer.style.display = 'none';
+    avatarContainer.style.display = 'flex'; // Show by default
     avatarContainer.innerHTML = `
       <div class="avatar-circle">
         <span class="avatar-initials">P</span>
@@ -463,7 +526,8 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
     videoTile.appendChild(label);
     videoGrid.appendChild(videoTile);
 
-    console.log('Created remote participant tile:', participantId);
+    console.log(`   ✅ Created remote participant tile for: ${participantId}`);
+    console.log('   Total participant tiles in DOM:', document.querySelectorAll('.remote-video').length);
   }
 
   /**
