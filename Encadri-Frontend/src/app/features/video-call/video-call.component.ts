@@ -265,7 +265,19 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
     participant.on('videoStreamsUpdated', async (e: any) => {
       // Video streams added (participant turned on camera)
       e.added.forEach(async (stream: any) => {
-        await this.renderRemoteVideo(stream, participant.identifier);
+        // Subscribe to isAvailable changes
+        stream.on('isAvailableChanged', async () => {
+          if (stream.isAvailable) {
+            await this.renderRemoteVideo(stream, participant.identifier);
+          } else {
+            this.showRemoteParticipantAvatar(participant.identifier);
+          }
+        });
+
+        // Render immediately if already available
+        if (stream.isAvailable) {
+          await this.renderRemoteVideo(stream, participant.identifier);
+        }
       });
 
       // Video streams removed (participant turned off camera)
@@ -277,7 +289,22 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
     // Render existing video streams or show avatar
     if (participant.videoStreams && participant.videoStreams.length > 0) {
       participant.videoStreams.forEach(async (stream: any) => {
-        await this.renderRemoteVideo(stream, participant.identifier);
+        // Subscribe to isAvailable changes
+        stream.on('isAvailableChanged', async () => {
+          if (stream.isAvailable) {
+            await this.renderRemoteVideo(stream, participant.identifier);
+          } else {
+            this.showRemoteParticipantAvatar(participant.identifier);
+          }
+        });
+
+        // Render immediately if already available
+        if (stream.isAvailable) {
+          await this.renderRemoteVideo(stream, participant.identifier);
+        } else {
+          // Stream exists but not available yet, show avatar
+          this.showRemoteParticipantAvatar(participant.identifier);
+        }
       });
     } else {
       // No video stream, show avatar
@@ -396,13 +423,23 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   private async renderRemoteVideo(stream: any, participantId: any) {
     try {
+      const userId = participantId.communicationUserId;
+
+      console.log('Attempting to render remote video for:', userId);
+      console.log('Stream isAvailable:', stream.isAvailable);
+
+      if (!stream.isAvailable) {
+        console.warn('Stream not available yet, showing avatar instead');
+        this.showRemoteParticipantAvatar(participantId);
+        return;
+      }
+
       const renderer = new VideoStreamRenderer(stream);
       const view = await renderer.createView();
 
       console.log('Remote view.target:', view.target);
       console.log('Remote view.target type:', view.target.tagName);
 
-      const userId = participantId.communicationUserId;
       const videoContainer = document.getElementById(`remote-video-container-${userId}`);
       const avatarContainer = document.getElementById(`remote-avatar-${userId}`);
 
@@ -420,14 +457,16 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
           avatarContainer.style.display = 'none';
         }
 
-        console.log('Rendered remote participant video:', userId);
+        console.log('✅ Successfully rendered remote participant video:', userId);
       }
 
       // Store renderer for cleanup
       this.remoteParticipantStreams.set(userId, renderer);
 
     } catch (err: any) {
-      console.error('Failed to render remote video:', err);
+      console.error('❌ Failed to render remote video:', err);
+      // Show avatar on error
+      this.showRemoteParticipantAvatar(participantId);
     }
   }
 
