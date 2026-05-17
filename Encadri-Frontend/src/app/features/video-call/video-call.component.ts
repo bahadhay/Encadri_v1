@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 import { VideoCallService } from '../../core/services/video-call.service';
 import { MeetingService } from '../../core/services/meeting.service';
 import { AuthService } from '../../core/services/auth.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { Meeting } from '../../core/models/meeting.model';
 import { UiButtonComponent } from '../../shared/components/ui-button/ui-button.component';
 import { UiCardComponent } from '../../shared/components/ui-card/ui-card.component';
@@ -24,6 +25,7 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   private videoCallService = inject(VideoCallService);
   private meetingService = inject(MeetingService);
   private authService = inject(AuthService);
+  private notificationService = inject(NotificationService);
   private route = inject(ActivatedRoute);
 
   @ViewChild('localVideoContainer') localVideoContainerRef!: ElementRef<HTMLDivElement>;
@@ -64,6 +66,10 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   private previewVideoRenderer?: VideoStreamRenderer;
   private remoteParticipantStreams: Map<string, any> = new Map();
 
+  // SignalR subscription
+  private meetingStartedSubscription?: Subscription;
+  private participantPollingInterval?: any;
+
   async ngOnInit() {
     // Get meeting ID from route
     this.route.paramMap.subscribe(async params => {
@@ -102,6 +108,24 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
+    // Subscribe to meeting started notifications (for students waiting)
+    this.meetingStartedSubscription = this.notificationService.meetingStarted$.subscribe(
+      (startedMeetingId) => {
+        console.log('📞 Received meeting started notification for:', startedMeetingId);
+
+        // Check if this is the meeting we're waiting for
+        if (startedMeetingId === this.meetingId) {
+          console.log('✅ Supervisor started this meeting! Auto-joining...');
+          this.callStartedBySupervisor.set(true);
+
+          // Auto-join for students
+          if (!this.isSupervisor()) {
+            this.startCall();
+          }
+        }
+      }
+    );
+
     // Initialize device manager
     await this.initializeDeviceManager();
   }
@@ -116,6 +140,12 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.countdownInterval) {
       clearInterval(this.countdownInterval);
     }
+
+    // Unsubscribe from SignalR meeting started notifications
+    if (this.meetingStartedSubscription) {
+      this.meetingStartedSubscription.unsubscribe();
+    }
+
     await this.cleanup();
   }
 
@@ -167,14 +197,28 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Supervisor starts the call (only supervisors can call this)
    */
-  supervisorStartCall() {
+  async supervisorStartCall() {
     if (!this.isSupervisor()) {
       console.error('Only supervisors can start the call');
       return;
     }
 
+    if (!this.meetingId) {
+      console.error('No meeting ID available');
+      return;
+    }
+
     console.log('👨‍🏫 Supervisor starting the call...');
     this.callStartedBySupervisor.set(true);
+
+    // Broadcast to all participants via SignalR
+    try {
+      await firstValueFrom(this.videoCallService.notifyMeetingStarted(this.meetingId));
+      console.log('✅ Meeting start notification broadcasted to all participants');
+    } catch (err) {
+      console.error('Failed to broadcast meeting start:', err);
+      // Continue anyway - supervisor can still join
+    }
 
     // Proceed to start call
     this.startCall();

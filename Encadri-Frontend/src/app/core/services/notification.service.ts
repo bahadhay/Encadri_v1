@@ -36,10 +36,12 @@ export class NotificationService {
   private connectionStateSubject = new BehaviorSubject<signalR.HubConnectionState>(
     signalR.HubConnectionState.Disconnected
   );
+  private meetingStartedSubject = new Subject<string>(); // Emits meetingId when meeting starts
 
   // Public observables
   public newNotification$ = this.newNotificationSubject.asObservable();
   public connectionState$ = this.connectionStateSubject.asObservable();
+  public meetingStarted$ = this.meetingStartedSubject.asObservable();
 
   constructor() {}
 
@@ -127,6 +129,12 @@ export class NotificationService {
     this.hubConnection.on('UnreadCountUpdated', (count: number) => {
       console.log('📊 Unread count updated:', count);
       this.unreadCount.set(count);
+    });
+
+    // Meeting started notification (for video calls)
+    this.hubConnection.on('MeetingStarted', (meetingId: string) => {
+      console.log('📞 Meeting started notification received:', meetingId);
+      this.meetingStartedSubject.next(meetingId);
     });
   }
 

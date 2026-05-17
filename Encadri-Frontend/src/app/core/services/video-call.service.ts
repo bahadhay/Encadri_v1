@@ -26,4 +26,12 @@ export class VideoCallService {
   checkHealth(): Observable<any> {
     return this.apiService.get('/videocall/health');
   }
+
+  /**
+   * Notify all participants that the meeting has started
+   * Called by supervisor when starting the call
+   */
+  notifyMeetingStarted(meetingId: string): Observable<any> {
+    return this.apiService.post(`/videocall/notify-meeting-started/${meetingId}`, {});
+  }
 }
