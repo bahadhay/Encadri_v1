@@ -33,8 +33,8 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   isConnecting = signal(false);
   error = signal<string>('');
   participantCount = signal(1); // Start with 1 (yourself)
-  isMuted = signal(false); // Start with mic ON (allows participant detection)
-  isVideoOn = signal(false); // Start with camera off by default
+  isMuted = signal(false); // Start with mic ON (Microsoft Teams standard)
+  isVideoOn = signal(true); // Start with camera ON (Microsoft Teams standard)
   previewVideoRendered = false;
 
   // Loading states for toggles (prevent rapid successive clicks)
