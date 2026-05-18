@@ -357,16 +357,16 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   getStatusLabel(status: string): string {
     const labels: { [key: string]: string } = {
-      'pending': 'En attente',
-      'approved': 'Approuvée',
-      'needs_revision': 'À réviser',
-      'in_progress': 'En cours',
-      'completed': 'Terminé',
-      'not_started': 'Non démarré',
-      'overdue': 'En retard',
-      'proposed': 'Proposé',
-      'under_review': 'En révision',
-      'archived': 'Archivé'
+      'pending': 'Pending',
+      'approved': 'Approved',
+      'needs_revision': 'Needs Revision',
+      'in_progress': 'In Progress',
+      'completed': 'Completed',
+      'not_started': 'Not Started',
+      'overdue': 'Overdue',
+      'proposed': 'Proposed',
+      'under_review': 'Under Review',
+      'archived': 'Archived'
     };
     return labels[status] || status;
   }
@@ -391,9 +391,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   getActivityTypeLabel(type: string): string {
     const labels: { [key: string]: string } = {
-      'meeting': 'Réunion',
-      'submission': 'Soumission',
-      'milestone': 'Jalon'
+      'meeting': 'Meeting',
+      'submission': 'Submission',
+      'milestone': 'Milestone'
     };
     return labels[type] || type;
   }
