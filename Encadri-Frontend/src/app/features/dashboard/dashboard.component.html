@@ -110,12 +110,12 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                   </svg>
                   <span class="progress-label">Progress</span>
-                  <span class="progress-percentage">{{ project.progressPercentage }}%</span>
+                  <span class="progress-percentage">{{ project.progressPercentage || 0 }}%</span>
                 </div>
                 <div class="progress-bar">
-                  <div class="progress-fill" [style.width.%]="project.progressPercentage"></div>
+                  <div class="progress-fill" [style.width.%]="project.progressPercentage || 0"></div>
                 </div>
-                <p class="progress-note">{{ getProgressNote(project.progressPercentage) }}</p>
+                <p class="progress-note">{{ getProgressNote(project.progressPercentage || 0) }}</p>
               </div>
 
               <div class="student-project-footer">
@@ -334,12 +334,12 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                   </svg>
                   <span class="progress-label">Progress</span>
-                  <span class="progress-percentage">{{ project.progressPercentage }}%</span>
+                  <span class="progress-percentage">{{ project.progressPercentage || 0 }}%</span>
                 </div>
                 <div class="progress-bar">
-                  <div class="progress-fill" [style.width.%]="project.progressPercentage"></div>
+                  <div class="progress-fill" [style.width.%]="project.progressPercentage || 0"></div>
                 </div>
-                <p class="progress-note">{{ getProgressNote(project.progressPercentage) }}</p>
+                <p class="progress-note">{{ getProgressNote(project.progressPercentage || 0) }}</p>
               </div>
 
               <div class="student-project-footer">

@@ -1021,17 +1021,19 @@ h3 {
 /* Progress Bar */
 .progress-bar {
   height: 8px;
-  background: rgba(255, 255, 255, 0.6);
+  background: #bfdbfe;
   border-radius: var(--radius-full);
   overflow: hidden;
   margin-bottom: var(--spacing-2);
+  width: 100%;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-600) 100%);
+  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
   border-radius: var(--radius-full);
   transition: width 0.3s ease;
+  min-width: 2%;
 }
 
 .progress-note {
