@@ -155,12 +155,27 @@
               <p class="empty-text-sm">No upcoming deadlines</p>
             </div>
 
-            <div *ngIf="upcomingMilestones().length > 0" class="deadline-list">
-              <div *ngFor="let milestone of upcomingMilestones().slice(0, 3)" class="deadline-item">
-                <div class="deadline-dot"></div>
-                <div class="deadline-content">
-                  <h4 class="deadline-title">{{ milestone.title }}</h4>
-                  <p class="deadline-date">{{ milestone.dueDate | date: 'MMM dd, yyyy' }}</p>
+            <div *ngIf="upcomingMilestones().length > 0" class="deadline-list-enhanced">
+              <div *ngFor="let milestone of upcomingMilestones().slice(0, 3)" class="deadline-card" [routerLink]="['/projects', milestone.projectId]">
+                <div class="deadline-header">
+                  <div class="deadline-icon-wrapper">
+                    <svg class="deadline-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                  </div>
+                  <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(milestone.status)">
+                    {{ getStatusLabel(milestone.status) }}
+                  </span>
+                </div>
+                <div class="deadline-body">
+                  <h4 class="deadline-title-enhanced">{{ milestone.title }}</h4>
+                  <p class="deadline-project">{{ getProjectTitle(milestone.projectId) }}</p>
+                  <div class="deadline-footer-enhanced">
+                    <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span class="deadline-date-enhanced">{{ milestone.dueDate | date: 'MMM dd, yyyy' }}</span>
+                  </div>
                 </div>
               </div>
             </div>
