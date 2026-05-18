@@ -17,6 +17,15 @@ import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
+interface UnifiedActivity {
+  type: 'meeting' | 'submission' | 'milestone';
+  title: string;
+  date: Date;
+  projectId: string;
+  status?: string;
+  data: Meeting | Submission | Milestone;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -127,6 +136,64 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
         return dateB - dateA;
       })
+      .slice(0, 5);
+  });
+
+  recentActivities = computed(() => {
+    const userProjectIds = [
+      ...this.myProjects().map(p => p.id),
+      ...this.collaborations().map(p => p.id)
+    ];
+
+    const activities: UnifiedActivity[] = [];
+
+    // Add meetings
+    this.meetings()
+      .filter(m => userProjectIds.includes(m.projectId))
+      .forEach(meeting => {
+        activities.push({
+          type: 'meeting',
+          title: meeting.title || 'Meeting',
+          date: new Date(meeting.scheduledAt),
+          projectId: meeting.projectId,
+          status: meeting.status,
+          data: meeting
+        });
+      });
+
+    // Add submissions
+    const submissions = this.isSupervisor
+      ? this.submissions().filter(s => this.myProjects().map(p => p.id).includes(s.projectId))
+      : this.submissions();
+
+    submissions.forEach(submission => {
+      activities.push({
+        type: 'submission',
+        title: submission.title || 'Submission',
+        date: submission.submittedAt ? new Date(submission.submittedAt) : new Date(submission.createdDate || Date.now()),
+        projectId: submission.projectId,
+        status: submission.status,
+        data: submission
+      });
+    });
+
+    // Add milestones
+    this.milestones()
+      .filter(m => userProjectIds.includes(m.projectId))
+      .forEach(milestone => {
+        activities.push({
+          type: 'milestone',
+          title: milestone.title || 'Milestone',
+          date: new Date(milestone.dueDate),
+          projectId: milestone.projectId,
+          status: milestone.status,
+          data: milestone
+        });
+      });
+
+    // Sort by date (most recent first) and take top 5
+    return activities
+      .sort((a, b) => b.date.getTime() - a.date.getTime())
       .slice(0, 5);
   });
 
@@ -305,5 +372,23 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       .concat(this.collaborations())
       .find(p => p.id === projectId);
     return project?.title || 'Unknown Project';
+  }
+
+  getActivityTypeLabel(type: string): string {
+    const labels: { [key: string]: string } = {
+      'meeting': 'Réunion',
+      'submission': 'Soumission',
+      'milestone': 'Jalon'
+    };
+    return labels[type] || type;
+  }
+
+  getActivityTypeBadgeClass(type: string): string {
+    const classes: { [key: string]: string } = {
+      'meeting': 'activity-type-meeting',
+      'submission': 'activity-type-submission',
+      'milestone': 'activity-type-milestone'
+    };
+    return classes[type] || 'activity-type-default';
   }
 }

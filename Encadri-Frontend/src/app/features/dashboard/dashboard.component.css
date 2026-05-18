@@ -871,6 +871,40 @@ h3 {
   min-width: 0;
 }
 
+.activity-header-with-type {
+  margin-bottom: var(--spacing-2);
+}
+
+.activity-type-badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-md);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.activity-type-meeting {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+}
+
+.activity-type-submission {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+  color: #6b21a8;
+}
+
+.activity-type-milestone {
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+  color: #92400e;
+}
+
+.activity-type-default {
+  background: var(--slate-100);
+  color: var(--slate-600);
+}
+
 .activity-title {
   font-size: 0.875rem;
   font-weight: 600;

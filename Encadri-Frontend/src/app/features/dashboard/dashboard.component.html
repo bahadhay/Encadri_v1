@@ -202,44 +202,44 @@
           </div>
 
           <app-ui-card class="content-card">
-            <div *ngIf="recentMeetings().length === 0" class="empty-state-modern compact">
+            <div *ngIf="recentActivities().length === 0" class="empty-state-modern compact">
               <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
-              <p class="empty-text-sm">No recent meetings</p>
-              <p class="empty-hint">Your meetings and activities will appear here</p>
-              <app-ui-button variant="primary" size="sm" routerLink="/meetings" class="empty-button">
-                Schedule Meeting
+              <p class="empty-text-sm">No recent activity</p>
+              <p class="empty-hint">Your meetings, submissions, and milestones will appear here</p>
+              <app-ui-button variant="primary" size="sm" routerLink="/projects" class="empty-button">
+                View Projects
               </app-ui-button>
             </div>
 
-            <div *ngIf="recentMeetings().length > 0" class="activity-list">
-              <div *ngFor="let meeting of recentMeetings()" class="activity-item">
-                <div class="activity-icon-wrapper">
-                  <svg class="activity-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                  </svg>
-                </div>
+            <div *ngIf="recentActivities().length > 0" class="activity-list">
+              <div *ngFor="let activity of recentActivities()" class="activity-item">
                 <div class="activity-content">
-                  <h4 class="activity-title">{{ meeting.title || 'Meeting' }}</h4>
+                  <div class="activity-header-with-type">
+                    <span class="activity-type-badge" [ngClass]="getActivityTypeBadgeClass(activity.type)">
+                      {{ getActivityTypeLabel(activity.type) }}
+                    </span>
+                  </div>
+                  <h4 class="activity-title">{{ activity.title }}</h4>
                   <div class="activity-details">
                     <span class="detail-item">
                       <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
                       </svg>
-                      {{ getProjectTitle(meeting.projectId) }}
+                      {{ getProjectTitle(activity.projectId) }}
                     </span>
                     <span class="detail-separator">•</span>
                     <span class="detail-item">
                       <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                       </svg>
-                      {{ meeting.scheduledAt | date: 'MMM dd, yyyy HH:mm' }}
+                      {{ activity.date | date: 'MMM dd, yyyy' }}
                     </span>
                   </div>
-                  <div class="activity-footer" *ngIf="meeting.status">
-                    <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(meeting.status)">
-                      {{ getStatusLabel(meeting.status) }}
+                  <div class="activity-footer" *ngIf="activity.status">
+                    <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(activity.status)">
+                      {{ getStatusLabel(activity.status) }}
                     </span>
                   </div>
                 </div>
@@ -444,44 +444,44 @@
           </div>
 
           <app-ui-card class="content-card">
-            <div *ngIf="recentMeetings().length === 0" class="empty-state-modern compact">
+            <div *ngIf="recentActivities().length === 0" class="empty-state-modern compact">
               <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
-              <p class="empty-text-sm">No recent meetings</p>
-              <p class="empty-hint">Your meetings and activities will appear here</p>
-              <app-ui-button variant="primary" size="sm" routerLink="/meetings" class="empty-button">
-                Schedule Meeting
+              <p class="empty-text-sm">No recent activity</p>
+              <p class="empty-hint">Your meetings, submissions, and milestones will appear here</p>
+              <app-ui-button variant="primary" size="sm" routerLink="/projects" class="empty-button">
+                View Projects
               </app-ui-button>
             </div>
 
-            <div *ngIf="recentMeetings().length > 0" class="activity-list">
-              <div *ngFor="let meeting of recentMeetings()" class="activity-item">
-                <div class="activity-icon-wrapper">
-                  <svg class="activity-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                  </svg>
-                </div>
+            <div *ngIf="recentActivities().length > 0" class="activity-list">
+              <div *ngFor="let activity of recentActivities()" class="activity-item">
                 <div class="activity-content">
-                  <h4 class="activity-title">{{ meeting.title || 'Meeting' }}</h4>
+                  <div class="activity-header-with-type">
+                    <span class="activity-type-badge" [ngClass]="getActivityTypeBadgeClass(activity.type)">
+                      {{ getActivityTypeLabel(activity.type) }}
+                    </span>
+                  </div>
+                  <h4 class="activity-title">{{ activity.title }}</h4>
                   <div class="activity-details">
                     <span class="detail-item">
                       <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
                       </svg>
-                      {{ getProjectTitle(meeting.projectId) }}
+                      {{ getProjectTitle(activity.projectId) }}
                     </span>
                     <span class="detail-separator">•</span>
                     <span class="detail-item">
                       <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                       </svg>
-                      {{ meeting.scheduledAt | date: 'MMM dd, yyyy HH:mm' }}
+                      {{ activity.date | date: 'MMM dd, yyyy' }}
                     </span>
                   </div>
-                  <div class="activity-footer" *ngIf="meeting.status">
-                    <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(meeting.status)">
-                      {{ getStatusLabel(meeting.status) }}
+                  <div class="activity-footer" *ngIf="activity.status">
+                    <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(activity.status)">
+                      {{ getStatusLabel(activity.status) }}
                     </span>
                   </div>
                 </div>
