@@ -91,6 +91,19 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       .slice(0, 5);
   });
 
+  recentMeetings = computed(() => {
+    const now = new Date();
+    const userProjectIds = [
+      ...this.myProjects().map(p => p.id),
+      ...this.collaborations().map(p => p.id)
+    ];
+
+    return this.meetings()
+      .filter(m => userProjectIds.includes(m.projectId))
+      .sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime())
+      .slice(0, 3);
+  });
+
   recentSubmissions = computed(() => {
     const allSubmissions = this.submissions();
 
