@@ -6,14 +6,6 @@
       <p class="header-subtitle" *ngIf="isStudent">Track your project progress and upcoming deadlines</p>
       <p class="header-subtitle" *ngIf="isSupervisor">Manage and evaluate your students' projects</p>
     </div>
-    <div class="header-action" *ngIf="isSupervisor">
-      <app-ui-button variant="primary" size="md" routerLink="/projects/new">
-        <svg class="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        New Project
-      </app-ui-button>
-    </div>
   </div>
 
   <!-- Dashboard pour ÉTUDIANT -->
