@@ -25,7 +25,6 @@
   gap: clamp(1rem, 2vw, 1.5rem);
 }
 
-/* Force single column on very small screens */
 @media (max-width: 539px) {
   .stats-grid {
     grid-template-columns: 1fr;
@@ -56,6 +55,7 @@
 .p-blue { background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%); }
 .p-yellow { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
 .p-green { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); }
+.p-purple { background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); }
 
 .stat-content {
   flex: 1;
@@ -91,17 +91,27 @@
   gap: clamp(1.5rem, 3vw, 2rem);
 }
 
-/* Tablet landscape and up: 2 equal columns */
+.student-layout {
+  grid-template-columns: 1fr;
+}
+
 @media (min-width: 768px) {
-  .content-grid {
+  .student-layout {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* Desktop: sidebar layout (2fr 1fr) */
-@media (min-width: 1280px) {
-  .content-grid {
-    grid-template-columns: 2fr 1fr;
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.supervisor-layout {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .supervisor-layout {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -128,21 +138,45 @@ h3 {
   }
 }
 
-.projects-list {
+/* Submissions */
+.submissions-list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4);
+  gap: var(--spacing-3);
 }
 
-.project-card h4 {
-  margin: 0 0 var(--spacing-2) 0;
+.submission-card {
+  transition: transform 0.2s;
+}
+
+.submission-card:hover {
+  transform: translateY(-2px);
+}
+
+.submission-content {
+  padding: var(--spacing-1);
+}
+
+.submission-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-2);
+}
+
+.submission-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--slate-900);
+  flex: 1;
 }
 
-.project-card p {
-  color: var(--slate-600);
+.submission-date {
   font-size: 0.875rem;
-  margin-bottom: var(--spacing-4);
+  color: var(--slate-500);
+  margin: var(--spacing-2) 0;
 }
 
 .card-actions a {
@@ -150,34 +184,243 @@ h3 {
   text-decoration: none;
   font-weight: 500;
   font-size: 0.875rem;
+  transition: color 0.2s;
 }
 
+.card-actions a:hover {
+  color: var(--primary-600);
+  text-decoration: underline;
+}
+
+/* Chart */
+.chart-card {
+  padding: var(--spacing-4);
+}
+
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+/* Milestones */
+.milestones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-4);
+}
+
+.milestone-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.milestone-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.milestone-content {
+  padding: var(--spacing-1);
+}
+
+.milestone-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-3);
+}
+
+.milestone-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--slate-900);
+  flex: 1;
+}
+
+.milestone-description {
+  font-size: 0.875rem;
+  color: var(--slate-600);
+  margin-bottom: var(--spacing-3);
+  line-height: 1.5;
+}
+
+.milestone-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.milestone-date {
+  font-size: 0.875rem;
+  color: var(--slate-500);
+  font-weight: 500;
+}
+
+/* Status Overview */
+.status-overview {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-3);
+}
+
+@media (min-width: 640px) {
+  .status-overview {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.status-item {
+  padding: var(--spacing-4);
+}
+
+.status-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.status-icon {
+  font-size: 1.5rem;
+}
+
+.status-label {
+  font-size: 0.875rem;
+  color: var(--slate-500);
+  margin: 0 0 var(--spacing-1) 0;
+}
+
+.status-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--slate-900);
+  margin: 0;
+}
+
+/* Projects Progress */
+.projects-progress-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-4);
+}
+
+@media (min-width: 768px) {
+  .projects-progress-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .projects-progress-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.project-progress-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.project-progress-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.project-progress-content {
+  padding: var(--spacing-1);
+}
+
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-2);
+}
+
+.project-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--slate-900);
+  flex: 1;
+}
+
+.project-description {
+  font-size: 0.875rem;
+  color: var(--slate-600);
+  margin: var(--spacing-2) 0;
+  line-height: 1.5;
+}
+
+.project-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--spacing-3);
+  padding-top: var(--spacing-3);
+  border-top: 1px solid var(--slate-100);
+}
+
+.project-owner {
+  font-size: 0.875rem;
+  color: var(--slate-600);
+}
+
+.view-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: color 0.2s;
+}
+
+.view-link:hover {
+  color: var(--primary-600);
+}
+
+/* Badges */
 .badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
   border-radius: var(--radius-full);
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  margin-bottom: var(--spacing-2);
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: capitalize;
-  letter-spacing: var(--tracking-wide);
+  letter-spacing: 0.025em;
 }
 
-.badge.proposed {
+.badge-blue {
   background: var(--badge-blue-bg);
   color: var(--badge-blue-text);
 }
 
-.badge.in_progress {
+.badge-yellow {
   background: var(--badge-yellow-bg);
   color: var(--badge-yellow-text);
 }
 
-.badge.completed {
+.badge-green {
   background: var(--badge-green-bg);
   color: var(--badge-green-text);
 }
 
+.badge-red {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-gray {
+  background: var(--slate-100);
+  color: var(--slate-600);
+}
+
+.badge-purple {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+/* Empty State */
 .empty-state {
   text-align: center;
   padding: var(--spacing-8);
@@ -186,71 +429,18 @@ h3 {
   color: var(--slate-500);
 }
 
-.activity-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.activity-item {
-  display: flex;
-  gap: var(--spacing-4);
-  padding: var(--spacing-4) 0;
-  border-bottom: 1px solid var(--slate-100);
-}
-
-.activity-item:last-child {
-  border-bottom: none;
-}
-
-.activity-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-full);
-  background-color: var(--slate-100);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-}
-
-.activity-details h4 {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--slate-900);
-  margin: 0 0 var(--spacing-1) 0;
-}
-
-.activity-details p {
-  font-size: 0.875rem;
-  color: var(--slate-500);
-  margin: 0 0 var(--spacing-1) 0;
-}
-
-.time {
-  font-size: 0.75rem;
-  color: var(--slate-400);
-}
-
-.actions-grid {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-4);
-}
-
-/* Deep selector fix for w-full button */
-::ng-deep app-ui-button.w-full button {
-  width: 100%;
-}
-
-/* Additional Mobile Refinements */
+/* Mobile Refinements */
 @media (max-width: 639px) {
-  .projects-list {
-    gap: var(--spacing-3);
+  .milestones-grid {
+    grid-template-columns: 1fr;
   }
 
-  .project-card h4 {
-    font-size: clamp(1rem, 2.5vw, 1.125rem);
+  .projects-progress-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .status-overview {
+    grid-template-columns: 1fr;
   }
 
   .badge {
@@ -261,15 +451,19 @@ h3 {
   .empty-state {
     padding: var(--spacing-6) var(--spacing-2);
   }
+
+  .chart-container {
+    height: 250px;
+  }
 }
 
-/* Tablet specific adjustments */
+/* Tablet adjustments */
 @media (min-width: 640px) and (max-width: 1023px) {
   .stat-card {
     gap: var(--spacing-3);
   }
 
-  .projects-list {
-    gap: var(--spacing-3);
+  .milestones-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   }
 }
