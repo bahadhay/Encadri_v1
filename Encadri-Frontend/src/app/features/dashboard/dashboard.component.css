@@ -53,9 +53,15 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
   gap: clamp(1rem, 2vw, 1.5rem);
   margin-bottom: var(--spacing-6);
+}
+
+@media (min-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 @media (max-width: 539px) {
@@ -627,15 +633,16 @@ h3 {
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
-  margin-bottom: var(--spacing-4);
+  margin-bottom: var(--spacing-5);
 }
 
 .section-title-modern {
-  font-size: clamp(1.125rem, 2.5vw, 1.25rem);
-  font-weight: 600;
+  font-size: clamp(1.125rem, 2.5vw, 1.375rem);
+  font-weight: 700;
   color: var(--slate-900);
   margin: 0;
   line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
 .section-icon {
@@ -650,7 +657,9 @@ h3 {
   background: white;
   border-radius: var(--radius-lg);
   padding: var(--spacing-5);
-  min-height: 200px;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Empty State Modern */
@@ -760,6 +769,13 @@ h3 {
   letter-spacing: 0.025em;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+/* Badge color adjustments for better visibility */
+.badge-modern.badge-blue,
+.badge-modern.badge-yellow {
+  background: var(--badge-yellow-bg, #fef3c7);
+  color: var(--badge-yellow-text, #92400e);
 }
 
 /* Deadline List */
@@ -1036,6 +1052,19 @@ h3 {
   gap: var(--spacing-2);
   font-size: 0.875rem;
   color: var(--slate-600);
+  flex-wrap: wrap;
+}
+
+.project-type-badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  color: #0369a1;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  letter-spacing: 0.025em;
 }
 
 .meta-icon {

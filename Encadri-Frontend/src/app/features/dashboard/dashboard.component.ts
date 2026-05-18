@@ -244,8 +244,22 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       'in_progress': 'En cours',
       'completed': 'Terminé',
       'not_started': 'Non démarré',
-      'overdue': 'En retard'
+      'overdue': 'En retard',
+      'proposed': 'Proposé',
+      'under_review': 'En révision',
+      'archived': 'Archivé'
     };
     return labels[status] || status;
+  }
+
+  getProgressNote(percentage: number): string {
+    if (percentage === 0) return 'Just getting started';
+    if (percentage < 25) return 'Early stages';
+    if (percentage < 50) return 'Making progress';
+    if (percentage === 50) return 'Halfway there';
+    if (percentage < 75) return 'More than halfway';
+    if (percentage < 90) return 'Almost done';
+    if (percentage < 100) return 'Nearly complete';
+    return 'Completed!';
   }
 }

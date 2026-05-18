@@ -110,20 +110,22 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                   </svg>
                   <span class="progress-label">Progress</span>
-                  <span class="progress-percentage">54%</span>
+                  <span class="progress-percentage">{{ project.progressPercentage }}%</span>
                 </div>
                 <div class="progress-bar">
-                  <div class="progress-fill" style="width: 54%"></div>
+                  <div class="progress-fill" [style.width.%]="project.progressPercentage"></div>
                 </div>
-                <p class="progress-note">Halfway there</p>
+                <p class="progress-note">{{ getProgressNote(project.progressPercentage) }}</p>
               </div>
 
               <div class="student-project-footer">
                 <div class="project-meta">
+                  <span class="project-type-badge">{{ project.type }}</span>
                   <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                   </svg>
-                  <span>Due: Nov 6, 2025</span>
+                  <span *ngIf="project.endDate">Due: {{ project.endDate | date: 'MMM dd, yyyy' }}</span>
+                  <span *ngIf="!project.endDate">No deadline set</span>
                 </div>
                 <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
