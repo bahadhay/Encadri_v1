@@ -92,12 +92,36 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   });
 
   recentSubmissions = computed(() => {
-    return this.submissions()
+    const allSubmissions = this.submissions();
+
+    // For supervisors, filter submissions related to their projects
+    if (this.isSupervisor) {
+      const myProjectIds = this.myProjects().map(p => p.id);
+      return allSubmissions
+        .filter(s => myProjectIds.includes(s.projectId))
+        .sort((a, b) => {
+          const dateA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+          const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+          return dateB - dateA;
+        })
+        .slice(0, 5);
+    }
+
+    // For students, show all their submissions
+    return allSubmissions
       .sort((a, b) => {
         const dateA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
         const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
         return dateB - dateA;
       })
+      .slice(0, 5);
+  });
+
+  // Active projects for display (in_progress status only)
+  activeProjects = computed(() => {
+    return this.myProjects()
+      .concat(this.collaborations())
+      .filter(p => p.status === 'in_progress')
       .slice(0, 5);
   });
 
@@ -261,5 +285,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     if (percentage < 90) return 'Almost done';
     if (percentage < 100) return 'Nearly complete';
     return 'Completed!';
+  }
+
+  getProjectTitle(projectId: string): string {
+    const project = this.myProjects()
+      .concat(this.collaborations())
+      .find(p => p.id === projectId);
+    return project?.title || 'Unknown Project';
   }
 }

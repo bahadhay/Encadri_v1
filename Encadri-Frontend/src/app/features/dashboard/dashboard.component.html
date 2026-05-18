@@ -94,7 +94,7 @@
           </div>
 
           <div *ngIf="activeProjectsCount() > 0" class="student-project-list">
-            <div *ngFor="let project of myProjects().concat(collaborations()).slice(0, 5)"
+            <div *ngFor="let project of activeProjects()"
                  class="student-project-card"
                  [routerLink]="['/projects', project.id]">
               <div class="student-project-header">
@@ -294,10 +294,10 @@
           </div>
 
           <div *ngIf="activeProjectsCount() > 0" class="project-list-modern">
-            <div *ngFor="let project of myProjects().slice(0, 5)" class="project-item-modern" [routerLink]="['/projects', project.id]">
+            <div *ngFor="let project of activeProjects()" class="project-item-modern" [routerLink]="['/projects', project.id]">
               <div class="project-item-content">
                 <h4 class="project-item-title">{{ project.title }}</h4>
-                <p class="project-item-owner">{{ project.ownerEmail }}</p>
+                <p class="project-item-owner">{{ project.studentName || project.studentEmail || project.ownerEmail }}</p>
               </div>
               <span class="badge-modern" [ngClass]="getStatusBadgeClass(project.status)">
                 {{ getStatusLabel(project.status) }}
@@ -364,7 +364,13 @@
                 </div>
                 <div class="activity-content">
                   <h4 class="activity-title">{{ submission.title || 'Submission' }}</h4>
-                  <p class="activity-time">{{ submission.submittedAt | date: 'short' }}</p>
+                  <p class="activity-meta">{{ getProjectTitle(submission.projectId) }}</p>
+                  <div class="activity-footer">
+                    <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(submission.status)">
+                      {{ getStatusLabel(submission.status) }}
+                    </span>
+                    <span class="activity-date">{{ submission.submittedAt | date: 'MMM dd' }}</span>
+                  </div>
                 </div>
               </div>
             </div>
