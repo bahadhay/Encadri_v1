@@ -131,8 +131,7 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async ngAfterViewInit() {
-    // Show camera preview in waiting room
-    await this.showPreview();
+    // Preview will be shown after device manager initialization
   }
 
   async ngOnDestroy() {
@@ -284,6 +283,11 @@ export class VideoCallComponent implements OnInit, AfterViewInit, OnDestroy {
 
       // Request permissions
       await this.deviceManager.askDevicePermission({ audio: true, video: true });
+
+      console.log('✅ Device manager initialized successfully');
+
+      // Show preview after device manager is ready
+      await this.showPreview();
 
     } catch (err: any) {
       console.error('Failed to initialize device manager:', err);
