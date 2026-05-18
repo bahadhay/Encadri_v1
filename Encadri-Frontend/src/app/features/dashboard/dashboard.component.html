@@ -218,12 +218,26 @@
                 </div>
                 <div class="activity-content">
                   <h4 class="activity-title">{{ submission.title || 'Submission' }}</h4>
-                  <p class="activity-meta">{{ getProjectTitle(submission.projectId) }}</p>
+                  <div class="activity-details">
+                    <span class="detail-item">
+                      <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                      </svg>
+                      {{ getProjectTitle(submission.projectId) }}
+                    </span>
+                    <span class="detail-separator">•</span>
+                    <span class="detail-item">
+                      <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                      </svg>
+                      {{ getSubmissionTypeLabel(submission.type) }}
+                    </span>
+                  </div>
                   <div class="activity-footer">
                     <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(submission.status)">
                       {{ getStatusLabel(submission.status) }}
                     </span>
-                    <span class="activity-date">{{ submission.submittedAt | date: 'MMM dd' }}</span>
+                    <span class="activity-date">{{ submission.submittedAt | date: 'MMM dd, yyyy' }}</span>
                   </div>
                 </div>
               </div>
@@ -443,12 +457,26 @@
                 </div>
                 <div class="activity-content">
                   <h4 class="activity-title">{{ submission.title || 'Submission' }}</h4>
-                  <p class="activity-meta">{{ getProjectTitle(submission.projectId) }}</p>
+                  <div class="activity-details">
+                    <span class="detail-item">
+                      <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                      </svg>
+                      {{ getProjectTitle(submission.projectId) }}
+                    </span>
+                    <span class="detail-separator">•</span>
+                    <span class="detail-item">
+                      <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                      </svg>
+                      {{ getSubmissionTypeLabel(submission.type) }}
+                    </span>
+                  </div>
                   <div class="activity-footer">
                     <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(submission.status)">
                       {{ getStatusLabel(submission.status) }}
                     </span>
-                    <span class="activity-date">{{ submission.submittedAt | date: 'MMM dd' }}</span>
+                    <span class="activity-date">{{ submission.submittedAt | date: 'MMM dd, yyyy' }}</span>
                   </div>
                 </div>
               </div>
