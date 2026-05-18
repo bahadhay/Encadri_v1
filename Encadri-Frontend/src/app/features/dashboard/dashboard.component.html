@@ -192,54 +192,8 @@
           </app-ui-card>
         </section>
 
-        <!-- Recent Submissions -->
-        <section class="sidebar-section" *ngIf="recentSubmissions().length > 0">
-          <div class="section-header-modern">
-            <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            <h3 class="section-title-modern">Recent Submissions</h3>
-          </div>
-
-          <app-ui-card class="content-card">
-            <div class="activity-list">
-              <div *ngFor="let submission of recentSubmissions().slice(0, 3)" class="activity-item">
-                <div class="activity-icon-wrapper">
-                  <svg class="activity-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                  </svg>
-                </div>
-                <div class="activity-content">
-                  <h4 class="activity-title">{{ submission.title || 'Submission' }}</h4>
-                  <div class="activity-details">
-                    <span class="detail-item">
-                      <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
-                      </svg>
-                      {{ getProjectTitle(submission.projectId) }}
-                    </span>
-                    <span class="detail-separator">•</span>
-                    <span class="detail-item">
-                      <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                      </svg>
-                      {{ getSubmissionTypeLabel(submission.type) }}
-                    </span>
-                  </div>
-                  <div class="activity-footer">
-                    <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(submission.status)">
-                      {{ getStatusLabel(submission.status) }}
-                    </span>
-                    <span class="activity-date">{{ submission.submittedAt | date: 'MMM dd, yyyy' }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </app-ui-card>
-        </section>
-
-        <!-- Recent Activity -->
-        <section class="sidebar-section" *ngIf="recentMeetings().length > 0">
+<!-- Recent Activity -->
+        <section class="sidebar-section">
           <div class="section-header-modern">
             <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -248,7 +202,18 @@
           </div>
 
           <app-ui-card class="content-card">
-            <div class="activity-list">
+            <div *ngIf="recentMeetings().length === 0" class="empty-state-modern compact">
+              <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <p class="empty-text-sm">No recent meetings</p>
+              <p class="empty-hint">Your meetings and activities will appear here</p>
+              <app-ui-button variant="primary" size="sm" routerLink="/meetings" class="empty-button">
+                Schedule Meeting
+              </app-ui-button>
+            </div>
+
+            <div *ngIf="recentMeetings().length > 0" class="activity-list">
               <div *ngFor="let meeting of recentMeetings()" class="activity-item">
                 <div class="activity-icon-wrapper">
                   <svg class="activity-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -469,54 +434,8 @@
           </app-ui-card>
         </section>
 
-        <!-- Recent Submissions -->
-        <section class="sidebar-section" *ngIf="recentSubmissions().length > 0">
-          <div class="section-header-modern">
-            <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            <h3 class="section-title-modern">Recent Submissions</h3>
-          </div>
-
-          <app-ui-card class="content-card">
-            <div class="activity-list">
-              <div *ngFor="let submission of recentSubmissions().slice(0, 3)" class="activity-item">
-                <div class="activity-icon-wrapper">
-                  <svg class="activity-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                  </svg>
-                </div>
-                <div class="activity-content">
-                  <h4 class="activity-title">{{ submission.title || 'Submission' }}</h4>
-                  <div class="activity-details">
-                    <span class="detail-item">
-                      <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
-                      </svg>
-                      {{ getProjectTitle(submission.projectId) }}
-                    </span>
-                    <span class="detail-separator">•</span>
-                    <span class="detail-item">
-                      <svg class="detail-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                      </svg>
-                      {{ getSubmissionTypeLabel(submission.type) }}
-                    </span>
-                  </div>
-                  <div class="activity-footer">
-                    <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(submission.status)">
-                      {{ getStatusLabel(submission.status) }}
-                    </span>
-                    <span class="activity-date">{{ submission.submittedAt | date: 'MMM dd, yyyy' }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </app-ui-card>
-        </section>
-
-        <!-- Recent Activity -->
-        <section class="sidebar-section" *ngIf="recentMeetings().length > 0">
+<!-- Recent Activity -->
+        <section class="sidebar-section">
           <div class="section-header-modern">
             <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -525,7 +444,18 @@
           </div>
 
           <app-ui-card class="content-card">
-            <div class="activity-list">
+            <div *ngIf="recentMeetings().length === 0" class="empty-state-modern compact">
+              <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <p class="empty-text-sm">No recent meetings</p>
+              <p class="empty-hint">Your meetings and activities will appear here</p>
+              <app-ui-button variant="primary" size="sm" routerLink="/meetings" class="empty-button">
+                Schedule Meeting
+              </app-ui-button>
+            </div>
+
+            <div *ngIf="recentMeetings().length > 0" class="activity-list">
               <div *ngFor="let meeting of recentMeetings()" class="activity-item">
                 <div class="activity-icon-wrapper">
                   <svg class="activity-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">

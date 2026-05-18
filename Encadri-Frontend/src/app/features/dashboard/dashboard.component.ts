@@ -306,15 +306,4 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       .find(p => p.id === projectId);
     return project?.title || 'Unknown Project';
   }
-
-  getSubmissionTypeLabel(type: string): string {
-    const labels: { [key: string]: string } = {
-      'report': 'Rapport',
-      'presentation': 'Présentation',
-      'code': 'Code',
-      'documentation': 'Documentation',
-      'other': 'Autre'
-    };
-    return labels[type] || type;
-  }
 }
