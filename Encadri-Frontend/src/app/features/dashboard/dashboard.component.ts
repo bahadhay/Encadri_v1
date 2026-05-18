@@ -23,7 +23,15 @@ interface UnifiedActivity {
   date: Date;
   projectId: string;
   status?: string;
+  performedBy?: string; // User who performed the activity
   data: Meeting | Submission | Milestone;
+}
+
+interface GroupedActivities {
+  today: UnifiedActivity[];
+  yesterday: UnifiedActivity[];
+  thisWeek: UnifiedActivity[];
+  older: UnifiedActivity[];
 }
 
 @Component({
@@ -49,6 +57,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   meetings = signal<Meeting[]>([]);
   milestones = signal<Milestone[]>([]);
   stats = signal<DashboardStats | null>(null);
+
+  // Activity filters and controls
+  activityFilter = signal<'all' | 'meeting' | 'submission' | 'milestone'>('all');
+  showOlderActivities = signal<boolean>(false);
 
   private gradeChart?: Chart;
 
@@ -139,26 +151,32 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       .slice(0, 5);
   });
 
-  recentActivities = computed(() => {
+  // All activities with user context
+  allActivities = computed(() => {
     const userProjectIds = [
       ...this.myProjects().map(p => p.id),
       ...this.collaborations().map(p => p.id)
     ];
 
     const activities: UnifiedActivity[] = [];
+    const now = new Date();
 
     // Add meetings
     this.meetings()
       .filter(m => userProjectIds.includes(m.projectId))
       .forEach(meeting => {
-        activities.push({
-          type: 'meeting',
-          title: meeting.title || 'Meeting',
-          date: new Date(meeting.scheduledAt),
-          projectId: meeting.projectId,
-          status: meeting.status,
-          data: meeting
-        });
+        const meetingDate = new Date(meeting.scheduledAt);
+        if (meetingDate <= now) { // Only show past/present meetings
+          activities.push({
+            type: 'meeting',
+            title: meeting.title || 'Meeting',
+            date: meetingDate,
+            projectId: meeting.projectId,
+            status: meeting.status,
+            performedBy: meeting.requestedBy || meeting.studentEmail,
+            data: meeting
+          });
+        }
       });
 
     // Add submissions
@@ -167,34 +185,75 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       : this.submissions();
 
     submissions.forEach(submission => {
+      const submissionDate = submission.submittedAt ? new Date(submission.submittedAt) : new Date(submission.createdDate || Date.now());
       activities.push({
         type: 'submission',
         title: submission.title || 'Submission',
-        date: submission.submittedAt ? new Date(submission.submittedAt) : new Date(submission.createdDate || Date.now()),
+        date: submissionDate,
         projectId: submission.projectId,
         status: submission.status,
+        performedBy: submission.submittedBy,
         data: submission
       });
     });
 
-    // Add milestones
+    // Add completed milestones only (as activities)
     this.milestones()
-      .filter(m => userProjectIds.includes(m.projectId))
+      .filter(m => userProjectIds.includes(m.projectId) && m.status === 'completed' && m.completedDate)
       .forEach(milestone => {
+        const completedDate = new Date(milestone.completedDate!);
         activities.push({
           type: 'milestone',
           title: milestone.title || 'Milestone',
-          date: new Date(milestone.dueDate),
+          date: completedDate,
           projectId: milestone.projectId,
           status: milestone.status,
           data: milestone
         });
       });
 
-    // Sort by date (most recent first) and take top 5
-    return activities
-      .sort((a, b) => b.date.getTime() - a.date.getTime())
-      .slice(0, 5);
+    // Sort by date (most recent first)
+    return activities.sort((a, b) => b.date.getTime() - a.date.getTime());
+  });
+
+  // Grouped activities by time period
+  groupedActivities = computed(() => {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterdayStart = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
+    const thisWeekStart = new Date(todayStart.getTime() - todayStart.getDay() * 24 * 60 * 60 * 1000);
+
+    const filter = this.activityFilter();
+    const filteredActivities = filter === 'all'
+      ? this.allActivities()
+      : this.allActivities().filter(a => a.type === filter);
+
+    const grouped: GroupedActivities = {
+      today: [],
+      yesterday: [],
+      thisWeek: [],
+      older: []
+    };
+
+    filteredActivities.forEach(activity => {
+      if (activity.date >= todayStart) {
+        grouped.today.push(activity);
+      } else if (activity.date >= yesterdayStart) {
+        grouped.yesterday.push(activity);
+      } else if (activity.date >= thisWeekStart) {
+        grouped.thisWeek.push(activity);
+      } else {
+        grouped.older.push(activity);
+      }
+    });
+
+    return grouped;
+  });
+
+  // Recent activities for display (7 days default)
+  recentActivities = computed(() => {
+    const grouped = this.groupedActivities();
+    return [...grouped.today, ...grouped.yesterday, ...grouped.thisWeek];
   });
 
   // Active projects for display (in_progress status only)
@@ -390,5 +449,59 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       'milestone': 'activity-type-milestone'
     };
     return classes[type] || 'activity-type-default';
+  }
+
+  // Get user name from email
+  getUserName(email?: string): string {
+    if (!email) return 'Unknown User';
+
+    // Check if it's current user
+    if (email === this.user?.email) {
+      return 'You';
+    }
+
+    // Look up in projects for student/supervisor names
+    const allProjects = [...this.myProjects(), ...this.collaborations()];
+    for (const project of allProjects) {
+      if (project.studentEmail === email && project.studentName) {
+        return project.studentName;
+      }
+      if (project.supervisorEmail === email && project.supervisorName) {
+        return project.supervisorName;
+      }
+    }
+
+    // Return email name part if no match found
+    return email.split('@')[0];
+  }
+
+  // Get relative time display
+  getRelativeTime(date: Date): string {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
+  }
+
+  // Filter methods
+  setActivityFilter(filter: 'all' | 'meeting' | 'submission' | 'milestone') {
+    this.activityFilter.set(filter);
+  }
+
+  toggleShowOlder() {
+    this.showOlderActivities.update(value => !value);
+  }
+
+  // Check if has older activities
+  hasOlderActivities(): boolean {
+    return this.groupedActivities().older.length > 0;
   }
 }
