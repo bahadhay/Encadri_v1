@@ -193,7 +193,7 @@
         </section>
 
         <!-- Recent Submissions -->
-        <section class="sidebar-section">
+        <section class="sidebar-section" *ngIf="recentSubmissions().length > 0">
           <div class="section-header-modern">
             <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -202,14 +202,7 @@
           </div>
 
           <app-ui-card class="content-card">
-            <div *ngIf="recentSubmissions().length === 0" class="empty-state-modern compact">
-              <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-              </svg>
-              <p class="empty-text-sm">No submissions yet</p>
-            </div>
-
-            <div *ngIf="recentSubmissions().length > 0" class="activity-list">
+            <div class="activity-list">
               <div *ngFor="let submission of recentSubmissions().slice(0, 3)" class="activity-item">
                 <div class="activity-icon-wrapper">
                   <svg class="activity-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,7 +239,7 @@
         </section>
 
         <!-- Recent Activity -->
-        <section class="sidebar-section">
+        <section class="sidebar-section" *ngIf="recentMeetings().length > 0">
           <div class="section-header-modern">
             <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -255,14 +248,7 @@
           </div>
 
           <app-ui-card class="content-card">
-            <div *ngIf="recentMeetings().length === 0" class="empty-state-modern compact">
-              <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              <p class="empty-text-sm">No recent meetings</p>
-            </div>
-
-            <div *ngIf="recentMeetings().length > 0" class="activity-list">
+            <div class="activity-list">
               <div *ngFor="let meeting of recentMeetings()" class="activity-item">
                 <div class="activity-icon-wrapper">
                   <svg class="activity-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -484,7 +470,7 @@
         </section>
 
         <!-- Recent Submissions -->
-        <section class="sidebar-section">
+        <section class="sidebar-section" *ngIf="recentSubmissions().length > 0">
           <div class="section-header-modern">
             <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -493,14 +479,7 @@
           </div>
 
           <app-ui-card class="content-card">
-            <div *ngIf="recentSubmissions().length === 0" class="empty-state-modern compact">
-              <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-              </svg>
-              <p class="empty-text-sm">No submissions yet</p>
-            </div>
-
-            <div *ngIf="recentSubmissions().length > 0" class="activity-list">
+            <div class="activity-list">
               <div *ngFor="let submission of recentSubmissions().slice(0, 3)" class="activity-item">
                 <div class="activity-icon-wrapper">
                   <svg class="activity-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -537,7 +516,7 @@
         </section>
 
         <!-- Recent Activity -->
-        <section class="sidebar-section">
+        <section class="sidebar-section" *ngIf="recentMeetings().length > 0">
           <div class="section-header-modern">
             <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -546,14 +525,7 @@
           </div>
 
           <app-ui-card class="content-card">
-            <div *ngIf="recentMeetings().length === 0" class="empty-state-modern compact">
-              <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              <p class="empty-text-sm">No recent meetings</p>
-            </div>
-
-            <div *ngIf="recentMeetings().length > 0" class="activity-list">
+            <div class="activity-list">
               <div *ngFor="let meeting of recentMeetings()" class="activity-item">
                 <div class="activity-icon-wrapper">
                   <svg class="activity-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
