@@ -23,15 +23,8 @@ interface UnifiedActivity {
   date: Date;
   projectId: string;
   status?: string;
-  performedBy?: string; // User who performed the activity
+  performedBy?: string;
   data: Meeting | Submission | Milestone;
-}
-
-interface GroupedActivities {
-  today: UnifiedActivity[];
-  yesterday: UnifiedActivity[];
-  thisWeek: UnifiedActivity[];
-  older: UnifiedActivity[];
 }
 
 @Component({
@@ -57,10 +50,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   meetings = signal<Meeting[]>([]);
   milestones = signal<Milestone[]>([]);
   stats = signal<DashboardStats | null>(null);
-
-  // Activity filters and controls
-  activityFilter = signal<'all' | 'meeting' | 'submission' | 'milestone'>('all');
-  showOlderActivities = signal<boolean>(false);
 
   private gradeChart?: Chart;
 
@@ -151,8 +140,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       .slice(0, 5);
   });
 
-  // All activities with user context
-  allActivities = computed(() => {
+  // Recent activities - last 24 hours, max 3 items
+  recentActivities = computed(() => {
     const userProjectIds = [
       ...this.myProjects().map(p => p.id),
       ...this.collaborations().map(p => p.id)
@@ -160,13 +149,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     const activities: UnifiedActivity[] = [];
     const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-    // Add meetings
+    // Add meetings from last 24 hours
     this.meetings()
       .filter(m => userProjectIds.includes(m.projectId))
       .forEach(meeting => {
         const meetingDate = new Date(meeting.scheduledAt);
-        if (meetingDate <= now) { // Only show past/present meetings
+        if (meetingDate >= twentyFourHoursAgo && meetingDate <= now) {
           activities.push({
             type: 'meeting',
             title: meeting.title || 'Meeting',
@@ -179,81 +169,47 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         }
       });
 
-    // Add submissions
+    // Add submissions from last 24 hours
     const submissions = this.isSupervisor
       ? this.submissions().filter(s => this.myProjects().map(p => p.id).includes(s.projectId))
       : this.submissions();
 
     submissions.forEach(submission => {
       const submissionDate = submission.submittedAt ? new Date(submission.submittedAt) : new Date(submission.createdDate || Date.now());
-      activities.push({
-        type: 'submission',
-        title: submission.title || 'Submission',
-        date: submissionDate,
-        projectId: submission.projectId,
-        status: submission.status,
-        performedBy: submission.submittedBy,
-        data: submission
-      });
+      if (submissionDate >= twentyFourHoursAgo && submissionDate <= now) {
+        activities.push({
+          type: 'submission',
+          title: submission.title || 'Submission',
+          date: submissionDate,
+          projectId: submission.projectId,
+          status: submission.status,
+          performedBy: submission.submittedBy,
+          data: submission
+        });
+      }
     });
 
-    // Add completed milestones only (as activities)
+    // Add completed milestones from last 24 hours
     this.milestones()
       .filter(m => userProjectIds.includes(m.projectId) && m.status === 'completed' && m.completedDate)
       .forEach(milestone => {
         const completedDate = new Date(milestone.completedDate!);
-        activities.push({
-          type: 'milestone',
-          title: milestone.title || 'Milestone',
-          date: completedDate,
-          projectId: milestone.projectId,
-          status: milestone.status,
-          data: milestone
-        });
+        if (completedDate >= twentyFourHoursAgo && completedDate <= now) {
+          activities.push({
+            type: 'milestone',
+            title: milestone.title || 'Milestone',
+            date: completedDate,
+            projectId: milestone.projectId,
+            status: milestone.status,
+            data: milestone
+          });
+        }
       });
 
-    // Sort by date (most recent first)
-    return activities.sort((a, b) => b.date.getTime() - a.date.getTime());
-  });
-
-  // Grouped activities by time period
-  groupedActivities = computed(() => {
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const yesterdayStart = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
-    const thisWeekStart = new Date(todayStart.getTime() - todayStart.getDay() * 24 * 60 * 60 * 1000);
-
-    const filter = this.activityFilter();
-    const filteredActivities = filter === 'all'
-      ? this.allActivities()
-      : this.allActivities().filter(a => a.type === filter);
-
-    const grouped: GroupedActivities = {
-      today: [],
-      yesterday: [],
-      thisWeek: [],
-      older: []
-    };
-
-    filteredActivities.forEach(activity => {
-      if (activity.date >= todayStart) {
-        grouped.today.push(activity);
-      } else if (activity.date >= yesterdayStart) {
-        grouped.yesterday.push(activity);
-      } else if (activity.date >= thisWeekStart) {
-        grouped.thisWeek.push(activity);
-      } else {
-        grouped.older.push(activity);
-      }
-    });
-
-    return grouped;
-  });
-
-  // Recent activities for display (7 days default)
-  recentActivities = computed(() => {
-    const grouped = this.groupedActivities();
-    return [...grouped.today, ...grouped.yesterday, ...grouped.thisWeek];
+    // Sort by date (most recent first) and take top 3
+    return activities
+      .sort((a, b) => b.date.getTime() - a.date.getTime())
+      .slice(0, 3);
   });
 
   // Active projects for display (in_progress status only)
@@ -481,27 +437,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
 
     if (diffMins < 1) return 'Just now';
     if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
     if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
     return date.toLocaleDateString();
-  }
-
-  // Filter methods
-  setActivityFilter(filter: 'all' | 'meeting' | 'submission' | 'milestone') {
-    this.activityFilter.set(filter);
-  }
-
-  toggleShowOlder() {
-    this.showOlderActivities.update(value => !value);
-  }
-
-  // Check if has older activities
-  hasOlderActivities(): boolean {
-    return this.groupedActivities().older.length > 0;
   }
 }

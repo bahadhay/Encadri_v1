@@ -198,194 +198,47 @@
             <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <h3 class="section-title-modern">Recent Activity</h3>
+            <h3 class="section-title-modern">Recent Activity (24h)</h3>
           </div>
 
           <app-ui-card class="content-card">
-            <!-- Activity Filters -->
-            <div class="activity-filters" *ngIf="allActivities().length > 0">
-              <button
-                class="filter-btn"
-                [class.active]="activityFilter() === 'all'"
-                (click)="setActivityFilter('all')">
-                All
-              </button>
-              <button
-                class="filter-btn"
-                [class.active]="activityFilter() === 'meeting'"
-                (click)="setActivityFilter('meeting')">
-                Meetings
-              </button>
-              <button
-                class="filter-btn"
-                [class.active]="activityFilter() === 'submission'"
-                (click)="setActivityFilter('submission')">
-                Submissions
-              </button>
-              <button
-                class="filter-btn"
-                [class.active]="activityFilter() === 'milestone'"
-                (click)="setActivityFilter('milestone')">
-                Milestones
-              </button>
-            </div>
-
             <!-- Empty State -->
-            <div *ngIf="allActivities().length === 0" class="empty-state-modern compact">
+            <div *ngIf="recentActivities().length === 0" class="empty-state-modern compact">
               <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
-              <p class="empty-text-sm">No activity yet</p>
-              <p class="empty-hint">Your meetings, submissions, and milestones will appear here</p>
-              <app-ui-button variant="primary" size="sm" routerLink="/projects" class="empty-button">
-                View Projects
-              </app-ui-button>
+              <p class="empty-text-sm">No activity in the last 24 hours</p>
+              <p class="empty-hint">Recent activities will appear here</p>
             </div>
 
-            <!-- Today's Activities -->
-            <div *ngIf="groupedActivities().today.length > 0" class="activity-group">
-              <h4 class="activity-group-title">Today</h4>
-              <div class="activity-list">
-                <div *ngFor="let activity of groupedActivities().today" class="activity-item">
-                  <div class="activity-content">
-                    <div class="activity-header-row">
-                      <span class="activity-type-badge" [ngClass]="getActivityTypeBadgeClass(activity.type)">
-                        {{ getActivityTypeLabel(activity.type) }}
-                      </span>
-                      <span class="activity-time">{{ getRelativeTime(activity.date) }}</span>
-                    </div>
-                    <h4 class="activity-title">{{ activity.title }}</h4>
-                    <div class="activity-meta">
-                      <span class="activity-performer" *ngIf="activity.performedBy">
-                        <svg class="meta-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                        {{ getUserName(activity.performedBy) }}
-                      </span>
-                      <span class="detail-separator" *ngIf="activity.performedBy">•</span>
-                      <span class="activity-project">{{ getProjectTitle(activity.projectId) }}</span>
-                    </div>
-                    <div class="activity-footer" *ngIf="activity.status">
-                      <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(activity.status)">
-                        {{ getStatusLabel(activity.status) }}
-                      </span>
-                    </div>
+            <!-- Activity List (max 3 items, last 24h) -->
+            <div *ngIf="recentActivities().length > 0" class="activity-list">
+              <div *ngFor="let activity of recentActivities()" class="activity-item">
+                <div class="activity-content">
+                  <div class="activity-header-row">
+                    <span class="activity-type-badge" [ngClass]="getActivityTypeBadgeClass(activity.type)">
+                      {{ getActivityTypeLabel(activity.type) }}
+                    </span>
+                    <span class="activity-time">{{ getRelativeTime(activity.date) }}</span>
+                  </div>
+                  <h4 class="activity-title">{{ activity.title }}</h4>
+                  <div class="activity-meta">
+                    <span class="activity-performer" *ngIf="activity.performedBy">
+                      <svg class="meta-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                      </svg>
+                      {{ getUserName(activity.performedBy) }}
+                    </span>
+                    <span class="detail-separator" *ngIf="activity.performedBy">•</span>
+                    <span class="activity-project">{{ getProjectTitle(activity.projectId) }}</span>
+                  </div>
+                  <div class="activity-footer" *ngIf="activity.status">
+                    <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(activity.status)">
+                      {{ getStatusLabel(activity.status) }}
+                    </span>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <!-- Yesterday's Activities -->
-            <div *ngIf="groupedActivities().yesterday.length > 0" class="activity-group">
-              <h4 class="activity-group-title">Yesterday</h4>
-              <div class="activity-list">
-                <div *ngFor="let activity of groupedActivities().yesterday" class="activity-item">
-                  <div class="activity-content">
-                    <div class="activity-header-row">
-                      <span class="activity-type-badge" [ngClass]="getActivityTypeBadgeClass(activity.type)">
-                        {{ getActivityTypeLabel(activity.type) }}
-                      </span>
-                      <span class="activity-time">{{ getRelativeTime(activity.date) }}</span>
-                    </div>
-                    <h4 class="activity-title">{{ activity.title }}</h4>
-                    <div class="activity-meta">
-                      <span class="activity-performer" *ngIf="activity.performedBy">
-                        <svg class="meta-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                        {{ getUserName(activity.performedBy) }}
-                      </span>
-                      <span class="detail-separator" *ngIf="activity.performedBy">•</span>
-                      <span class="activity-project">{{ getProjectTitle(activity.projectId) }}</span>
-                    </div>
-                    <div class="activity-footer" *ngIf="activity.status">
-                      <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(activity.status)">
-                        {{ getStatusLabel(activity.status) }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- This Week's Activities -->
-            <div *ngIf="groupedActivities().thisWeek.length > 0" class="activity-group">
-              <h4 class="activity-group-title">This Week</h4>
-              <div class="activity-list">
-                <div *ngFor="let activity of groupedActivities().thisWeek" class="activity-item">
-                  <div class="activity-content">
-                    <div class="activity-header-row">
-                      <span class="activity-type-badge" [ngClass]="getActivityTypeBadgeClass(activity.type)">
-                        {{ getActivityTypeLabel(activity.type) }}
-                      </span>
-                      <span class="activity-time">{{ activity.date | date: 'MMM dd' }}</span>
-                    </div>
-                    <h4 class="activity-title">{{ activity.title }}</h4>
-                    <div class="activity-meta">
-                      <span class="activity-performer" *ngIf="activity.performedBy">
-                        <svg class="meta-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                        {{ getUserName(activity.performedBy) }}
-                      </span>
-                      <span class="detail-separator" *ngIf="activity.performedBy">•</span>
-                      <span class="activity-project">{{ getProjectTitle(activity.projectId) }}</span>
-                    </div>
-                    <div class="activity-footer" *ngIf="activity.status">
-                      <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(activity.status)">
-                        {{ getStatusLabel(activity.status) }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Older Activities (Expandable) -->
-            <div *ngIf="hasOlderActivities()" class="older-activities-section">
-              <button class="show-older-btn" (click)="toggleShowOlder()">
-                <svg class="chevron-icon" [class.rotated]="showOlderActivities()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-                <span>{{ showOlderActivities() ? 'Hide' : 'Show' }} Older Activities ({{ groupedActivities().older.length }})</span>
-              </button>
-
-              <div *ngIf="showOlderActivities()" class="activity-group">
-                <div class="activity-list">
-                  <div *ngFor="let activity of groupedActivities().older" class="activity-item">
-                    <div class="activity-content">
-                      <div class="activity-header-row">
-                        <span class="activity-type-badge" [ngClass]="getActivityTypeBadgeClass(activity.type)">
-                          {{ getActivityTypeLabel(activity.type) }}
-                        </span>
-                        <span class="activity-time">{{ activity.date | date: 'MMM dd, yyyy' }}</span>
-                      </div>
-                      <h4 class="activity-title">{{ activity.title }}</h4>
-                      <div class="activity-meta">
-                        <span class="activity-performer" *ngIf="activity.performedBy">
-                          <svg class="meta-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                          </svg>
-                          {{ getUserName(activity.performedBy) }}
-                        </span>
-                        <span class="detail-separator" *ngIf="activity.performedBy">•</span>
-                        <span class="activity-project">{{ getProjectTitle(activity.projectId) }}</span>
-                      </div>
-                      <div class="activity-footer" *ngIf="activity.status">
-                        <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(activity.status)">
-                          {{ getStatusLabel(activity.status) }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- No filtered results -->
-            <div *ngIf="allActivities().length > 0 && recentActivities().length === 0 && !showOlderActivities() && !hasOlderActivities()" class="empty-state-modern compact">
-              <p class="empty-text-sm">No {{ activityFilter() === 'all' ? 'recent' : activityFilter() }} activities</p>
-              <p class="empty-hint">Try changing the filter or check older activities</p>
             </div>
           </app-ui-card>
         </section>
@@ -582,194 +435,47 @@
             <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <h3 class="section-title-modern">Recent Activity</h3>
+            <h3 class="section-title-modern">Recent Activity (24h)</h3>
           </div>
 
           <app-ui-card class="content-card">
-            <!-- Activity Filters -->
-            <div class="activity-filters" *ngIf="allActivities().length > 0">
-              <button
-                class="filter-btn"
-                [class.active]="activityFilter() === 'all'"
-                (click)="setActivityFilter('all')">
-                All
-              </button>
-              <button
-                class="filter-btn"
-                [class.active]="activityFilter() === 'meeting'"
-                (click)="setActivityFilter('meeting')">
-                Meetings
-              </button>
-              <button
-                class="filter-btn"
-                [class.active]="activityFilter() === 'submission'"
-                (click)="setActivityFilter('submission')">
-                Submissions
-              </button>
-              <button
-                class="filter-btn"
-                [class.active]="activityFilter() === 'milestone'"
-                (click)="setActivityFilter('milestone')">
-                Milestones
-              </button>
-            </div>
-
             <!-- Empty State -->
-            <div *ngIf="allActivities().length === 0" class="empty-state-modern compact">
+            <div *ngIf="recentActivities().length === 0" class="empty-state-modern compact">
               <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
-              <p class="empty-text-sm">No activity yet</p>
-              <p class="empty-hint">Your meetings, submissions, and milestones will appear here</p>
-              <app-ui-button variant="primary" size="sm" routerLink="/projects" class="empty-button">
-                View Projects
-              </app-ui-button>
+              <p class="empty-text-sm">No activity in the last 24 hours</p>
+              <p class="empty-hint">Recent activities will appear here</p>
             </div>
 
-            <!-- Today's Activities -->
-            <div *ngIf="groupedActivities().today.length > 0" class="activity-group">
-              <h4 class="activity-group-title">Today</h4>
-              <div class="activity-list">
-                <div *ngFor="let activity of groupedActivities().today" class="activity-item">
-                  <div class="activity-content">
-                    <div class="activity-header-row">
-                      <span class="activity-type-badge" [ngClass]="getActivityTypeBadgeClass(activity.type)">
-                        {{ getActivityTypeLabel(activity.type) }}
-                      </span>
-                      <span class="activity-time">{{ getRelativeTime(activity.date) }}</span>
-                    </div>
-                    <h4 class="activity-title">{{ activity.title }}</h4>
-                    <div class="activity-meta">
-                      <span class="activity-performer" *ngIf="activity.performedBy">
-                        <svg class="meta-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                        {{ getUserName(activity.performedBy) }}
-                      </span>
-                      <span class="detail-separator" *ngIf="activity.performedBy">•</span>
-                      <span class="activity-project">{{ getProjectTitle(activity.projectId) }}</span>
-                    </div>
-                    <div class="activity-footer" *ngIf="activity.status">
-                      <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(activity.status)">
-                        {{ getStatusLabel(activity.status) }}
-                      </span>
-                    </div>
+            <!-- Activity List (max 3 items, last 24h) -->
+            <div *ngIf="recentActivities().length > 0" class="activity-list">
+              <div *ngFor="let activity of recentActivities()" class="activity-item">
+                <div class="activity-content">
+                  <div class="activity-header-row">
+                    <span class="activity-type-badge" [ngClass]="getActivityTypeBadgeClass(activity.type)">
+                      {{ getActivityTypeLabel(activity.type) }}
+                    </span>
+                    <span class="activity-time">{{ getRelativeTime(activity.date) }}</span>
+                  </div>
+                  <h4 class="activity-title">{{ activity.title }}</h4>
+                  <div class="activity-meta">
+                    <span class="activity-performer" *ngIf="activity.performedBy">
+                      <svg class="meta-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                      </svg>
+                      {{ getUserName(activity.performedBy) }}
+                    </span>
+                    <span class="detail-separator" *ngIf="activity.performedBy">•</span>
+                    <span class="activity-project">{{ getProjectTitle(activity.projectId) }}</span>
+                  </div>
+                  <div class="activity-footer" *ngIf="activity.status">
+                    <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(activity.status)">
+                      {{ getStatusLabel(activity.status) }}
+                    </span>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <!-- Yesterday's Activities -->
-            <div *ngIf="groupedActivities().yesterday.length > 0" class="activity-group">
-              <h4 class="activity-group-title">Yesterday</h4>
-              <div class="activity-list">
-                <div *ngFor="let activity of groupedActivities().yesterday" class="activity-item">
-                  <div class="activity-content">
-                    <div class="activity-header-row">
-                      <span class="activity-type-badge" [ngClass]="getActivityTypeBadgeClass(activity.type)">
-                        {{ getActivityTypeLabel(activity.type) }}
-                      </span>
-                      <span class="activity-time">{{ getRelativeTime(activity.date) }}</span>
-                    </div>
-                    <h4 class="activity-title">{{ activity.title }}</h4>
-                    <div class="activity-meta">
-                      <span class="activity-performer" *ngIf="activity.performedBy">
-                        <svg class="meta-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                        {{ getUserName(activity.performedBy) }}
-                      </span>
-                      <span class="detail-separator" *ngIf="activity.performedBy">•</span>
-                      <span class="activity-project">{{ getProjectTitle(activity.projectId) }}</span>
-                    </div>
-                    <div class="activity-footer" *ngIf="activity.status">
-                      <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(activity.status)">
-                        {{ getStatusLabel(activity.status) }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- This Week's Activities -->
-            <div *ngIf="groupedActivities().thisWeek.length > 0" class="activity-group">
-              <h4 class="activity-group-title">This Week</h4>
-              <div class="activity-list">
-                <div *ngFor="let activity of groupedActivities().thisWeek" class="activity-item">
-                  <div class="activity-content">
-                    <div class="activity-header-row">
-                      <span class="activity-type-badge" [ngClass]="getActivityTypeBadgeClass(activity.type)">
-                        {{ getActivityTypeLabel(activity.type) }}
-                      </span>
-                      <span class="activity-time">{{ activity.date | date: 'MMM dd' }}</span>
-                    </div>
-                    <h4 class="activity-title">{{ activity.title }}</h4>
-                    <div class="activity-meta">
-                      <span class="activity-performer" *ngIf="activity.performedBy">
-                        <svg class="meta-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                        {{ getUserName(activity.performedBy) }}
-                      </span>
-                      <span class="detail-separator" *ngIf="activity.performedBy">•</span>
-                      <span class="activity-project">{{ getProjectTitle(activity.projectId) }}</span>
-                    </div>
-                    <div class="activity-footer" *ngIf="activity.status">
-                      <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(activity.status)">
-                        {{ getStatusLabel(activity.status) }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Older Activities (Expandable) -->
-            <div *ngIf="hasOlderActivities()" class="older-activities-section">
-              <button class="show-older-btn" (click)="toggleShowOlder()">
-                <svg class="chevron-icon" [class.rotated]="showOlderActivities()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-                <span>{{ showOlderActivities() ? 'Hide' : 'Show' }} Older Activities ({{ groupedActivities().older.length }})</span>
-              </button>
-
-              <div *ngIf="showOlderActivities()" class="activity-group">
-                <div class="activity-list">
-                  <div *ngFor="let activity of groupedActivities().older" class="activity-item">
-                    <div class="activity-content">
-                      <div class="activity-header-row">
-                        <span class="activity-type-badge" [ngClass]="getActivityTypeBadgeClass(activity.type)">
-                          {{ getActivityTypeLabel(activity.type) }}
-                        </span>
-                        <span class="activity-time">{{ activity.date | date: 'MMM dd, yyyy' }}</span>
-                      </div>
-                      <h4 class="activity-title">{{ activity.title }}</h4>
-                      <div class="activity-meta">
-                        <span class="activity-performer" *ngIf="activity.performedBy">
-                          <svg class="meta-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                          </svg>
-                          {{ getUserName(activity.performedBy) }}
-                        </span>
-                        <span class="detail-separator" *ngIf="activity.performedBy">•</span>
-                        <span class="activity-project">{{ getProjectTitle(activity.projectId) }}</span>
-                      </div>
-                      <div class="activity-footer" *ngIf="activity.status">
-                        <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(activity.status)">
-                          {{ getStatusLabel(activity.status) }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- No filtered results -->
-            <div *ngIf="allActivities().length > 0 && recentActivities().length === 0 && !showOlderActivities() && !hasOlderActivities()" class="empty-state-modern compact">
-              <p class="empty-text-sm">No {{ activityFilter() === 'all' ? 'recent' : activityFilter() }} activities</p>
-              <p class="empty-hint">Try changing the filter or check older activities</p>
             </div>
           </app-ui-card>
         </section>
