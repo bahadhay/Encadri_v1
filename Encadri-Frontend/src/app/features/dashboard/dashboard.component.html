@@ -293,15 +293,53 @@
             </app-ui-button>
           </div>
 
-          <div *ngIf="activeProjectsCount() > 0" class="project-list-modern">
-            <div *ngFor="let project of activeProjects()" class="project-item-modern" [routerLink]="['/projects', project.id]">
-              <div class="project-item-content">
-                <h4 class="project-item-title">{{ project.title }}</h4>
-                <p class="project-item-owner">{{ project.studentName || project.studentEmail || project.ownerEmail }}</p>
+          <div *ngIf="activeProjectsCount() > 0" class="student-project-list">
+            <div *ngFor="let project of activeProjects()"
+                 class="student-project-card"
+                 [routerLink]="['/projects', project.id]">
+              <div class="student-project-header">
+                <h4 class="student-project-title">{{ project.title }}</h4>
+                <span class="badge-modern" [ngClass]="getStatusBadgeClass(project.status)">
+                  {{ getStatusLabel(project.status) }}
+                </span>
               </div>
-              <span class="badge-modern" [ngClass]="getStatusBadgeClass(project.status)">
-                {{ getStatusLabel(project.status) }}
-              </span>
+
+              <div class="supervisor-project-meta">
+                <span class="student-name">
+                  <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                  {{ project.studentName || project.studentEmail || project.ownerEmail }}
+                </span>
+              </div>
+
+              <div class="student-project-progress" *ngIf="project.status === 'in_progress'">
+                <div class="progress-header">
+                  <svg class="progress-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                  </svg>
+                  <span class="progress-label">Progress</span>
+                  <span class="progress-percentage">{{ project.progressPercentage }}%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width.%]="project.progressPercentage"></div>
+                </div>
+                <p class="progress-note">{{ getProgressNote(project.progressPercentage) }}</p>
+              </div>
+
+              <div class="student-project-footer">
+                <div class="project-meta">
+                  <span class="project-type-badge">{{ project.type }}</span>
+                  <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  <span *ngIf="project.endDate">Due: {{ project.endDate | date: 'MMM dd, yyyy' }}</span>
+                  <span *ngIf="!project.endDate">No deadline set</span>
+                </div>
+                <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
             </div>
           </div>
         </app-ui-card>
@@ -326,12 +364,27 @@
               <p class="empty-text-sm">No upcoming deadlines</p>
             </div>
 
-            <div *ngIf="upcomingMilestones().length > 0" class="deadline-list">
-              <div *ngFor="let milestone of upcomingMilestones().slice(0, 3)" class="deadline-item">
-                <div class="deadline-dot"></div>
-                <div class="deadline-content">
-                  <h4 class="deadline-title">{{ milestone.title }}</h4>
-                  <p class="deadline-date">{{ milestone.dueDate | date: 'MMM dd, yyyy' }}</p>
+            <div *ngIf="upcomingMilestones().length > 0" class="deadline-list-enhanced">
+              <div *ngFor="let milestone of upcomingMilestones().slice(0, 3)" class="deadline-card" [routerLink]="['/projects', milestone.projectId]">
+                <div class="deadline-header">
+                  <div class="deadline-icon-wrapper">
+                    <svg class="deadline-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                  </div>
+                  <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(milestone.status)">
+                    {{ getStatusLabel(milestone.status) }}
+                  </span>
+                </div>
+                <div class="deadline-body">
+                  <h4 class="deadline-title-enhanced">{{ milestone.title }}</h4>
+                  <p class="deadline-project">{{ getProjectTitle(milestone.projectId) }}</p>
+                  <div class="deadline-footer-enhanced">
+                    <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span class="deadline-date-enhanced">{{ milestone.dueDate | date: 'MMM dd, yyyy' }}</span>
+                  </div>
                 </div>
               </div>
             </div>
