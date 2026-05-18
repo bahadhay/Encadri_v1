@@ -1,42 +1,62 @@
 <div class="dashboard-container">
-  <div class="header">
-    <h2>Bonjour, {{ user?.fullName }}</h2>
-    <p>Voici un aperçu de vos projets et activités.</p>
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1 class="header-title">Welcome back, {{ (user?.fullName || '').split(' ')[0] || user?.fullName || 'User' }}</h1>
+      <p class="header-subtitle">Manage and evaluate your students' projects</p>
+    </div>
+    <div class="header-action" *ngIf="isSupervisor">
+      <app-ui-button variant="primary" size="md" routerLink="/projects/new">
+        <svg class="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        New Project
+      </app-ui-button>
+    </div>
   </div>
 
   <!-- Dashboard pour ÉTUDIANT -->
   <ng-container *ngIf="isStudent">
     <!-- Statistiques principales -->
     <div class="stats-grid">
-      <app-ui-card class="stat-card-wrapper" [hover]="true" [compact]="true">
-        <div class="stat-card">
-          <span class="stat-icon p-blue">📁</span>
-          <div class="stat-content">
-            <h3>Total Projets</h3>
-            <p class="stat-value">{{ totalProjectsCount() }}</p>
-            <span class="stat-label">Tous vos projets</span>
+      <app-ui-card class="stat-card-modern">
+        <div class="stat-card-content">
+          <div class="stat-icon-wrapper stat-blue">
+            <svg class="stat-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <h3 class="stat-title">Total Projects</h3>
+            <p class="stat-number">{{ totalProjectsCount() }}</p>
           </div>
         </div>
       </app-ui-card>
 
-      <app-ui-card class="stat-card-wrapper" [hover]="true" [compact]="true">
-        <div class="stat-card">
-          <span class="stat-icon p-yellow">🚀</span>
-          <div class="stat-content">
-            <h3>Projets Actifs</h3>
-            <p class="stat-value">{{ activeProjectsCount() }}</p>
-            <span class="stat-label">En cours</span>
+      <app-ui-card class="stat-card-modern">
+        <div class="stat-card-content">
+          <div class="stat-icon-wrapper stat-orange">
+            <svg class="stat-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <h3 class="stat-title">In Progress</h3>
+            <p class="stat-number">{{ activeProjectsCount() }}</p>
           </div>
         </div>
       </app-ui-card>
 
-      <app-ui-card class="stat-card-wrapper" [hover]="true" [compact]="true">
-        <div class="stat-card">
-          <span class="stat-icon p-green">✅</span>
-          <div class="stat-content">
-            <h3>Projets Terminés</h3>
-            <p class="stat-value">{{ completedProjectsCount() }}</p>
-            <span class="stat-label">Complétés</span>
+      <app-ui-card class="stat-card-modern">
+        <div class="stat-card-content">
+          <div class="stat-icon-wrapper stat-green">
+            <svg class="stat-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <h3 class="stat-title">Completed</h3>
+            <p class="stat-number">{{ completedProjectsCount() }}</p>
           </div>
         </div>
       </app-ui-card>
@@ -121,142 +141,166 @@
 
   <!-- Dashboard pour ENCADRANT -->
   <ng-container *ngIf="isSupervisor">
-    <!-- Statistiques principales -->
-    <div class="stats-grid">
-      <app-ui-card class="stat-card-wrapper" [hover]="true" [compact]="true">
-        <div class="stat-card">
-          <span class="stat-icon p-blue">📚</span>
-          <div class="stat-content">
-            <h3>Projets Supervisés</h3>
-            <p class="stat-value">{{ totalProjectsCount() }}</p>
-            <span class="stat-label">Total</span>
+    <!-- Statistiques principales - 4 cartes -->
+    <div class="stats-grid-supervisor">
+      <!-- Total Projects -->
+      <app-ui-card class="stat-card-modern">
+        <div class="stat-card-content">
+          <div class="stat-icon-wrapper stat-blue">
+            <svg class="stat-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <h3 class="stat-title">Total Projects</h3>
+            <p class="stat-number">{{ totalProjectsCount() }}</p>
           </div>
         </div>
       </app-ui-card>
 
-      <app-ui-card class="stat-card-wrapper" [hover]="true" [compact]="true">
-        <div class="stat-card">
-          <span class="stat-icon p-purple">👥</span>
-          <div class="stat-content">
-            <h3>Étudiants Encadrés</h3>
-            <p class="stat-value">{{ stats()?.totalStudents || 0 }}</p>
-            <span class="stat-label">Actifs</span>
+      <!-- In Progress -->
+      <app-ui-card class="stat-card-modern">
+        <div class="stat-card-content">
+          <div class="stat-icon-wrapper stat-orange">
+            <svg class="stat-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <h3 class="stat-title">In Progress</h3>
+            <p class="stat-number">{{ activeProjectsCount() }}</p>
           </div>
         </div>
       </app-ui-card>
 
-      <app-ui-card class="stat-card-wrapper" [hover]="true" [compact]="true">
-        <div class="stat-card">
-          <span class="stat-icon p-yellow">⏳</span>
-          <div class="stat-content">
-            <h3>En Attente de Revue</h3>
-            <p class="stat-value">{{ pendingReviewsCount() }}</p>
-            <span class="stat-label">Soumissions</span>
+      <!-- Completed -->
+      <app-ui-card class="stat-card-modern">
+        <div class="stat-card-content">
+          <div class="stat-icon-wrapper stat-green">
+            <svg class="stat-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <h3 class="stat-title">Completed</h3>
+            <p class="stat-number">{{ completedProjectsCount() }}</p>
+          </div>
+        </div>
+      </app-ui-card>
+
+      <!-- Pending Reviews -->
+      <app-ui-card class="stat-card-modern">
+        <div class="stat-card-content">
+          <div class="stat-icon-wrapper stat-purple">
+            <svg class="stat-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <h3 class="stat-title">Pending Reviews</h3>
+            <p class="stat-number">{{ pendingReviewsCount() }}</p>
           </div>
         </div>
       </app-ui-card>
     </div>
 
-    <div class="content-grid supervisor-layout">
-      <!-- Projets par statut -->
-      <section>
-        <div class="section-header">
-          <h3>Projets par Statut</h3>
-          <app-ui-button variant="primary" size="sm" routerLink="/projects">Voir tout</app-ui-button>
+    <!-- Content Grid - 2 colonnes -->
+    <div class="supervisor-main-grid">
+      <!-- Colonne gauche - Active Projects -->
+      <section class="main-section">
+        <div class="section-header-modern">
+          <h3 class="section-title-modern">Active Projects</h3>
         </div>
 
-        <div class="status-overview">
-          <app-ui-card class="status-item">
-            <div class="status-content">
-              <span class="status-icon">📋</span>
-              <div>
-                <p class="status-label">Proposés</p>
-                <p class="status-value">{{ stats()?.proposedProjects || 0 }}</p>
-              </div>
-            </div>
-          </app-ui-card>
+        <app-ui-card class="content-card">
+          <div *ngIf="activeProjectsCount() === 0" class="empty-state-modern">
+            <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+            </svg>
+            <p class="empty-text">No active projects</p>
+            <app-ui-button variant="primary" size="sm" routerLink="/projects/new" class="empty-button">
+              Create First Project
+            </app-ui-button>
+          </div>
 
-          <app-ui-card class="status-item">
-            <div class="status-content">
-              <span class="status-icon">🚀</span>
-              <div>
-                <p class="status-label">En cours</p>
-                <p class="status-value">{{ activeProjectsCount() }}</p>
+          <div *ngIf="activeProjectsCount() > 0" class="project-list-modern">
+            <div *ngFor="let project of myProjects().slice(0, 5)" class="project-item-modern" [routerLink]="['/projects', project.id]">
+              <div class="project-item-content">
+                <h4 class="project-item-title">{{ project.title }}</h4>
+                <p class="project-item-owner">{{ project.ownerEmail }}</p>
               </div>
+              <span class="badge-modern" [ngClass]="getStatusBadgeClass(project.status)">
+                {{ getStatusLabel(project.status) }}
+              </span>
             </div>
-          </app-ui-card>
-
-          <app-ui-card class="status-item">
-            <div class="status-content">
-              <span class="status-icon">✅</span>
-              <div>
-                <p class="status-label">Terminés</p>
-                <p class="status-value">{{ completedProjectsCount() }}</p>
-              </div>
-            </div>
-          </app-ui-card>
-        </div>
+          </div>
+        </app-ui-card>
       </section>
 
-      <!-- Soumissions en attente de revue -->
-      <section>
-        <div class="section-header">
-          <h3>Soumissions en Attente</h3>
-          <app-ui-button variant="outline" size="sm" routerLink="/submissions">Voir tout</app-ui-button>
-        </div>
+      <!-- Colonne droite -->
+      <div class="sidebar-sections">
+        <!-- Upcoming Deadlines -->
+        <section class="sidebar-section">
+          <div class="section-header-modern">
+            <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <h3 class="section-title-modern">Upcoming Deadlines</h3>
+          </div>
 
-        <div *ngIf="pendingReviewsCount() === 0" class="empty-state">
-          <p>Aucune soumission en attente de revue.</p>
-        </div>
+          <app-ui-card class="content-card">
+            <div *ngIf="upcomingMilestones().length === 0" class="empty-state-modern compact">
+              <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <p class="empty-text-sm">No upcoming deadlines</p>
+            </div>
 
-        <div class="submissions-list">
-          <app-ui-card *ngFor="let submission of recentSubmissions() | slice:0:3" class="submission-card">
-            <div class="submission-content">
-              <div class="submission-header">
-                <h4>{{ submission.title || 'Soumission sans titre' }}</h4>
-                <span class="badge" [ngClass]="getStatusBadgeClass(submission.status)">
-                  {{ getStatusLabel(submission.status) }}
-                </span>
-              </div>
-              <p class="submission-date">
-                Soumis le {{ submission.submittedAt | date: 'dd/MM/yyyy à HH:mm' }}
-              </p>
-              <div class="card-actions">
-                <a [routerLink]="['/submissions', submission.id]">Examiner</a>
+            <div *ngIf="upcomingMilestones().length > 0" class="deadline-list">
+              <div *ngFor="let milestone of upcomingMilestones().slice(0, 3)" class="deadline-item">
+                <div class="deadline-dot"></div>
+                <div class="deadline-content">
+                  <h4 class="deadline-title">{{ milestone.title }}</h4>
+                  <p class="deadline-date">{{ milestone.dueDate | date: 'MMM dd, yyyy' }}</p>
+                </div>
               </div>
             </div>
           </app-ui-card>
-        </div>
-      </section>
+        </section>
 
-      <!-- Vue d'ensemble de la progression -->
-      <section class="full-width">
-        <div class="section-header">
-          <h3>Progression des Projets</h3>
-        </div>
+        <!-- Recent Activity -->
+        <section class="sidebar-section">
+          <div class="section-header-modern">
+            <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <h3 class="section-title-modern">Recent Activity</h3>
+          </div>
 
-        <div *ngIf="myProjects().length === 0" class="empty-state">
-          <p>Aucun projet supervisé pour le moment.</p>
-        </div>
+          <app-ui-card class="content-card">
+            <div *ngIf="recentSubmissions().length === 0" class="empty-state-modern compact">
+              <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <p class="empty-text-sm">No recent activity</p>
+            </div>
 
-        <div class="projects-progress-grid">
-          <app-ui-card *ngFor="let project of myProjects()" class="project-progress-card">
-            <div class="project-progress-content">
-              <div class="project-header">
-                <h4>{{ project.title }}</h4>
-                <span class="badge" [ngClass]="getStatusBadgeClass(project.status)">
-                  {{ getStatusLabel(project.status) }}
-                </span>
-              </div>
-              <p class="project-description">{{ project.description | slice:0:100 }}...</p>
-              <div class="project-footer">
-                <span class="project-owner">👤 {{ project.ownerEmail }}</span>
-                <a [routerLink]="['/projects', project.id]" class="view-link">Voir détails →</a>
+            <div *ngIf="recentSubmissions().length > 0" class="activity-list">
+              <div *ngFor="let submission of recentSubmissions().slice(0, 3)" class="activity-item">
+                <div class="activity-icon-wrapper">
+                  <svg class="activity-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                </div>
+                <div class="activity-content">
+                  <h4 class="activity-title">{{ submission.title || 'Submission' }}</h4>
+                  <p class="activity-time">{{ submission.submittedAt | date: 'short' }}</p>
+                </div>
               </div>
             </div>
           </app-ui-card>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   </ng-container>
 </div>
