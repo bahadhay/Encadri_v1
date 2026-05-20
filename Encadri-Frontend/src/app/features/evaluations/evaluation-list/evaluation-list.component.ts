@@ -87,14 +87,20 @@ export class EvaluationListComponent implements OnChanges {
     this.isModalOpen.set(false);
   }
 
+  // Calcul de la note finale selon le barème pondéré
   calculateGrade() {
-    const total =
-      (this.evaluation.reportQualityScore || 0) +
-      (this.evaluation.technicalImplementationScore || 0) +
-      (this.evaluation.presentationScore || 0) +
-      (this.evaluation.professionalConductScore || 0);
+    const reportScore = (this.evaluation.reportQualityScore || 0);
+    const technicalScore = (this.evaluation.technicalImplementationScore || 0);
+    const presentationScore = (this.evaluation.presentationScore || 0);
+    const conductScore = (this.evaluation.professionalConductScore || 0);
 
-    this.evaluation.finalGrade = total;
+    // Calcul pondéré : chaque score est déjà sur son maximum respectif
+    this.evaluation.finalGrade = Number((
+      reportScore +
+      technicalScore +
+      presentationScore +
+      conductScore
+    ).toFixed(2));
   }
 
   onSubmit() {

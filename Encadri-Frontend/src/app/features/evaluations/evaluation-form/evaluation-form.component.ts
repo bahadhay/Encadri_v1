@@ -35,6 +35,21 @@ export class EvaluationFormComponent {
     comments: ''
   };
 
+  // Pondération des critères (basée sur /20)
+  readonly WEIGHTS = {
+    reportQuality: 0.25,        // 25% = 5/20
+    technicalImplementation: 0.40, // 40% = 8/20
+    presentation: 0.20,         // 20% = 4/20
+    professionalConduct: 0.15   // 15% = 3/20
+  };
+
+  readonly MAX_SCORES = {
+    reportQuality: 5,           // 25% de 20
+    technicalImplementation: 8, // 40% de 20
+    presentation: 4,            // 20% de 20
+    professionalConduct: 3      // 15% de 20
+  };
+
   evaluationId: string | null = null;
   isEditMode = false;
 
@@ -65,12 +80,20 @@ export class EvaluationFormComponent {
     });
   }
 
-  // Helper to sum scores, assuming they are out of 5 and final grade is out of 20
+  // Calcul de la note finale selon le barème pondéré
   calculateGrade() {
-    this.evaluation.finalGrade = (this.evaluation.reportQualityScore || 0) + 
-                                 (this.evaluation.technicalImplementationScore || 0) + 
-                                 (this.evaluation.presentationScore || 0) + 
-                                 (this.evaluation.professionalConductScore || 0);
+    const reportScore = (this.evaluation.reportQualityScore || 0);
+    const technicalScore = (this.evaluation.technicalImplementationScore || 0);
+    const presentationScore = (this.evaluation.presentationScore || 0);
+    const conductScore = (this.evaluation.professionalConductScore || 0);
+
+    // Calcul pondéré : chaque score est déjà sur son maximum respectif
+    this.evaluation.finalGrade = Number((
+      reportScore +
+      technicalScore +
+      presentationScore +
+      conductScore
+    ).toFixed(2));
   }
 
   onSubmit() {

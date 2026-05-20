@@ -170,6 +170,18 @@ h3 {
 
 .label {
   color: var(--slate-600);
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.weight-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--primary-700);
+  background: var(--primary-100);
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--radius-full);
 }
 
 .value {
