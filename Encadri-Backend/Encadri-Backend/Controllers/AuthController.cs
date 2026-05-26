@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Encadri_Backend.Models;
 using Encadri_Backend.Data;
 using Encadri_Backend.Services;
+using System.Text.RegularExpressions;
 
 namespace Encadri_Backend.Controllers
 {
@@ -68,6 +69,44 @@ namespace Encadri_Backend.Controllers
         }
 
         /// <summary>
+        /// Validate password strength
+        /// </summary>
+        private (bool isValid, string? errorMessage) ValidatePassword(string password)
+        {
+            if (string.IsNullOrEmpty(password))
+            {
+                return (false, "Password is required");
+            }
+
+            if (password.Length < 8)
+            {
+                return (false, "Password must be at least 8 characters long");
+            }
+
+            if (!Regex.IsMatch(password, @"[A-Z]"))
+            {
+                return (false, "Password must contain at least one uppercase letter");
+            }
+
+            if (!Regex.IsMatch(password, @"[a-z]"))
+            {
+                return (false, "Password must contain at least one lowercase letter");
+            }
+
+            if (!Regex.IsMatch(password, @"[0-9]"))
+            {
+                return (false, "Password must contain at least one number");
+            }
+
+            if (!Regex.IsMatch(password, @"[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]"))
+            {
+                return (false, "Password must contain at least one special character (!@#$%^&*()_+-=[]{}|;:,.<>?)");
+            }
+
+            return (true, null);
+        }
+
+        /// <summary>
         /// Register a new user
         /// </summary>
         [HttpPost("register")]
@@ -76,6 +115,13 @@ namespace Encadri_Backend.Controllers
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             {
                 return BadRequest(new { message = "User with this email already exists" });
+            }
+
+            // Validate password strength
+            var (isValid, errorMessage) = ValidatePassword(request.Password);
+            if (!isValid)
+            {
+                return BadRequest(new { message = errorMessage });
             }
 
             // Hash the password

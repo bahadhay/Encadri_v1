@@ -129,3 +129,109 @@
 ::ng-deep app-ui-button.w-full button {
   width: 100%;
 }
+
+/* Password Strength Indicator */
+.password-strength {
+  margin-top: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
+}
+
+.strength-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-2);
+  font-size: 0.875rem;
+}
+
+.strength-text {
+  color: var(--slate-600);
+  font-weight: 500;
+}
+
+.strength-value {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.strength-value.weak {
+  color: #ef4444; /* Red */
+}
+
+.strength-value.fair {
+  color: #f97316; /* Orange */
+}
+
+.strength-value.good {
+  color: #eab308; /* Yellow */
+}
+
+.strength-value.strong {
+  color: #22c55e; /* Green */
+}
+
+.strength-bar {
+  height: 6px;
+  background-color: var(--slate-200);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.strength-fill {
+  height: 100%;
+  transition: all 0.3s ease;
+  border-radius: 3px;
+}
+
+.strength-fill.weak {
+  width: 25%;
+  background-color: #ef4444;
+}
+
+.strength-fill.fair {
+  width: 50%;
+  background-color: #f97316;
+}
+
+.strength-fill.good {
+  width: 75%;
+  background-color: #eab308;
+}
+
+.strength-fill.strong {
+  width: 100%;
+  background-color: #22c55e;
+}
+
+/* Password Requirements Checklist */
+.password-requirements {
+  background-color: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-3);
+  margin-bottom: var(--spacing-4);
+}
+
+.requirement {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: 0.875rem;
+  color: var(--slate-600);
+  padding: var(--spacing-1) 0;
+}
+
+.requirement-icon {
+  font-weight: 600;
+  font-size: 1rem;
+  min-width: 20px;
+  text-align: center;
+}
+
+.requirement.met {
+  color: var(--slate-700);
+}
+
+.requirement.met .requirement-icon {
+  color: #22c55e; /* Green */
+}

@@ -23,13 +23,83 @@ export class RegisterComponent {
   fullName = '';
   email = '';
   password = '';
+  confirmPassword = '';
   role: 'student' | 'supervisor' = 'student';
   loading = false;
   error = '';
 
+  // Password validation state
+  passwordStrength: 'weak' | 'fair' | 'good' | 'strong' = 'weak';
+  passwordRequirements = {
+    minLength: false,
+    hasUppercase: false,
+    hasLowercase: false,
+    hasNumber: false,
+    hasSpecialChar: false
+  };
+  passwordsMatch = true;
+
+  // Validate password as user types
+  onPasswordChange() {
+    // Check each requirement
+    this.passwordRequirements.minLength = this.password.length >= 8;
+    this.passwordRequirements.hasUppercase = /[A-Z]/.test(this.password);
+    this.passwordRequirements.hasLowercase = /[a-z]/.test(this.password);
+    this.passwordRequirements.hasNumber = /[0-9]/.test(this.password);
+    this.passwordRequirements.hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(this.password);
+
+    // Calculate password strength
+    const requirementsMet = Object.values(this.passwordRequirements).filter(val => val).length;
+
+    if (requirementsMet < 3) {
+      this.passwordStrength = 'weak';
+    } else if (requirementsMet === 3) {
+      this.passwordStrength = 'fair';
+    } else if (requirementsMet === 4) {
+      this.passwordStrength = 'good';
+    } else if (requirementsMet === 5 && this.password.length >= 12) {
+      this.passwordStrength = 'strong';
+    } else {
+      this.passwordStrength = 'good';
+    }
+
+    // Check if passwords match
+    this.checkPasswordsMatch();
+  }
+
+  // Check if confirm password matches
+  onConfirmPasswordChange() {
+    this.checkPasswordsMatch();
+  }
+
+  private checkPasswordsMatch() {
+    this.passwordsMatch = this.confirmPassword === '' || this.password === this.confirmPassword;
+  }
+
+  // Validate all password requirements are met
+  private isPasswordValid(): boolean {
+    return Object.values(this.passwordRequirements).every(val => val);
+  }
+
   onSubmit() {
-    if (!this.fullName || !this.email || !this.password) {
+    // Basic field validation
+    if (!this.fullName || !this.email || !this.password || !this.confirmPassword) {
       this.error = 'Please fill in all fields';
+      this.toastService.error(this.error);
+      return;
+    }
+
+    // Password requirements validation
+    if (!this.isPasswordValid()) {
+      this.error = 'Password does not meet all requirements';
+      this.toastService.error(this.error);
+      return;
+    }
+
+    // Password match validation
+    if (!this.passwordsMatch || this.password !== this.confirmPassword) {
+      this.error = 'Passwords do not match';
+      this.toastService.error(this.error);
       return;
     }
 

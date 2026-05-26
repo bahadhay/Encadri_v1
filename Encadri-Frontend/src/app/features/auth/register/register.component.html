@@ -31,7 +31,56 @@
         placeholder="Min 8 characters"
         [(ngModel)]="password"
         name="password"
+        (ngModelChange)="onPasswordChange()"
         [disabled]="loading">
+      </app-ui-input>
+
+      <!-- Password Strength Indicator -->
+      <div class="password-strength" *ngIf="password.length > 0">
+        <div class="strength-label">
+          <span class="strength-text">Password Strength:</span>
+          <span class="strength-value" [class]="passwordStrength">
+            {{ passwordStrength | titlecase }}
+          </span>
+        </div>
+        <div class="strength-bar">
+          <div class="strength-fill" [class]="passwordStrength"></div>
+        </div>
+      </div>
+
+      <!-- Password Requirements Checklist -->
+      <div class="password-requirements" *ngIf="password.length > 0">
+        <div class="requirement" [class.met]="passwordRequirements.minLength">
+          <span class="requirement-icon">{{ passwordRequirements.minLength ? '✓' : '○' }}</span>
+          <span>At least 8 characters</span>
+        </div>
+        <div class="requirement" [class.met]="passwordRequirements.hasUppercase">
+          <span class="requirement-icon">{{ passwordRequirements.hasUppercase ? '✓' : '○' }}</span>
+          <span>One uppercase letter (A-Z)</span>
+        </div>
+        <div class="requirement" [class.met]="passwordRequirements.hasLowercase">
+          <span class="requirement-icon">{{ passwordRequirements.hasLowercase ? '✓' : '○' }}</span>
+          <span>One lowercase letter (a-z)</span>
+        </div>
+        <div class="requirement" [class.met]="passwordRequirements.hasNumber">
+          <span class="requirement-icon">{{ passwordRequirements.hasNumber ? '✓' : '○' }}</span>
+          <span>One number (0-9)</span>
+        </div>
+        <div class="requirement" [class.met]="passwordRequirements.hasSpecialChar">
+          <span class="requirement-icon">{{ passwordRequirements.hasSpecialChar ? '✓' : '○' }}</span>
+          <span>One special character (!@#$%...)</span>
+        </div>
+      </div>
+
+      <app-ui-input
+        label="Confirm Password"
+        type="password"
+        placeholder="Re-enter your password"
+        [(ngModel)]="confirmPassword"
+        name="confirmPassword"
+        (ngModelChange)="onConfirmPasswordChange()"
+        [disabled]="loading"
+        [error]="!passwordsMatch && confirmPassword.length > 0 ? 'Passwords do not match' : ''">
       </app-ui-input>
 
       <div class="form-group">
