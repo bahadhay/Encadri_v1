@@ -1313,74 +1313,65 @@ h3 {
   flex: 1;
 }
 
-/* Carousel Navigation - Small Squares on Container */
-.deadline-swiper::part(button-prev),
-.deadline-swiper::part(button-next) {
+/* Custom Navigation Arrows - Normal CSS */
+.custom-nav-btn {
+  position: absolute;
+  bottom: 8px;
   width: 24px;
   height: 24px;
   background: white;
   border: 1px solid var(--slate-300);
   border-radius: 4px;
   color: var(--slate-600);
-  transition: all 0.2s ease;
-  position: absolute;
-  bottom: 8px;
-  top: auto;
-  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  padding: 0;
-  opacity: 1;
+  transition: all 0.2s ease;
+  z-index: 10;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  font-size: 12px;
+  padding: 0;
 }
 
-.deadline-swiper::part(button-prev) {
+.custom-nav-prev {
   left: 50%;
   transform: translateX(-32px);
 }
 
-.deadline-swiper::part(button-next) {
+.custom-nav-next {
   right: 50%;
   transform: translateX(32px);
 }
 
-.deadline-swiper::part(button-prev):hover,
-.deadline-swiper::part(button-next):hover {
+.custom-nav-btn:hover {
   background: var(--primary);
   color: white;
   border-color: var(--primary);
   box-shadow: 0 2px 6px rgba(99, 102, 241, 0.2);
 }
 
-.deadline-swiper::part(button-prev):active,
-.deadline-swiper::part(button-next):active {
+.custom-nav-btn:active {
   transform: translateX(-32px) scale(0.95);
 }
 
-.deadline-swiper::part(button-next):active {
+.custom-nav-next:active {
   transform: translateX(32px) scale(0.95);
 }
 
-/* Keyboard focus support */
-.deadline-swiper::part(button-prev):focus-visible,
-.deadline-swiper::part(button-next):focus-visible {
+.custom-nav-btn:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
-.deadline-swiper::part(button-prev-disabled),
-.deadline-swiper::part(button-next-disabled) {
+.custom-nav-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
-  pointer-events: none;
   background: var(--slate-100);
   color: var(--slate-400);
 }
 
-/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .deadline-swiper::part(button-prev),
-  .deadline-swiper::part(button-next) {
+  .custom-nav-btn {
     transition: none;
   }
 }
