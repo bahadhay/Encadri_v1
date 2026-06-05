@@ -191,6 +191,9 @@
                 navigation="true"
                 pagination="true"
                 pagination-clickable="true"
+                autoplay="true"
+                autoplay-delay="5000"
+                autoplay-disable-on-interaction="false"
                 class="deadline-swiper">
                 <swiper-slide *ngFor="let deadline of upcomingDeadlines()">
                   <div class="deadline-card" [routerLink]="['/projects', deadline.projectId]">
@@ -466,6 +469,9 @@
                 navigation="true"
                 pagination="true"
                 pagination-clickable="true"
+                autoplay="true"
+                autoplay-delay="5000"
+                autoplay-disable-on-interaction="false"
                 class="deadline-swiper">
                 <swiper-slide *ngFor="let deadline of upcomingDeadlines()">
                   <div class="deadline-card" [routerLink]="['/projects', deadline.projectId]">

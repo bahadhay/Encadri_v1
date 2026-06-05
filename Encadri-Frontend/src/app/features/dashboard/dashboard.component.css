@@ -1315,11 +1315,11 @@ h3 {
 /* Carousel Navigation - Small Squares on Container */
 .deadline-swiper::part(button-prev),
 .deadline-swiper::part(button-next) {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   background: white;
   border: 1px solid var(--slate-300);
-  border-radius: 6px;
+  border-radius: 4px;
   color: var(--slate-600);
   transition: all 0.2s ease;
   position: absolute;
@@ -1330,17 +1330,17 @@ h3 {
   padding: 0;
   opacity: 1;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .deadline-swiper::part(button-prev) {
   left: 50%;
-  transform: translateX(-36px);
+  transform: translateX(-32px);
 }
 
 .deadline-swiper::part(button-next) {
   right: 50%;
-  transform: translateX(36px);
+  transform: translateX(32px);
 }
 
 .deadline-swiper::part(button-prev):hover,
@@ -1353,11 +1353,11 @@ h3 {
 
 .deadline-swiper::part(button-prev):active,
 .deadline-swiper::part(button-next):active {
-  transform: translateX(-36px) scale(0.95);
+  transform: translateX(-32px) scale(0.95);
 }
 
 .deadline-swiper::part(button-next):active {
-  transform: translateX(36px) scale(0.95);
+  transform: translateX(32px) scale(0.95);
 }
 
 /* Keyboard focus support */
@@ -1386,9 +1386,12 @@ h3 {
 
 /* Carousel Pagination Dots */
 .deadline-swiper::part(pagination) {
-  bottom: 40px;
+  bottom: 36px;
   display: flex;
   gap: 8px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .deadline-swiper::part(bullet) {
