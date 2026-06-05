@@ -1312,34 +1312,35 @@ h3 {
   flex: 1;
 }
 
-/* Carousel Navigation - Small Squares Below Card */
+/* Carousel Navigation - Small Squares on Container */
 .deadline-swiper::part(button-prev),
 .deadline-swiper::part(button-next) {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   background: white;
   border: 1px solid var(--slate-300);
   border-radius: 6px;
   color: var(--slate-600);
   transition: all 0.2s ease;
   position: absolute;
-  bottom: 32px;
+  bottom: 8px;
   top: auto;
   z-index: 10;
   cursor: pointer;
   padding: 0;
   opacity: 1;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
 }
 
 .deadline-swiper::part(button-prev) {
   left: 50%;
-  transform: translateX(-42px);
+  transform: translateX(-36px);
 }
 
 .deadline-swiper::part(button-next) {
   right: 50%;
-  transform: translateX(42px);
+  transform: translateX(36px);
 }
 
 .deadline-swiper::part(button-prev):hover,
@@ -1352,11 +1353,11 @@ h3 {
 
 .deadline-swiper::part(button-prev):active,
 .deadline-swiper::part(button-next):active {
-  transform: translateX(-42px) scale(0.95);
+  transform: translateX(-36px) scale(0.95);
 }
 
 .deadline-swiper::part(button-next):active {
-  transform: translateX(42px) scale(0.95);
+  transform: translateX(36px) scale(0.95);
 }
 
 /* Keyboard focus support */
@@ -1385,7 +1386,7 @@ h3 {
 
 /* Carousel Pagination Dots */
 .deadline-swiper::part(pagination) {
-  bottom: 8px;
+  bottom: 40px;
   display: flex;
   gap: 8px;
 }
