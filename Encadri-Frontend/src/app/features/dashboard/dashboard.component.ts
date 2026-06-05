@@ -97,8 +97,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   // All upcoming milestones (unfiltered)
   private allUpcomingMilestones = computed(() => {
     const now = new Date();
+    now.setHours(0, 0, 0, 0); // Start of today
+
     return this.milestones()
-      .filter(m => m.status !== 'completed' && new Date(m.dueDate) > now)
+      .filter(m => {
+        const mileDate = new Date(m.dueDate);
+        mileDate.setHours(0, 0, 0, 0); // Reset to start of milestone's day
+        return m.status !== 'completed' && mileDate >= now; // >= to include today
+      })
       .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
   });
 
@@ -372,7 +378,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const currentUser = this.user;
     const userEmail = currentUser?.email;
     this.milestoneService.getMilestones(undefined, userEmail).subscribe({
-      next: (data) => this.milestones.set(data),
+      next: (data) => {
+        console.log('📅 Loaded milestones:', data.length, data);
+        this.milestones.set(data);
+        console.log('📊 Upcoming milestones after filter:', this.allUpcomingMilestones());
+      },
       error: (err) => console.error('Failed to load milestones', err)
     });
   }
