@@ -44,6 +44,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   @ViewChild('studentSwiper') studentSwiper?: ElementRef<any>;
   @ViewChild('supervisorSwiper') supervisorSwiper?: ElementRef<any>;
 
+  // Track current slide index for pagination dots
+  currentSlideIndex = signal<number>(0);
+
   private authService = inject(AuthService);
   private projectService = inject(ProjectService);
   private submissionService = inject(SubmissionService);
@@ -620,6 +623,21 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const swiper = this.isSupervisor ? this.supervisorSwiper : this.studentSwiper;
     if (swiper?.nativeElement?.swiper) {
       swiper.nativeElement.swiper.slidePrev();
+    }
+  }
+
+  // Navigate to specific slide when dot is clicked
+  goToSlide(index: number) {
+    const swiper = this.isSupervisor ? this.supervisorSwiper : this.studentSwiper;
+    if (swiper?.nativeElement?.swiper) {
+      swiper.nativeElement.swiper.slideTo(index);
+    }
+  }
+
+  // Update current slide index when slide changes
+  onSlideChange(event: any) {
+    if (event?.detail?.[0]?.activeIndex !== undefined) {
+      this.currentSlideIndex.set(event.detail[0].activeIndex);
     }
   }
 }
