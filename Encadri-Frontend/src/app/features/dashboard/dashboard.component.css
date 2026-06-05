@@ -1315,13 +1315,23 @@ h3 {
 /* Carousel Navigation Buttons */
 .deadline-swiper::part(button-prev),
 .deadline-swiper::part(button-next) {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   background: white;
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: var(--slate-700);
   transition: all 0.2s ease;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.deadline-swiper::part(button-prev) {
+  left: 8px;
+}
+
+.deadline-swiper::part(button-next) {
+  right: 8px;
 }
 
 .deadline-swiper::part(button-prev):hover,
@@ -1329,12 +1339,14 @@ h3 {
   background: var(--primary);
   color: white;
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  transform: translateY(-50%) scale(1.1);
 }
 
 .deadline-swiper::part(button-prev-disabled),
 .deadline-swiper::part(button-next-disabled) {
-  opacity: 0.3;
+  opacity: 0.2;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* Carousel Pagination Dots */
