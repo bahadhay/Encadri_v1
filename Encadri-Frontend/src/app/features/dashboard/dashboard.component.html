@@ -187,11 +187,10 @@
             <div *ngIf="upcomingDeadlines().length > 0" class="deadline-carousel-container">
               <swiper-container
                 slides-per-view="1"
-                space-between="16"
+                space-between="0"
                 navigation="true"
                 pagination="true"
                 pagination-clickable="true"
-                breakpoints='{"768": {"slidesPerView": 2, "spaceBetween": 16}}'
                 class="deadline-swiper">
                 <swiper-slide *ngFor="let deadline of upcomingDeadlines()">
                   <div class="deadline-card" [routerLink]="['/projects', deadline.projectId]">
@@ -463,11 +462,10 @@
             <div *ngIf="upcomingDeadlines().length > 0" class="deadline-carousel-container">
               <swiper-container
                 slides-per-view="1"
-                space-between="16"
+                space-between="0"
                 navigation="true"
                 pagination="true"
                 pagination-clickable="true"
-                breakpoints='{"768": {"slidesPerView": 2, "spaceBetween": 16}}'
                 class="deadline-swiper">
                 <swiper-slide *ngFor="let deadline of upcomingDeadlines()">
                   <div class="deadline-card" [routerLink]="['/projects', deadline.projectId]">
