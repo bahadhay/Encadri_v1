@@ -1395,20 +1395,22 @@ h3 {
 }
 
 .deadline-swiper::part(bullet) {
-  width: 10px;
-  height: 10px;
-  background: var(--slate-400);
-  opacity: 1;
+  width: 8px;
+  height: 8px;
+  background: var(--slate-300);
+  opacity: 0.5;
   transition: all 0.3s ease;
   border-radius: 50%;
   margin: 0 4px;
 }
 
 .deadline-swiper::part(bullet-active) {
-  width: 28px;
-  border-radius: 5px;
+  width: 24px;
+  height: 8px;
+  border-radius: 4px;
   background: var(--primary);
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+  opacity: 1;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
 }
 
 .deadline-card {
