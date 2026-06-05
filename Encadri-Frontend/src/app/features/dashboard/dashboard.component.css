@@ -1299,7 +1299,7 @@ h3 {
 
 .deadline-swiper {
   width: 100%;
-  padding-bottom: 60px;
+  padding-bottom: 0;
 }
 
 .deadline-swiper swiper-slide {
@@ -1312,41 +1312,57 @@ h3 {
   flex: 1;
 }
 
-/* Carousel Navigation Buttons - Bottom Position */
+/* Carousel Navigation - Side Position with Subtle Styling */
 .deadline-swiper::part(button-prev),
 .deadline-swiper::part(button-next) {
-  width: 36px;
-  height: 36px;
-  background: white;
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  color: var(--slate-700);
-  transition: all 0.2s ease;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  color: var(--slate-400);
+  opacity: 0;
+  transition: all 0.3s ease;
   position: absolute;
-  bottom: 8px;
-  top: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  cursor: pointer;
+  padding: 0;
+  border-radius: var(--radius-md);
 }
 
 .deadline-swiper::part(button-prev) {
-  left: 50%;
-  transform: translateX(-50px);
+  left: -50px;
 }
 
 .deadline-swiper::part(button-next) {
-  right: 50%;
-  transform: translateX(50px);
+  right: -50px;
+}
+
+/* Show on hover */
+.deadline-carousel-container:hover .deadline-swiper::part(button-prev),
+.deadline-carousel-container:hover .deadline-swiper::part(button-next) {
+  opacity: 1;
+  color: var(--primary);
 }
 
 .deadline-swiper::part(button-prev):hover,
 .deadline-swiper::part(button-next):hover {
-  background: var(--primary);
-  color: white;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-  transform: translateX(-50px) scale(1.1);
+  background: var(--slate-50);
+  color: var(--primary-600);
 }
 
-.deadline-swiper::part(button-next):hover {
-  transform: translateX(50px) scale(1.1);
+.deadline-swiper::part(button-prev):active,
+.deadline-swiper::part(button-next):active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* Keyboard focus support */
+.deadline-swiper::part(button-prev):focus-visible,
+.deadline-swiper::part(button-next):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  opacity: 1;
 }
 
 .deadline-swiper::part(button-prev-disabled),
@@ -1354,6 +1370,42 @@ h3 {
   opacity: 0.2;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+/* Mobile/Tablet: Always visible with reduced opacity */
+@media (max-width: 768px) {
+  .deadline-swiper::part(button-prev),
+  .deadline-swiper::part(button-next) {
+    opacity: 0.6;
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .deadline-swiper::part(button-prev) {
+    left: var(--spacing-2);
+    transform: translateY(-50%);
+  }
+
+  .deadline-swiper::part(button-next) {
+    right: var(--spacing-2);
+    transform: translateY(-50%);
+  }
+
+  .deadline-carousel-container:hover .deadline-swiper::part(button-prev),
+  .deadline-carousel-container:hover .deadline-swiper::part(button-next) {
+    opacity: 1;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .deadline-swiper::part(button-prev),
+  .deadline-swiper::part(button-next) {
+    transition: none;
+  }
 }
 
 /* Carousel Pagination Dots */
