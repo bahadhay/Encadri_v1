@@ -50,7 +50,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   meetings = signal<Meeting[]>([]);
   milestones = signal<Milestone[]>([]);
   stats = signal<DashboardStats | null>(null);
-  selectedDeadlineTab = signal<'today' | 'week' | 'month'>('week');
+  selectedDeadlineTab = signal<'today' | 'week' | 'month'>('month');
 
   private gradeChart?: Chart;
 
@@ -278,14 +278,26 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   private isThisWeek(date: Date): boolean {
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
     const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-    return date >= today && date <= weekFromNow;
+    weekFromNow.setHours(23, 59, 59, 999); // End of the 7th day
+
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+
+    return checkDate >= today && checkDate <= weekFromNow;
   }
 
   private isThisMonth(date: Date): boolean {
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
     const monthFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
-    return date >= today && date <= monthFromNow;
+    monthFromNow.setHours(23, 59, 59, 999); // End of the 30th day
+
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+
+    return checkDate >= today && checkDate <= monthFromNow;
   }
 
   private getDaysUntil(date: Date): number {
