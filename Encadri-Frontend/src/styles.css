@@ -258,8 +258,8 @@ button:not(.icon-only),
 a.btn,
 input[type="button"],
 input[type="submit"] {
-  min-height: var(--touch-target-min);
-  min-width: var(--touch-target-min);
+  /* min-height: var(--touch-target-min); */
+  /* min-width: var(--touch-target-min); */
 }
 
 /* Focus Styles */
