@@ -616,6 +616,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const swiper = this.isSupervisor ? this.supervisorSwiper : this.studentSwiper;
     if (swiper?.nativeElement?.swiper) {
       swiper.nativeElement.swiper.slideNext();
+      // Update index after navigation
+      setTimeout(() => {
+        if (swiper?.nativeElement?.swiper?.activeIndex !== undefined) {
+          this.currentSlideIndex.set(swiper.nativeElement.swiper.activeIndex);
+        }
+      }, 50);
     }
   }
 
@@ -623,6 +629,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const swiper = this.isSupervisor ? this.supervisorSwiper : this.studentSwiper;
     if (swiper?.nativeElement?.swiper) {
       swiper.nativeElement.swiper.slidePrev();
+      // Update index after navigation
+      setTimeout(() => {
+        if (swiper?.nativeElement?.swiper?.activeIndex !== undefined) {
+          this.currentSlideIndex.set(swiper.nativeElement.swiper.activeIndex);
+        }
+      }, 50);
     }
   }
 
@@ -631,13 +643,21 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const swiper = this.isSupervisor ? this.supervisorSwiper : this.studentSwiper;
     if (swiper?.nativeElement?.swiper) {
       swiper.nativeElement.swiper.slideTo(index);
+      this.currentSlideIndex.set(index);
     }
   }
 
   // Update current slide index when slide changes
   onSlideChange(event: any) {
-    if (event?.detail?.[0]?.activeIndex !== undefined) {
+    // Try different event structures
+    const swiper = this.isSupervisor ? this.supervisorSwiper : this.studentSwiper;
+
+    if (swiper?.nativeElement?.swiper?.activeIndex !== undefined) {
+      this.currentSlideIndex.set(swiper.nativeElement.swiper.activeIndex);
+    } else if (event?.detail?.[0]?.activeIndex !== undefined) {
       this.currentSlideIndex.set(event.detail[0].activeIndex);
+    } else if (event?.target?.swiper?.activeIndex !== undefined) {
+      this.currentSlideIndex.set(event.target.swiper.activeIndex);
     }
   }
 }

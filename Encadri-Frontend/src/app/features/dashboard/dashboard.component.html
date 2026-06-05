@@ -194,7 +194,7 @@
                 autoplay="true"
                 autoplay-delay="10000"
                 autoplay-disable-on-interaction="false"
-                (slidechange)="onSlideChange($event)"
+                (swiperslidechange)="onSlideChange($event)"
                 class="deadline-swiper">
                 <swiper-slide *ngFor="let deadline of upcomingDeadlines()">
                   <div class="deadline-card" [routerLink]="['/projects', deadline.projectId]">
@@ -495,7 +495,7 @@
                 autoplay="true"
                 autoplay-delay="10000"
                 autoplay-disable-on-interaction="false"
-                (slidechange)="onSlideChange($event)"
+                (swiperslidechange)="onSlideChange($event)"
                 class="deadline-swiper">
                 <swiper-slide *ngFor="let deadline of upcomingDeadlines()">
                   <div class="deadline-card" [routerLink]="['/projects', deadline.projectId]">
