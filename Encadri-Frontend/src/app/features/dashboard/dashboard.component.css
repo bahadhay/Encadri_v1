@@ -1458,3 +1458,139 @@ h3 {
     font-size: 0.6875rem;
   }
 }
+
+/* ============================================ */
+/* DEADLINE TABS & PRIORITY BADGES             */
+/* ============================================ */
+
+/* Tab Navigation */
+.deadline-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: var(--slate-50);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-4);
+  border: 1px solid var(--slate-100);
+}
+
+.deadline-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--slate-600);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  white-space: nowrap;
+}
+
+.deadline-tab:hover {
+  background: var(--slate-100);
+  color: var(--slate-700);
+}
+
+.deadline-tab.active {
+  background: white;
+  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.tab-label {
+  display: inline-block;
+}
+
+.tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 0.4rem;
+  background: var(--primary-100);
+  color: var(--primary-700);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.deadline-tab.active .tab-count {
+  background: var(--primary-600);
+  color: white;
+}
+
+/* Priority Badges */
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Urgent: Red (< 2 days) */
+.priority-urgent {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  box-shadow: 0 0 0 1px #fca5a5 inset;
+}
+
+/* Soon: Orange (2-7 days) */
+.priority-soon {
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+  color: #92400e;
+  box-shadow: 0 0 0 1px #fb923c inset;
+}
+
+/* Future: Green (> 7 days) */
+.priority-future {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+  box-shadow: 0 0 0 1px #6ee7b7 inset;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 639px) {
+  .deadline-tabs {
+    flex-direction: column;
+    gap: 0.375rem;
+    padding: 0.375rem;
+  }
+
+  .deadline-tab {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+
+  .tab-label {
+    flex: 1;
+    text-align: left;
+  }
+
+  .priority-badge {
+    font-size: 0.6875rem;
+    padding: 0.3rem 0.625rem;
+  }
+}
+
+/* Tablet Adjustments */
+@media (min-width: 640px) and (max-width: 768px) {
+  .deadline-tab {
+    font-size: 0.8125rem;
+    padding: 0.625rem 0.75rem;
+  }
+}

@@ -150,23 +150,53 @@
           </div>
 
           <app-ui-card class="content-card">
+            <!-- Tab Navigation -->
+            <div class="deadline-tabs">
+              <button
+                class="deadline-tab"
+                [class.active]="selectedDeadlineTab() === 'today'"
+                (click)="selectDeadlineTab('today')">
+                <span class="tab-label">Today</span>
+                <span class="tab-count" *ngIf="todayDeadlinesCount() > 0">{{ todayDeadlinesCount() }}</span>
+              </button>
+              <button
+                class="deadline-tab"
+                [class.active]="selectedDeadlineTab() === 'week'"
+                (click)="selectDeadlineTab('week')">
+                <span class="tab-label">This Week</span>
+                <span class="tab-count" *ngIf="weekDeadlinesCount() > 0">{{ weekDeadlinesCount() }}</span>
+              </button>
+              <button
+                class="deadline-tab"
+                [class.active]="selectedDeadlineTab() === 'month'"
+                (click)="selectDeadlineTab('month')">
+                <span class="tab-label">This Month</span>
+                <span class="tab-count" *ngIf="monthDeadlinesCount() > 0">{{ monthDeadlinesCount() }}</span>
+              </button>
+            </div>
+
+            <!-- Empty State -->
             <div *ngIf="upcomingMilestones().length === 0" class="empty-state-modern compact">
               <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
               </svg>
-              <p class="empty-text-sm">No upcoming deadlines</p>
+              <p class="empty-text-sm">No deadlines for {{ selectedDeadlineTab() === 'today' ? 'today' : (selectedDeadlineTab() === 'week' ? 'this week' : 'this month') }}</p>
             </div>
 
+            <!-- Deadline Cards -->
             <div *ngIf="upcomingMilestones().length > 0" class="deadline-list-enhanced">
-              <div *ngFor="let milestone of upcomingMilestones().slice(0, 3)" class="deadline-card" [routerLink]="['/projects', milestone.projectId]">
+              <div *ngFor="let milestone of upcomingMilestones()"
+                   class="deadline-card"
+                   [routerLink]="['/projects', milestone.projectId]">
                 <div class="deadline-header">
                   <div class="deadline-icon-wrapper">
                     <svg class="deadline-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                     </svg>
                   </div>
-                  <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(milestone.status)">
-                    {{ getStatusLabel(milestone.status) }}
+                  <!-- Priority Badge -->
+                  <span class="priority-badge" [ngClass]="getPriorityBadgeClass(milestone.dueDate)">
+                    {{ getPriorityLabel(milestone.dueDate) }}
                   </span>
                 </div>
                 <div class="deadline-body">
@@ -387,23 +417,53 @@
           </div>
 
           <app-ui-card class="content-card">
+            <!-- Tab Navigation -->
+            <div class="deadline-tabs">
+              <button
+                class="deadline-tab"
+                [class.active]="selectedDeadlineTab() === 'today'"
+                (click)="selectDeadlineTab('today')">
+                <span class="tab-label">Today</span>
+                <span class="tab-count" *ngIf="todayDeadlinesCount() > 0">{{ todayDeadlinesCount() }}</span>
+              </button>
+              <button
+                class="deadline-tab"
+                [class.active]="selectedDeadlineTab() === 'week'"
+                (click)="selectDeadlineTab('week')">
+                <span class="tab-label">This Week</span>
+                <span class="tab-count" *ngIf="weekDeadlinesCount() > 0">{{ weekDeadlinesCount() }}</span>
+              </button>
+              <button
+                class="deadline-tab"
+                [class.active]="selectedDeadlineTab() === 'month'"
+                (click)="selectDeadlineTab('month')">
+                <span class="tab-label">This Month</span>
+                <span class="tab-count" *ngIf="monthDeadlinesCount() > 0">{{ monthDeadlinesCount() }}</span>
+              </button>
+            </div>
+
+            <!-- Empty State -->
             <div *ngIf="upcomingMilestones().length === 0" class="empty-state-modern compact">
               <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
               </svg>
-              <p class="empty-text-sm">No upcoming deadlines</p>
+              <p class="empty-text-sm">No deadlines for {{ selectedDeadlineTab() === 'today' ? 'today' : (selectedDeadlineTab() === 'week' ? 'this week' : 'this month') }}</p>
             </div>
 
+            <!-- Deadline Cards -->
             <div *ngIf="upcomingMilestones().length > 0" class="deadline-list-enhanced">
-              <div *ngFor="let milestone of upcomingMilestones().slice(0, 3)" class="deadline-card" [routerLink]="['/projects', milestone.projectId]">
+              <div *ngFor="let milestone of upcomingMilestones()"
+                   class="deadline-card"
+                   [routerLink]="['/projects', milestone.projectId]">
                 <div class="deadline-header">
                   <div class="deadline-icon-wrapper">
                     <svg class="deadline-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                     </svg>
                   </div>
-                  <span class="badge-modern badge-small" [ngClass]="getStatusBadgeClass(milestone.status)">
-                    {{ getStatusLabel(milestone.status) }}
+                  <!-- Priority Badge -->
+                  <span class="priority-badge" [ngClass]="getPriorityBadgeClass(milestone.dueDate)">
+                    {{ getPriorityLabel(milestone.dueDate) }}
                   </span>
                 </div>
                 <div class="deadline-body">

@@ -50,6 +50,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   meetings = signal<Meeting[]>([]);
   milestones = signal<Milestone[]>([]);
   stats = signal<DashboardStats | null>(null);
+  selectedDeadlineTab = signal<'today' | 'week' | 'month'>('week');
 
   private gradeChart?: Chart;
 
@@ -93,13 +94,50 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     ).length;
   });
 
-  upcomingMilestones = computed(() => {
+  // All upcoming milestones (unfiltered)
+  private allUpcomingMilestones = computed(() => {
     const now = new Date();
     return this.milestones()
       .filter(m => m.status !== 'completed' && new Date(m.dueDate) > now)
-      .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-      .slice(0, 5);
+      .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
   });
+
+  // Filtered milestones based on selected tab
+  upcomingMilestones = computed(() => {
+    const tab = this.selectedDeadlineTab();
+    const allMilestones = this.allUpcomingMilestones();
+
+    let filtered: Milestone[];
+
+    switch(tab) {
+      case 'today':
+        filtered = allMilestones.filter(m => this.isToday(new Date(m.dueDate)));
+        break;
+      case 'week':
+        filtered = allMilestones.filter(m => this.isThisWeek(new Date(m.dueDate)));
+        break;
+      case 'month':
+        filtered = allMilestones.filter(m => this.isThisMonth(new Date(m.dueDate)));
+        break;
+      default:
+        filtered = allMilestones;
+    }
+
+    return filtered.slice(0, 5);
+  });
+
+  // Counts for tab badges
+  todayDeadlinesCount = computed(() =>
+    this.allUpcomingMilestones().filter(m => this.isToday(new Date(m.dueDate))).length
+  );
+
+  weekDeadlinesCount = computed(() =>
+    this.allUpcomingMilestones().filter(m => this.isThisWeek(new Date(m.dueDate))).length
+  );
+
+  monthDeadlinesCount = computed(() =>
+    this.allUpcomingMilestones().filter(m => this.isThisMonth(new Date(m.dueDate))).length
+  );
 
   recentMeetings = computed(() => {
     const now = new Date();
@@ -230,6 +268,54 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   get isSupervisor() {
     return this.user?.userRole === 'supervisor';
+  }
+
+  // Date helper methods for deadline filtering
+  private isToday(date: Date): boolean {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  }
+
+  private isThisWeek(date: Date): boolean {
+    const today = new Date();
+    const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+    return date >= today && date <= weekFromNow;
+  }
+
+  private isThisMonth(date: Date): boolean {
+    const today = new Date();
+    const monthFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+    return date >= today && date <= monthFromNow;
+  }
+
+  private getDaysUntil(date: Date): number {
+    const today = new Date();
+    const diffMs = date.getTime() - today.getTime();
+    return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  }
+
+  // Priority badge methods
+  getPriorityBadgeClass(dueDate: string | Date): string {
+    const daysUntil = this.getDaysUntil(new Date(dueDate));
+
+    if (daysUntil < 2) return 'priority-urgent';
+    if (daysUntil <= 7) return 'priority-soon';
+    return 'priority-future';
+  }
+
+  getPriorityLabel(dueDate: string | Date): string {
+    const daysUntil = this.getDaysUntil(new Date(dueDate));
+
+    if (daysUntil === 0) return 'Due Today';
+    if (daysUntil === 1) return 'Due Tomorrow';
+    if (daysUntil < 2) return 'Urgent';
+    if (daysUntil <= 7) return 'Soon';
+    return 'Future';
+  }
+
+  // Tab selection method
+  selectDeadlineTab(tab: 'today' | 'week' | 'month') {
+    this.selectedDeadlineTab.set(tab);
   }
 
   ngOnInit() {
