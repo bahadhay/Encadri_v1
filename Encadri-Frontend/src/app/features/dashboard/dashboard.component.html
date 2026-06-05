@@ -221,20 +221,20 @@
                 </swiper-slide>
               </swiper-container>
 
-              <!-- Custom Navigation Arrows -->
-              <button class="custom-nav-btn custom-nav-prev" aria-label="Previous">
+              <!-- Custom Navigation Arrows - Only show if more than 1 deadline -->
+              <button *ngIf="upcomingDeadlines().length > 1" class="custom-nav-btn custom-nav-prev" aria-label="Previous">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M15 18l-6-6 6-6"/>
                 </svg>
               </button>
-              <button class="custom-nav-btn custom-nav-next" aria-label="Next">
+              <button *ngIf="upcomingDeadlines().length > 1" class="custom-nav-btn custom-nav-next" aria-label="Next">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M9 18l6-6-6-6"/>
                 </svg>
               </button>
 
-              <!-- Custom Pagination Dots -->
-              <div class="custom-pagination">
+              <!-- Custom Pagination Dots - Only show if more than 1 deadline -->
+              <div *ngIf="upcomingDeadlines().length > 1" class="custom-pagination">
                 <span
                   *ngFor="let deadline of upcomingDeadlines(); let i = index"
                   class="custom-dot"
@@ -519,20 +519,20 @@
                 </swiper-slide>
               </swiper-container>
 
-              <!-- Custom Navigation Arrows -->
-              <button class="custom-nav-btn custom-nav-prev" aria-label="Previous">
+              <!-- Custom Navigation Arrows - Only show if more than 1 deadline -->
+              <button *ngIf="upcomingDeadlines().length > 1" class="custom-nav-btn custom-nav-prev" aria-label="Previous">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M15 18l-6-6 6-6"/>
                 </svg>
               </button>
-              <button class="custom-nav-btn custom-nav-next" aria-label="Next">
+              <button *ngIf="upcomingDeadlines().length > 1" class="custom-nav-btn custom-nav-next" aria-label="Next">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M9 18l6-6-6-6"/>
                 </svg>
               </button>
 
-              <!-- Custom Pagination Dots -->
-              <div class="custom-pagination">
+              <!-- Custom Pagination Dots - Only show if more than 1 deadline -->
+              <div *ngIf="upcomingDeadlines().length > 1" class="custom-pagination">
                 <span
                   *ngFor="let deadline of upcomingDeadlines(); let i = index"
                   class="custom-dot"
