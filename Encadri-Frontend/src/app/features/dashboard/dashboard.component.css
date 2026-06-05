@@ -1339,13 +1339,11 @@ h3 {
 }
 
 .custom-nav-prev {
-  left: 50%;
-  transform: translateX(-20px);
+  left: calc(50% - 50px);
 }
 
 .custom-nav-next {
-  right: 50%;
-  transform: translateX(20px);
+  right: calc(50% - 50px);
 }
 
 .custom-nav-btn:hover {
@@ -1357,19 +1355,15 @@ h3 {
 }
 
 .custom-nav-prev:hover {
-  transform: translateX(-20px) translateY(-2px);
+  transform: translateY(-2px);
 }
 
 .custom-nav-next:hover {
-  transform: translateX(20px) translateY(-2px);
+  transform: translateY(-2px);
 }
 
 .custom-nav-btn:active {
-  transform: translateX(-20px) translateY(0) scale(0.95);
-}
-
-.custom-nav-next:active {
-  transform: translateX(20px) translateY(0) scale(0.95);
+  transform: translateY(0) scale(0.95);
 }
 
 .custom-nav-btn:focus-visible {
