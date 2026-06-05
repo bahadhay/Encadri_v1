@@ -99,13 +99,30 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const now = new Date();
     now.setHours(0, 0, 0, 0); // Start of today
 
-    return this.milestones()
-      .filter(m => {
-        const mileDate = new Date(m.dueDate);
-        mileDate.setHours(0, 0, 0, 0); // Reset to start of milestone's day
-        return m.status !== 'completed' && mileDate >= now; // >= to include today
-      })
-      .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+    const all = this.milestones();
+    console.log('🔍 All milestones from signal:', all);
+
+    const filtered = all.filter(m => {
+      const mileDate = new Date(m.dueDate);
+      mileDate.setHours(0, 0, 0, 0); // Reset to start of milestone's day
+      const isNotCompleted = m.status !== 'completed';
+      const isFutureOrToday = mileDate >= now;
+
+      console.log(`Milestone "${m.title}":`, {
+        status: m.status,
+        isNotCompleted,
+        dueDate: m.dueDate,
+        dueDateNormalized: mileDate,
+        now,
+        isFutureOrToday,
+        willShow: isNotCompleted && isFutureOrToday
+      });
+
+      return isNotCompleted && isFutureOrToday; // >= to include today
+    });
+
+    console.log('✅ Filtered upcoming milestones:', filtered);
+    return filtered.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
   });
 
   // Filtered milestones based on selected tab
@@ -113,22 +130,38 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const tab = this.selectedDeadlineTab();
     const allMilestones = this.allUpcomingMilestones();
 
+    console.log(`🔖 Selected tab: "${tab}"`);
+    console.log(`📋 All upcoming milestones for tab filtering:`, allMilestones);
+
     let filtered: Milestone[];
 
     switch(tab) {
       case 'today':
-        filtered = allMilestones.filter(m => this.isToday(new Date(m.dueDate)));
+        filtered = allMilestones.filter(m => {
+          const result = this.isToday(new Date(m.dueDate));
+          console.log(`  - "${m.title}" is today? ${result}`);
+          return result;
+        });
         break;
       case 'week':
-        filtered = allMilestones.filter(m => this.isThisWeek(new Date(m.dueDate)));
+        filtered = allMilestones.filter(m => {
+          const result = this.isThisWeek(new Date(m.dueDate));
+          console.log(`  - "${m.title}" is this week? ${result}`);
+          return result;
+        });
         break;
       case 'month':
-        filtered = allMilestones.filter(m => this.isThisMonth(new Date(m.dueDate)));
+        filtered = allMilestones.filter(m => {
+          const result = this.isThisMonth(new Date(m.dueDate));
+          console.log(`  - "${m.title}" is this month? ${result}`);
+          return result;
+        });
         break;
       default:
         filtered = allMilestones;
     }
 
+    console.log(`✨ Final filtered milestones for "${tab}" tab:`, filtered);
     return filtered.slice(0, 5);
   });
 
