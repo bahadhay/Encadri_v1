@@ -189,9 +189,7 @@
                 slides-per-view="1"
                 space-between="0"
                 navigation="true"
-                pagination="true"
-                pagination-clickable="true"
-                pagination-dynamic-bullets="false"
+                pagination="false"
                 autoplay="true"
                 autoplay-delay="10000"
                 autoplay-disable-on-interaction="false"
@@ -222,6 +220,15 @@
                   </div>
                 </swiper-slide>
               </swiper-container>
+
+              <!-- Custom Pagination Dots -->
+              <div class="custom-pagination">
+                <span
+                  *ngFor="let deadline of upcomingDeadlines(); let i = index"
+                  class="custom-dot"
+                  [class.active]="i === 0">
+                </span>
+              </div>
             </div>
           </app-ui-card>
         </section>
@@ -468,9 +475,7 @@
                 slides-per-view="1"
                 space-between="0"
                 navigation="true"
-                pagination="true"
-                pagination-clickable="true"
-                pagination-dynamic-bullets="false"
+                pagination="false"
                 autoplay="true"
                 autoplay-delay="10000"
                 autoplay-disable-on-interaction="false"
@@ -501,6 +506,15 @@
                   </div>
                 </swiper-slide>
               </swiper-container>
+
+              <!-- Custom Pagination Dots -->
+              <div class="custom-pagination">
+                <span
+                  *ngFor="let deadline of upcomingDeadlines(); let i = index"
+                  class="custom-dot"
+                  [class.active]="i === 0">
+                </span>
+              </div>
             </div>
           </app-ui-card>
         </section>

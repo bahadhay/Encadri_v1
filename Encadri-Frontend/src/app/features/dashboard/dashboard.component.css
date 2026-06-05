@@ -1385,21 +1385,31 @@ h3 {
   }
 }
 
-/* Carousel Pagination Dots - Simple Approach */
-.deadline-swiper::part(pagination) {
+/* Custom Pagination Dots - Normal CSS */
+.custom-pagination {
+  position: absolute;
   bottom: 12px;
-  top: auto;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
 }
 
-.deadline-swiper::part(bullet) {
+.custom-dot {
   width: 8px;
   height: 8px;
-  background: rgba(100, 116, 139, 0.3);
   border-radius: 50%;
+  background: rgba(100, 116, 139, 0.3);
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.deadline-swiper::part(bullet-active) {
+.custom-dot:hover {
+  background: rgba(100, 116, 139, 0.5);
+}
+
+.custom-dot.active {
   background: var(--primary);
   transform: scale(1.5);
 }
