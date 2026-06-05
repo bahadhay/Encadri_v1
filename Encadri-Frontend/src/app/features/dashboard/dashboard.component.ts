@@ -54,7 +54,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   milestones = signal<Milestone[]>([]);
   unifiedDeadlines = signal<UnifiedDeadline[]>([]);
   stats = signal<DashboardStats | null>(null);
-  selectedDeadlineTab = signal<'today' | 'week' | 'month' | 'all'>('month');
+  selectedDeadlineTab = signal<'week' | 'month' | 'all'>('week');
 
   private gradeChart?: Chart;
 
@@ -116,13 +116,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     let filtered: UnifiedDeadline[];
 
     switch(tab) {
-      case 'today':
-        filtered = allDeadlines.filter(d => {
-          const result = this.isToday(new Date(d.dueDate));
-          console.log(`  - "${d.title}" (${d.type}) is today? ${result}`);
-          return result;
-        });
-        break;
       case 'week':
         filtered = allDeadlines.filter(d => {
           const result = this.isThisWeek(new Date(d.dueDate));
@@ -156,10 +149,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   });
 
   // Counts for tab badges (updated to use unified deadlines)
-  todayDeadlinesCount = computed(() =>
-    this.allUpcomingDeadlines().filter(d => this.isToday(new Date(d.dueDate))).length
-  );
-
   weekDeadlinesCount = computed(() =>
     this.allUpcomingDeadlines().filter(d => this.isThisWeek(new Date(d.dueDate))).length
   );
@@ -359,7 +348,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   // Tab selection method
-  selectDeadlineTab(tab: 'today' | 'week' | 'month' | 'all') {
+  selectDeadlineTab(tab: 'week' | 'month' | 'all') {
     this.selectedDeadlineTab.set(tab);
   }
 

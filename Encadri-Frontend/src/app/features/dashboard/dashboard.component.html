@@ -154,13 +154,6 @@
             <div class="deadline-tabs">
               <button
                 class="deadline-tab"
-                [class.active]="selectedDeadlineTab() === 'today'"
-                (click)="selectDeadlineTab('today')">
-                <span class="tab-label">Today</span>
-                <span class="tab-count" *ngIf="todayDeadlinesCount() > 0">{{ todayDeadlinesCount() }}</span>
-              </button>
-              <button
-                class="deadline-tab"
                 [class.active]="selectedDeadlineTab() === 'week'"
                 (click)="selectDeadlineTab('week')">
                 <span class="tab-label">This Week</span>
@@ -187,7 +180,7 @@
               <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
               </svg>
-              <p class="empty-text-sm">No {{ selectedDeadlineTab() === 'today' ? 'deadlines for today' : (selectedDeadlineTab() === 'week' ? 'deadlines this week' : (selectedDeadlineTab() === 'month' ? 'deadlines this month' : 'upcoming deadlines')) }}</p>
+              <p class="empty-text-sm">No {{ selectedDeadlineTab() === 'week' ? 'deadlines this week' : (selectedDeadlineTab() === 'month' ? 'deadlines this month' : 'upcoming deadlines') }}</p>
             </div>
 
             <!-- Deadline Cards -->
@@ -428,13 +421,6 @@
             <div class="deadline-tabs">
               <button
                 class="deadline-tab"
-                [class.active]="selectedDeadlineTab() === 'today'"
-                (click)="selectDeadlineTab('today')">
-                <span class="tab-label">Today</span>
-                <span class="tab-count" *ngIf="todayDeadlinesCount() > 0">{{ todayDeadlinesCount() }}</span>
-              </button>
-              <button
-                class="deadline-tab"
                 [class.active]="selectedDeadlineTab() === 'week'"
                 (click)="selectDeadlineTab('week')">
                 <span class="tab-label">This Week</span>
@@ -461,7 +447,7 @@
               <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
               </svg>
-              <p class="empty-text-sm">No {{ selectedDeadlineTab() === 'today' ? 'deadlines for today' : (selectedDeadlineTab() === 'week' ? 'deadlines this week' : (selectedDeadlineTab() === 'month' ? 'deadlines this month' : 'upcoming deadlines')) }}</p>
+              <p class="empty-text-sm">No {{ selectedDeadlineTab() === 'week' ? 'deadlines this week' : (selectedDeadlineTab() === 'month' ? 'deadlines this month' : 'upcoming deadlines') }}</p>
             </div>
 
             <!-- Deadline Cards -->
