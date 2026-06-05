@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ViewChild, ElementRef, AfterViewInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -16,8 +16,10 @@ import { UnifiedDeadline } from '../../core/models/unified-deadline.model';
 import { UiCardComponent } from '../../shared/components/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../shared/components/ui-button/ui-button.component';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { register } from 'swiper/element/bundle';
 
 Chart.register(...registerables);
+register();
 
 interface UnifiedActivity {
   type: 'meeting' | 'submission' | 'milestone';
@@ -33,6 +35,7 @@ interface UnifiedActivity {
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, RouterModule, UiCardComponent, UiButtonComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -140,7 +143,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     }
 
     console.log(`✨ Final filtered deadlines for "${tab}" tab:`, filtered);
-    return filtered.slice(0, 5);
+    return filtered.slice(0, 10); // Increased to 10 for carousel
   });
 
   // Keep for backward compatibility in template (alias for upcomingDeadlines)

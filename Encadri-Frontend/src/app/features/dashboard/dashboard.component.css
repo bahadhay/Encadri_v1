@@ -1291,6 +1291,71 @@ h3 {
   gap: var(--spacing-3);
 }
 
+/* Deadline Carousel Container */
+.deadline-carousel-container {
+  position: relative;
+  padding: var(--spacing-2) 0 var(--spacing-6) 0;
+}
+
+.deadline-swiper {
+  width: 100%;
+  padding-bottom: 40px;
+}
+
+.deadline-swiper swiper-slide {
+  height: auto;
+  display: flex;
+}
+
+.deadline-swiper swiper-slide .deadline-card {
+  width: 100%;
+  flex: 1;
+}
+
+/* Carousel Navigation Buttons */
+.deadline-swiper::part(button-prev),
+.deadline-swiper::part(button-next) {
+  width: 36px;
+  height: 36px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: var(--primary);
+  transition: all 0.2s ease;
+}
+
+.deadline-swiper::part(button-prev):hover,
+.deadline-swiper::part(button-next):hover {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.deadline-swiper::part(button-prev-disabled),
+.deadline-swiper::part(button-next-disabled) {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Carousel Pagination Dots */
+.deadline-swiper::part(pagination) {
+  bottom: 0;
+}
+
+.deadline-swiper::part(bullet) {
+  width: 8px;
+  height: 8px;
+  background: var(--slate-300);
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.deadline-swiper::part(bullet-active) {
+  width: 24px;
+  border-radius: 4px;
+  background: var(--primary);
+}
+
 .deadline-card {
   padding: var(--spacing-4);
   background: var(--slate-50);
@@ -1303,7 +1368,7 @@ h3 {
 .deadline-card:hover {
   background: white;
   border-color: var(--primary-200);
-  transform: translateX(4px);
+  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 

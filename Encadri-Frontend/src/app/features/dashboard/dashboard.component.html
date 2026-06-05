@@ -183,33 +183,42 @@
               <p class="empty-text-sm">No {{ selectedDeadlineTab() === 'week' ? 'deadlines this week' : (selectedDeadlineTab() === 'month' ? 'deadlines this month' : 'upcoming deadlines') }}</p>
             </div>
 
-            <!-- Deadline Cards -->
-            <div *ngIf="upcomingDeadlines().length > 0" class="deadline-list-enhanced">
-              <div *ngFor="let deadline of upcomingDeadlines()"
-                   class="deadline-card"
-                   [routerLink]="['/projects', deadline.projectId]">
-                <div class="deadline-header">
-                  <div class="deadline-icon-wrapper">
-                    <span class="deadline-type-icon">{{ deadline.icon }}</span>
+            <!-- Deadline Carousel -->
+            <div *ngIf="upcomingDeadlines().length > 0" class="deadline-carousel-container">
+              <swiper-container
+                slides-per-view="1"
+                space-between="16"
+                navigation="true"
+                pagination="true"
+                pagination-clickable="true"
+                breakpoints='{"768": {"slidesPerView": 2, "spaceBetween": 16}}'
+                class="deadline-swiper">
+                <swiper-slide *ngFor="let deadline of upcomingDeadlines()">
+                  <div class="deadline-card" [routerLink]="['/projects', deadline.projectId]">
+                    <div class="deadline-header">
+                      <div class="deadline-icon-wrapper">
+                        <span class="deadline-type-icon">{{ deadline.icon }}</span>
+                      </div>
+                      <div class="deadline-badges">
+                        <span class="deadline-type-badge">{{ getDeadlineTypeLabel(deadline.type) }}</span>
+                        <span class="priority-badge" [ngClass]="getPriorityBadgeClass(deadline.dueDate)">
+                          {{ getPriorityLabel(deadline.dueDate) }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="deadline-body">
+                      <h4 class="deadline-title-enhanced">{{ deadline.title }}</h4>
+                      <p class="deadline-project">{{ deadline.projectTitle || getProjectTitle(deadline.projectId) }}</p>
+                      <div class="deadline-footer-enhanced">
+                        <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span class="deadline-date-enhanced">{{ deadline.dueDate | date: 'MMM dd, yyyy' }}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div class="deadline-badges">
-                    <span class="deadline-type-badge">{{ getDeadlineTypeLabel(deadline.type) }}</span>
-                    <span class="priority-badge" [ngClass]="getPriorityBadgeClass(deadline.dueDate)">
-                      {{ getPriorityLabel(deadline.dueDate) }}
-                    </span>
-                  </div>
-                </div>
-                <div class="deadline-body">
-                  <h4 class="deadline-title-enhanced">{{ deadline.title }}</h4>
-                  <p class="deadline-project">{{ deadline.projectTitle || getProjectTitle(deadline.projectId) }}</p>
-                  <div class="deadline-footer-enhanced">
-                    <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <span class="deadline-date-enhanced">{{ deadline.dueDate | date: 'MMM dd, yyyy' }}</span>
-                  </div>
-                </div>
-              </div>
+                </swiper-slide>
+              </swiper-container>
             </div>
           </app-ui-card>
         </section>
@@ -450,33 +459,42 @@
               <p class="empty-text-sm">No {{ selectedDeadlineTab() === 'week' ? 'deadlines this week' : (selectedDeadlineTab() === 'month' ? 'deadlines this month' : 'upcoming deadlines') }}</p>
             </div>
 
-            <!-- Deadline Cards -->
-            <div *ngIf="upcomingDeadlines().length > 0" class="deadline-list-enhanced">
-              <div *ngFor="let deadline of upcomingDeadlines()"
-                   class="deadline-card"
-                   [routerLink]="['/projects', deadline.projectId]">
-                <div class="deadline-header">
-                  <div class="deadline-icon-wrapper">
-                    <span class="deadline-type-icon">{{ deadline.icon }}</span>
+            <!-- Deadline Carousel -->
+            <div *ngIf="upcomingDeadlines().length > 0" class="deadline-carousel-container">
+              <swiper-container
+                slides-per-view="1"
+                space-between="16"
+                navigation="true"
+                pagination="true"
+                pagination-clickable="true"
+                breakpoints='{"768": {"slidesPerView": 2, "spaceBetween": 16}}'
+                class="deadline-swiper">
+                <swiper-slide *ngFor="let deadline of upcomingDeadlines()">
+                  <div class="deadline-card" [routerLink]="['/projects', deadline.projectId]">
+                    <div class="deadline-header">
+                      <div class="deadline-icon-wrapper">
+                        <span class="deadline-type-icon">{{ deadline.icon }}</span>
+                      </div>
+                      <div class="deadline-badges">
+                        <span class="deadline-type-badge">{{ getDeadlineTypeLabel(deadline.type) }}</span>
+                        <span class="priority-badge" [ngClass]="getPriorityBadgeClass(deadline.dueDate)">
+                          {{ getPriorityLabel(deadline.dueDate) }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="deadline-body">
+                      <h4 class="deadline-title-enhanced">{{ deadline.title }}</h4>
+                      <p class="deadline-project">{{ deadline.projectTitle || getProjectTitle(deadline.projectId) }}</p>
+                      <div class="deadline-footer-enhanced">
+                        <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span class="deadline-date-enhanced">{{ deadline.dueDate | date: 'MMM dd, yyyy' }}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div class="deadline-badges">
-                    <span class="deadline-type-badge">{{ getDeadlineTypeLabel(deadline.type) }}</span>
-                    <span class="priority-badge" [ngClass]="getPriorityBadgeClass(deadline.dueDate)">
-                      {{ getPriorityLabel(deadline.dueDate) }}
-                    </span>
-                  </div>
-                </div>
-                <div class="deadline-body">
-                  <h4 class="deadline-title-enhanced">{{ deadline.title }}</h4>
-                  <p class="deadline-project">{{ deadline.projectTitle || getProjectTitle(deadline.projectId) }}</p>
-                  <div class="deadline-footer-enhanced">
-                    <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <span class="deadline-date-enhanced">{{ deadline.dueDate | date: 'MMM dd, yyyy' }}</span>
-                  </div>
-                </div>
-              </div>
+                </swiper-slide>
+              </swiper-container>
             </div>
           </app-ui-card>
         </section>
