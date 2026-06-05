@@ -1340,11 +1340,11 @@ h3 {
 }
 
 .custom-nav-prev {
-  left: calc(50% - 50px);
+  left: calc(50% - 35px);
 }
 
 .custom-nav-next {
-  right: calc(50% - 50px);
+  right: calc(50% - 35px);
 }
 
 .custom-nav-btn:hover {
@@ -1380,12 +1380,12 @@ h3 {
 /* Custom Pagination Dots - Normal CSS */
 .custom-pagination {
   position: absolute;
-  bottom: -32px;
+  bottom: -30px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   gap: 6px;
-  z-index: 10;
+  z-index: 5;
 }
 
 .custom-dot {
