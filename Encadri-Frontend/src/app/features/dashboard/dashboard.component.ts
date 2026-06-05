@@ -271,7 +271,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   loadMilestones() {
-    this.milestoneService.getMilestones().subscribe({
+    const currentUser = this.user;
+    const userEmail = currentUser?.email;
+    this.milestoneService.getMilestones(undefined, userEmail).subscribe({
       next: (data) => this.milestones.set(data),
       error: (err) => console.error('Failed to load milestones', err)
     });

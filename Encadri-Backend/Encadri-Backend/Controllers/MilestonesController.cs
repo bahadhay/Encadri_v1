@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Encadri_Backend.Data;
 using Encadri_Backend.Models;
 using Encadri_Backend.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Encadri_Backend.Controllers
 {
@@ -18,16 +19,30 @@ namespace Encadri_Backend.Controllers
         }
 
         /// <summary>
-        /// Get all milestones
+        /// Get all milestones (filtered by user's accessible projects)
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Milestone>>> GetAll([FromQuery] string? projectId = null)
+        public async Task<ActionResult<IEnumerable<Milestone>>> GetAll([FromQuery] string? projectId = null, [FromQuery] string? userEmail = null)
         {
             var milestones = _context.Milestones.AsQueryable();
 
+            // Filter by specific project if provided
             if (!string.IsNullOrEmpty(projectId))
             {
                 milestones = milestones.Where(m => m.ProjectId == projectId);
+            }
+
+            // Filter by user's accessible projects if userEmail is provided
+            if (!string.IsNullOrEmpty(userEmail))
+            {
+                // Join with Projects to filter milestones from projects the user has access to
+                var userProjectIds = _context.Projects
+                    .Where(p => p.OwnerEmail == userEmail ||
+                               p.StudentEmail == userEmail ||
+                               p.SupervisorEmail == userEmail)
+                    .Select(p => p.Id);
+
+                milestones = milestones.Where(m => userProjectIds.Contains(m.ProjectId));
             }
 
             return Ok(await milestones.OrderBy(m => m.Order ?? 0).ToListAsync());

@@ -10,9 +10,11 @@ export class MilestoneService {
   private apiService = inject(ApiService);
   private readonly BASE_PATH = '/milestones';
 
-  getMilestones(projectId?: string): Observable<Milestone[]> {
-    const params = projectId ? { projectId } : undefined;
-    return this.apiService.get<Milestone[]>(this.BASE_PATH, params);
+  getMilestones(projectId?: string, userEmail?: string): Observable<Milestone[]> {
+    const params: any = {};
+    if (projectId) params.projectId = projectId;
+    if (userEmail) params.userEmail = userEmail;
+    return this.apiService.get<Milestone[]>(this.BASE_PATH, Object.keys(params).length > 0 ? params : undefined);
   }
 
   getMilestone(id: string): Observable<Milestone> {
