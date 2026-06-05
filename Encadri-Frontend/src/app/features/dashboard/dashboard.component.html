@@ -183,7 +183,7 @@
             </div>
 
             <!-- Empty State -->
-            <div *ngIf="upcomingMilestones().length === 0" class="empty-state-modern compact">
+            <div *ngIf="upcomingDeadlines().length === 0" class="empty-state-modern compact">
               <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
               </svg>
@@ -191,29 +191,29 @@
             </div>
 
             <!-- Deadline Cards -->
-            <div *ngIf="upcomingMilestones().length > 0" class="deadline-list-enhanced">
-              <div *ngFor="let milestone of upcomingMilestones()"
+            <div *ngIf="upcomingDeadlines().length > 0" class="deadline-list-enhanced">
+              <div *ngFor="let deadline of upcomingDeadlines()"
                    class="deadline-card"
-                   [routerLink]="['/projects', milestone.projectId]">
+                   [routerLink]="['/projects', deadline.projectId]">
                 <div class="deadline-header">
                   <div class="deadline-icon-wrapper">
-                    <svg class="deadline-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
+                    <span class="deadline-type-icon">{{ deadline.icon }}</span>
                   </div>
-                  <!-- Priority Badge -->
-                  <span class="priority-badge" [ngClass]="getPriorityBadgeClass(milestone.dueDate)">
-                    {{ getPriorityLabel(milestone.dueDate) }}
-                  </span>
+                  <div class="deadline-badges">
+                    <span class="deadline-type-badge">{{ getDeadlineTypeLabel(deadline.type) }}</span>
+                    <span class="priority-badge" [ngClass]="getPriorityBadgeClass(deadline.dueDate)">
+                      {{ getPriorityLabel(deadline.dueDate) }}
+                    </span>
+                  </div>
                 </div>
                 <div class="deadline-body">
-                  <h4 class="deadline-title-enhanced">{{ milestone.title }}</h4>
-                  <p class="deadline-project">{{ getProjectTitle(milestone.projectId) }}</p>
+                  <h4 class="deadline-title-enhanced">{{ deadline.title }}</h4>
+                  <p class="deadline-project">{{ deadline.projectTitle || getProjectTitle(deadline.projectId) }}</p>
                   <div class="deadline-footer-enhanced">
                     <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
-                    <span class="deadline-date-enhanced">{{ milestone.dueDate | date: 'MMM dd, yyyy' }}</span>
+                    <span class="deadline-date-enhanced">{{ deadline.dueDate | date: 'MMM dd, yyyy' }}</span>
                   </div>
                 </div>
               </div>
@@ -457,7 +457,7 @@
             </div>
 
             <!-- Empty State -->
-            <div *ngIf="upcomingMilestones().length === 0" class="empty-state-modern compact">
+            <div *ngIf="upcomingDeadlines().length === 0" class="empty-state-modern compact">
               <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
               </svg>
@@ -465,29 +465,29 @@
             </div>
 
             <!-- Deadline Cards -->
-            <div *ngIf="upcomingMilestones().length > 0" class="deadline-list-enhanced">
-              <div *ngFor="let milestone of upcomingMilestones()"
+            <div *ngIf="upcomingDeadlines().length > 0" class="deadline-list-enhanced">
+              <div *ngFor="let deadline of upcomingDeadlines()"
                    class="deadline-card"
-                   [routerLink]="['/projects', milestone.projectId]">
+                   [routerLink]="['/projects', deadline.projectId]">
                 <div class="deadline-header">
                   <div class="deadline-icon-wrapper">
-                    <svg class="deadline-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
+                    <span class="deadline-type-icon">{{ deadline.icon }}</span>
                   </div>
-                  <!-- Priority Badge -->
-                  <span class="priority-badge" [ngClass]="getPriorityBadgeClass(milestone.dueDate)">
-                    {{ getPriorityLabel(milestone.dueDate) }}
-                  </span>
+                  <div class="deadline-badges">
+                    <span class="deadline-type-badge">{{ getDeadlineTypeLabel(deadline.type) }}</span>
+                    <span class="priority-badge" [ngClass]="getPriorityBadgeClass(deadline.dueDate)">
+                      {{ getPriorityLabel(deadline.dueDate) }}
+                    </span>
+                  </div>
                 </div>
                 <div class="deadline-body">
-                  <h4 class="deadline-title-enhanced">{{ milestone.title }}</h4>
-                  <p class="deadline-project">{{ getProjectTitle(milestone.projectId) }}</p>
+                  <h4 class="deadline-title-enhanced">{{ deadline.title }}</h4>
+                  <p class="deadline-project">{{ deadline.projectTitle || getProjectTitle(deadline.projectId) }}</p>
                   <div class="deadline-footer-enhanced">
                     <svg class="meta-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
-                    <span class="deadline-date-enhanced">{{ milestone.dueDate | date: 'MMM dd, yyyy' }}</span>
+                    <span class="deadline-date-enhanced">{{ deadline.dueDate | date: 'MMM dd, yyyy' }}</span>
                   </div>
                 </div>
               </div>

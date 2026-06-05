@@ -1330,6 +1330,30 @@ h3 {
   color: var(--primary);
 }
 
+.deadline-type-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.deadline-badges {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.deadline-type-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--slate-100);
+  color: var(--slate-700);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
 .deadline-body {
   display: flex;
   flex-direction: column;

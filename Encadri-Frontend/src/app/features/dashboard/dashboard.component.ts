@@ -7,10 +7,12 @@ import { SubmissionService } from '../../core/services/submission.service';
 import { MeetingService } from '../../core/services/meeting.service';
 import { MilestoneService } from '../../core/services/milestone.service';
 import { StatisticsService, DashboardStats } from '../../core/services/statistics.service';
+import { DeadlineAggregationService } from '../../core/services/deadline-aggregation.service';
 import { Project } from '../../core/models/project.model';
 import { Submission } from '../../core/models/submission.model';
 import { Meeting } from '../../core/models/meeting.model';
 import { Milestone } from '../../core/models/milestone.model';
+import { UnifiedDeadline } from '../../core/models/unified-deadline.model';
 import { UiCardComponent } from '../../shared/components/ui-card/ui-card.component';
 import { UiButtonComponent } from '../../shared/components/ui-button/ui-button.component';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
@@ -43,12 +45,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private meetingService = inject(MeetingService);
   private milestoneService = inject(MilestoneService);
   private statisticsService = inject(StatisticsService);
+  private deadlineAggregationService = inject(DeadlineAggregationService);
 
   myProjects = signal<Project[]>([]);
   collaborations = signal<Project[]>([]);
   submissions = signal<Submission[]>([]);
   meetings = signal<Meeting[]>([]);
   milestones = signal<Milestone[]>([]);
+  unifiedDeadlines = signal<UnifiedDeadline[]>([]);
   stats = signal<DashboardStats | null>(null);
   selectedDeadlineTab = signal<'today' | 'week' | 'month' | 'all'>('month');
 
@@ -94,97 +98,78 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     ).length;
   });
 
-  // All upcoming milestones (unfiltered)
-  private allUpcomingMilestones = computed(() => {
-    const now = new Date();
-    now.setHours(0, 0, 0, 0); // Start of today
-
-    const all = this.milestones();
-    console.log('🔍 All milestones from signal:', all);
-
-    const filtered = all.filter(m => {
-      const mileDate = new Date(m.dueDate);
-      mileDate.setHours(0, 0, 0, 0); // Reset to start of milestone's day
-      const isNotCompleted = m.status !== 'completed';
-      const isFutureOrToday = mileDate >= now;
-
-      console.log(`Milestone "${m.title}":`, {
-        status: m.status,
-        isNotCompleted,
-        dueDate: m.dueDate,
-        dueDateNormalized: mileDate,
-        now,
-        isFutureOrToday,
-        willShow: isNotCompleted && isFutureOrToday
-      });
-
-      return isNotCompleted && isFutureOrToday; // >= to include today
-    });
-
-    console.log('✅ Filtered upcoming milestones:', filtered);
-    return filtered.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+  // All upcoming deadlines (unfiltered) - combines milestones, meetings, and project end dates
+  private allUpcomingDeadlines = computed(() => {
+    const deadlines = this.unifiedDeadlines();
+    console.log('🔍 All unified deadlines from signal:', deadlines);
+    return deadlines;
   });
 
-  // Filtered milestones based on selected tab
-  upcomingMilestones = computed(() => {
+  // Filtered deadlines based on selected tab (replaces upcomingMilestones)
+  upcomingDeadlines = computed(() => {
     const tab = this.selectedDeadlineTab();
-    const allMilestones = this.allUpcomingMilestones();
+    const allDeadlines = this.allUpcomingDeadlines();
 
     console.log(`🔖 Selected tab: "${tab}"`);
-    console.log(`📋 All upcoming milestones for tab filtering:`, allMilestones);
+    console.log(`📋 All upcoming deadlines for tab filtering:`, allDeadlines);
 
-    let filtered: Milestone[];
+    let filtered: UnifiedDeadline[];
 
     switch(tab) {
       case 'today':
-        filtered = allMilestones.filter(m => {
-          const result = this.isToday(new Date(m.dueDate));
-          console.log(`  - "${m.title}" is today? ${result}`);
+        filtered = allDeadlines.filter(d => {
+          const result = this.isToday(new Date(d.dueDate));
+          console.log(`  - "${d.title}" (${d.type}) is today? ${result}`);
           return result;
         });
         break;
       case 'week':
-        filtered = allMilestones.filter(m => {
-          const result = this.isThisWeek(new Date(m.dueDate));
-          console.log(`  - "${m.title}" is this week? ${result}`);
+        filtered = allDeadlines.filter(d => {
+          const result = this.isThisWeek(new Date(d.dueDate));
+          console.log(`  - "${d.title}" (${d.type}) is this week? ${result}`);
           return result;
         });
         break;
       case 'month':
-        filtered = allMilestones.filter(m => {
-          const result = this.isThisMonth(new Date(m.dueDate));
-          console.log(`  - "${m.title}" is this month? ${result}`);
+        filtered = allDeadlines.filter(d => {
+          const result = this.isThisMonth(new Date(d.dueDate));
+          console.log(`  - "${d.title}" (${d.type}) is this month? ${result}`);
           return result;
         });
         break;
       case 'all':
-        // Show ALL upcoming milestones without date filtering
-        filtered = allMilestones;
-        console.log(`  - Showing all ${filtered.length} upcoming milestones`);
+        // Show ALL upcoming deadlines without date filtering
+        filtered = allDeadlines;
+        console.log(`  - Showing all ${filtered.length} upcoming deadlines`);
         break;
       default:
-        filtered = allMilestones;
+        filtered = allDeadlines;
     }
 
-    console.log(`✨ Final filtered milestones for "${tab}" tab:`, filtered);
+    console.log(`✨ Final filtered deadlines for "${tab}" tab:`, filtered);
     return filtered.slice(0, 5);
   });
 
-  // Counts for tab badges
+  // Keep for backward compatibility in template (alias for upcomingDeadlines)
+  upcomingMilestones = computed(() => {
+    return this.upcomingDeadlines();
+  });
+
+  // Counts for tab badges (updated to use unified deadlines)
   todayDeadlinesCount = computed(() =>
-    this.allUpcomingMilestones().filter(m => this.isToday(new Date(m.dueDate))).length
+    this.allUpcomingDeadlines().filter(d => this.isToday(new Date(d.dueDate))).length
   );
 
   weekDeadlinesCount = computed(() =>
-    this.allUpcomingMilestones().filter(m => this.isThisWeek(new Date(m.dueDate))).length
+    this.allUpcomingDeadlines().filter(d => this.isThisWeek(new Date(d.dueDate))).length
   );
 
   monthDeadlinesCount = computed(() =>
-    this.allUpcomingMilestones().filter(m => this.isThisMonth(new Date(m.dueDate))).length
+    this.allUpcomingDeadlines().filter(d => this.isThisMonth(new Date(d.dueDate))).length
   );
 
   allDeadlinesCount = computed(() =>
-    this.allUpcomingMilestones().length
+    this.allUpcomingDeadlines().length
   );
 
   recentMeetings = computed(() => {
@@ -398,6 +383,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       this.projectService.getProjects(currentUser.email).subscribe(projects => {
         this.myProjects.set(projects.filter(p => p.ownerEmail === currentUser.email));
         this.collaborations.set(projects.filter(p => p.ownerEmail !== currentUser.email));
+        this.aggregateDeadlines();
       });
     }
   }
@@ -410,10 +396,16 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   loadMeetings() {
-    this.meetingService.getMeetings().subscribe({
-      next: (data) => this.meetings.set(data),
-      error: (err) => console.error('Failed to load meetings', err)
-    });
+    const currentUser = this.user;
+    if (currentUser) {
+      this.meetingService.getMeetings({ userEmail: currentUser.email }).subscribe({
+        next: (data) => {
+          this.meetings.set(data);
+          this.aggregateDeadlines();
+        },
+        error: (err) => console.error('Failed to load meetings', err)
+      });
+    }
   }
 
   loadMilestones() {
@@ -423,7 +415,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       next: (data) => {
         console.log('📅 Loaded milestones:', data.length, data);
         this.milestones.set(data);
-        console.log('📊 Upcoming milestones after filter:', this.allUpcomingMilestones());
+        this.aggregateDeadlines();
+        console.log('📊 Upcoming deadlines after aggregation:', this.allUpcomingDeadlines());
       },
       error: (err) => console.error('Failed to load milestones', err)
     });
@@ -434,6 +427,21 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       next: (data) => this.stats.set(data),
       error: (err) => console.error('Failed to load statistics', err)
     });
+  }
+
+  /**
+   * Aggregate all deadline types (milestones, meetings, project end dates)
+   * Called after loading any of the source data
+   */
+  aggregateDeadlines() {
+    const allProjects = [...this.myProjects(), ...this.collaborations()];
+    const aggregated = this.deadlineAggregationService.aggregateDeadlines(
+      this.milestones(),
+      this.meetings(),
+      allProjects
+    );
+    this.unifiedDeadlines.set(aggregated);
+    console.log('📊 Aggregated deadlines:', aggregated);
   }
 
   initGradeChart() {
@@ -557,6 +565,16 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       'milestone': 'activity-type-milestone'
     };
     return classes[type] || 'activity-type-default';
+  }
+
+  // Deadline type formatting
+  getDeadlineTypeLabel(type: 'milestone' | 'meeting' | 'project-end'): string {
+    const labels = {
+      'milestone': 'Milestone',
+      'meeting': 'Meeting',
+      'project-end': 'Project End'
+    };
+    return labels[type];
   }
 
   // Get user name from email
