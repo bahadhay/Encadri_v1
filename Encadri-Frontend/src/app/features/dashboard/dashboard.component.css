@@ -1386,12 +1386,13 @@ h3 {
 
 /* Carousel Pagination Dots */
 .deadline-swiper::part(pagination) {
-  bottom: 36px;
+  bottom: auto;
+  top: 50%;
   display: flex;
   gap: 8px;
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
 }
 
 .deadline-swiper::part(bullet) {
