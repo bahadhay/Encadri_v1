@@ -1316,9 +1316,9 @@ h3 {
 /* Custom Navigation Arrows - Normal CSS */
 .custom-nav-btn {
   position: absolute;
-  bottom: -30px;
-  width: 16px;
-  height: 16px;
+  bottom: -22px;
+  width: 20px;
+  height: 20px;
   background: white;
   border: 1px solid var(--slate-300);
   border-radius: 3px;
@@ -1340,12 +1340,12 @@ h3 {
 
 .custom-nav-prev {
   left: 50%;
-  transform: translateX(-40px);
+  transform: translateX(-20px);
 }
 
 .custom-nav-next {
   right: 50%;
-  transform: translateX(40px);
+  transform: translateX(20px);
 }
 
 .custom-nav-btn:hover {
@@ -1357,19 +1357,19 @@ h3 {
 }
 
 .custom-nav-prev:hover {
-  transform: translateX(-40px) translateY(-2px);
+  transform: translateX(-20px) translateY(-2px);
 }
 
 .custom-nav-next:hover {
-  transform: translateX(40px) translateY(-2px);
+  transform: translateX(20px) translateY(-2px);
 }
 
 .custom-nav-btn:active {
-  transform: translateX(-40px) translateY(0) scale(0.95);
+  transform: translateX(-20px) translateY(0) scale(0.95);
 }
 
 .custom-nav-next:active {
-  transform: translateX(40px) translateY(0) scale(0.95);
+  transform: translateX(20px) translateY(0) scale(0.95);
 }
 
 .custom-nav-btn:focus-visible {
