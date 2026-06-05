@@ -1335,12 +1335,12 @@ h3 {
 
 .custom-nav-prev {
   left: 50%;
-  transform: translateX(-32px);
+  transform: translateX(-44px);
 }
 
 .custom-nav-next {
   right: 50%;
-  transform: translateX(32px);
+  transform: translateX(44px);
 }
 
 .custom-nav-btn:hover {
@@ -1351,11 +1351,11 @@ h3 {
 }
 
 .custom-nav-btn:active {
-  transform: translateX(-32px) scale(0.95);
+  transform: translateX(-44px) scale(0.95);
 }
 
 .custom-nav-next:active {
-  transform: translateX(32px) scale(0.95);
+  transform: translateX(44px) scale(0.95);
 }
 
 .custom-nav-btn:focus-visible {
