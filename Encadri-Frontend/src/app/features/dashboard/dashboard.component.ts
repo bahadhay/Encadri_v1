@@ -151,11 +151,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         });
         break;
       case 'month':
-        filtered = allMilestones.filter(m => {
-          const result = this.isThisMonth(new Date(m.dueDate));
-          console.log(`  - "${m.title}" is this month? ${result}`);
-          return result;
-        });
+        // Show ALL upcoming milestones for "month" tab (not just 30 days)
+        filtered = allMilestones;
+        console.log(`  - Showing all ${filtered.length} upcoming milestones`);
         break;
       default:
         filtered = allMilestones;

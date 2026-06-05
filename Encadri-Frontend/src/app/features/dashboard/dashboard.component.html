@@ -170,7 +170,7 @@
                 class="deadline-tab"
                 [class.active]="selectedDeadlineTab() === 'month'"
                 (click)="selectDeadlineTab('month')">
-                <span class="tab-label">This Month</span>
+                <span class="tab-label">All</span>
                 <span class="tab-count" *ngIf="monthDeadlinesCount() > 0">{{ monthDeadlinesCount() }}</span>
               </button>
             </div>
@@ -180,7 +180,7 @@
               <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
               </svg>
-              <p class="empty-text-sm">No deadlines for {{ selectedDeadlineTab() === 'today' ? 'today' : (selectedDeadlineTab() === 'week' ? 'this week' : 'this month') }}</p>
+              <p class="empty-text-sm">No {{ selectedDeadlineTab() === 'today' ? 'deadlines for today' : (selectedDeadlineTab() === 'week' ? 'deadlines this week' : 'upcoming deadlines') }}</p>
             </div>
 
             <!-- Deadline Cards -->
@@ -437,7 +437,7 @@
                 class="deadline-tab"
                 [class.active]="selectedDeadlineTab() === 'month'"
                 (click)="selectDeadlineTab('month')">
-                <span class="tab-label">This Month</span>
+                <span class="tab-label">All</span>
                 <span class="tab-count" *ngIf="monthDeadlinesCount() > 0">{{ monthDeadlinesCount() }}</span>
               </button>
             </div>
@@ -447,7 +447,7 @@
               <svg class="empty-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
               </svg>
-              <p class="empty-text-sm">No deadlines for {{ selectedDeadlineTab() === 'today' ? 'today' : (selectedDeadlineTab() === 'week' ? 'this week' : 'this month') }}</p>
+              <p class="empty-text-sm">No {{ selectedDeadlineTab() === 'today' ? 'deadlines for today' : (selectedDeadlineTab() === 'week' ? 'deadlines this week' : 'upcoming deadlines') }}</p>
             </div>
 
             <!-- Deadline Cards -->
