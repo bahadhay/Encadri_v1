@@ -41,6 +41,8 @@ interface UnifiedActivity {
 })
 export class DashboardComponent implements OnInit, AfterViewInit {
   @ViewChild('gradeChart') gradeChartCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('studentSwiper') studentSwiper?: ElementRef<any>;
+  @ViewChild('supervisorSwiper') supervisorSwiper?: ElementRef<any>;
 
   private authService = inject(AuthService);
   private projectService = inject(ProjectService);
@@ -604,5 +606,20 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
     if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
     return date.toLocaleDateString();
+  }
+
+  // Swiper navigation methods
+  nextSlide() {
+    const swiper = this.isSupervisor ? this.supervisorSwiper : this.studentSwiper;
+    if (swiper?.nativeElement?.swiper) {
+      swiper.nativeElement.swiper.slideNext();
+    }
+  }
+
+  prevSlide() {
+    const swiper = this.isSupervisor ? this.supervisorSwiper : this.studentSwiper;
+    if (swiper?.nativeElement?.swiper) {
+      swiper.nativeElement.swiper.slidePrev();
+    }
   }
 }

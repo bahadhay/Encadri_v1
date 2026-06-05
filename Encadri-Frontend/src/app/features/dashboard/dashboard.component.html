@@ -186,6 +186,7 @@
             <!-- Deadline Carousel -->
             <div *ngIf="upcomingDeadlines().length > 0" class="deadline-carousel-container">
               <swiper-container
+                #studentSwiper
                 slides-per-view="1"
                 space-between="0"
                 navigation="false"
@@ -222,12 +223,12 @@
               </swiper-container>
 
               <!-- Custom Navigation Arrows - Only show if more than 1 deadline -->
-              <button *ngIf="upcomingDeadlines().length > 1" class="custom-nav-btn custom-nav-prev" aria-label="Previous">
+              <button *ngIf="upcomingDeadlines().length > 1" class="custom-nav-btn custom-nav-prev" (click)="prevSlide()" aria-label="Previous">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M15 18l-6-6 6-6"/>
                 </svg>
               </button>
-              <button *ngIf="upcomingDeadlines().length > 1" class="custom-nav-btn custom-nav-next" aria-label="Next">
+              <button *ngIf="upcomingDeadlines().length > 1" class="custom-nav-btn custom-nav-next" (click)="nextSlide()" aria-label="Next">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M9 18l6-6-6-6"/>
                 </svg>
@@ -484,6 +485,7 @@
             <!-- Deadline Carousel -->
             <div *ngIf="upcomingDeadlines().length > 0" class="deadline-carousel-container">
               <swiper-container
+                #supervisorSwiper
                 slides-per-view="1"
                 space-between="0"
                 navigation="false"
@@ -520,12 +522,12 @@
               </swiper-container>
 
               <!-- Custom Navigation Arrows - Only show if more than 1 deadline -->
-              <button *ngIf="upcomingDeadlines().length > 1" class="custom-nav-btn custom-nav-prev" aria-label="Previous">
+              <button *ngIf="upcomingDeadlines().length > 1" class="custom-nav-btn custom-nav-prev" (click)="prevSlide()" aria-label="Previous">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M15 18l-6-6 6-6"/>
                 </svg>
               </button>
-              <button *ngIf="upcomingDeadlines().length > 1" class="custom-nav-btn custom-nav-next" aria-label="Next">
+              <button *ngIf="upcomingDeadlines().length > 1" class="custom-nav-btn custom-nav-next" (click)="nextSlide()" aria-label="Next">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M9 18l6-6-6-6"/>
                 </svg>
