@@ -50,7 +50,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   meetings = signal<Meeting[]>([]);
   milestones = signal<Milestone[]>([]);
   stats = signal<DashboardStats | null>(null);
-  selectedDeadlineTab = signal<'today' | 'week' | 'month'>('month');
+  selectedDeadlineTab = signal<'today' | 'week' | 'month' | 'all'>('month');
 
   private gradeChart?: Chart;
 
@@ -151,7 +151,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         });
         break;
       case 'month':
-        // Show ALL upcoming milestones for "month" tab (not just 30 days)
+        filtered = allMilestones.filter(m => {
+          const result = this.isThisMonth(new Date(m.dueDate));
+          console.log(`  - "${m.title}" is this month? ${result}`);
+          return result;
+        });
+        break;
+      case 'all':
+        // Show ALL upcoming milestones without date filtering
         filtered = allMilestones;
         console.log(`  - Showing all ${filtered.length} upcoming milestones`);
         break;
@@ -174,6 +181,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   monthDeadlinesCount = computed(() =>
     this.allUpcomingMilestones().filter(m => this.isThisMonth(new Date(m.dueDate))).length
+  );
+
+  allDeadlinesCount = computed(() =>
+    this.allUpcomingMilestones().length
   );
 
   recentMeetings = computed(() => {
@@ -363,7 +374,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   // Tab selection method
-  selectDeadlineTab(tab: 'today' | 'week' | 'month') {
+  selectDeadlineTab(tab: 'today' | 'week' | 'month' | 'all') {
     this.selectedDeadlineTab.set(tab);
   }
 
