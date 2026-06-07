@@ -119,9 +119,20 @@ export class EvaluationFormComponent {
            this.router.navigate(['/projects', this.projectId], { queryParams: { tab: 'evaluations' } });
         },
         error: (err) => {
-          this.error = 'Failed to update evaluation.';
+          // Extract error message from backend response
+          if (err.error?.message) {
+            this.error = err.error.message;
+          } else if (err.status === 403) {
+            this.error = 'Access denied. You can only update your own evaluations.';
+          } else if (err.status === 400) {
+            this.error = 'Invalid evaluation data. Please check your inputs.';
+          } else if (err.status === 404) {
+            this.error = 'Evaluation not found.';
+          } else {
+            this.error = 'Failed to update evaluation.';
+          }
           this.loading = false;
-          console.error(err);
+          console.error('Evaluation update error:', err);
         }
       });
     } else {
@@ -138,9 +149,20 @@ export class EvaluationFormComponent {
            this.router.navigate(['/projects', this.projectId], { queryParams: { tab: 'evaluations' } });
           },
           error: (err) => {
-            this.error = 'Failed to submit evaluation. Please try again.';
+            // Extract error message from backend response
+            if (err.error?.message) {
+              this.error = err.error.message;
+            } else if (err.status === 403) {
+              this.error = 'Access denied. Only supervisors assigned to this project can submit evaluations.';
+            } else if (err.status === 400) {
+              this.error = 'Invalid evaluation data. Please check your inputs.';
+            } else if (err.status === 404) {
+              this.error = 'Project not found.';
+            } else {
+              this.error = 'Failed to submit evaluation. Please try again.';
+            }
             this.loading = false;
-            console.error(err);
+            console.error('Evaluation submission error:', err);
           }
         });
     }

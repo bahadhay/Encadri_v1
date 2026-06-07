@@ -53,6 +53,34 @@ namespace Encadri_Backend.Controllers
         [HttpPost]
         public async Task<ActionResult<Evaluation>> Create([FromBody] Evaluation evaluation)
         {
+            // Validate that the evaluator exists and is a supervisor
+            var evaluator = await _context.Users.FirstOrDefaultAsync(u => u.Email == evaluation.EvaluatorEmail);
+            if (evaluator == null)
+            {
+                return BadRequest(new { message = "Evaluator not found. Please ensure you are logged in." });
+            }
+
+            if (evaluator.UserRole.ToLower() != "supervisor")
+            {
+                return Forbid(); // 403 Forbidden - Only supervisors can create evaluations
+            }
+
+            // Validate that the project exists
+            var project = await _context.Projects.FindAsync(evaluation.ProjectId);
+            if (project == null)
+            {
+                return NotFound(new { message = "Project not found" });
+            }
+
+            // Verify that the supervisor is authorized to evaluate this project
+            // Supervisor must be either the project supervisor OR invited to evaluate
+            if (project.SupervisorEmail != evaluator.Email)
+            {
+                // TODO: Check if supervisor is invited to evaluate this project
+                // For now, only the project supervisor can evaluate
+                return Forbid(); // 403 Forbidden - You are not authorized to evaluate this project
+            }
+
             evaluation.Id = Guid.NewGuid().ToString();
             evaluation.CreatedDate = DateTime.UtcNow;
             evaluation.UpdatedDate = DateTime.UtcNow;
@@ -72,6 +100,32 @@ namespace Encadri_Backend.Controllers
             if (evaluation == null)
             {
                 return NotFound();
+            }
+
+            // Validate that the evaluator exists and is a supervisor
+            var evaluator = await _context.Users.FirstOrDefaultAsync(u => u.Email == updatedEvaluation.EvaluatorEmail);
+            if (evaluator == null)
+            {
+                return BadRequest(new { message = "Evaluator not found. Please ensure you are logged in." });
+            }
+
+            if (evaluator.UserRole.ToLower() != "supervisor")
+            {
+                return Forbid(); // 403 Forbidden - Only supervisors can update evaluations
+            }
+
+            // Only allow the original evaluator to update their own evaluation
+            if (evaluation.EvaluatorEmail != updatedEvaluation.EvaluatorEmail)
+            {
+                return Forbid(); // 403 Forbidden - Cannot update another supervisor's evaluation
+            }
+
+            // Verify that the supervisor is authorized to evaluate this project
+            var project = await _context.Projects.FindAsync(evaluation.ProjectId);
+            if (project != null && project.SupervisorEmail != evaluator.Email)
+            {
+                // TODO: Check if supervisor is invited to evaluate this project
+                return Forbid(); // 403 Forbidden - You are not authorized to evaluate this project
             }
 
             evaluation.EvaluatorEmail = updatedEvaluation.EvaluatorEmail;
