@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { EvaluationService } from '../../core/services/evaluation.service';
 import { ProjectService } from '../../core/services/project.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Evaluation } from '../../core/models/evaluation.model';
 import { Project } from '../../core/models/project.model';
 import { UiCardComponent } from '../../shared/components/ui-card/ui-card.component';
@@ -435,6 +436,7 @@ export class EvaluationsPageComponent implements OnInit {
   private evaluationService = inject(EvaluationService);
   private projectService = inject(ProjectService);
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   evaluations = signal<Evaluation[]>([]);
   loading = signal<boolean>(true);
@@ -477,9 +479,16 @@ export class EvaluationsPageComponent implements OnInit {
 
   loadProjects() {
     this.loadingProjects.set(true);
+    const currentUser = this.authService.currentUser();
+
     this.projectService.getProjects().subscribe({
       next: (data) => {
-        this.projects.set(data);
+        // Filter projects to only show those where the current user is the supervisor
+        const supervisorProjects = currentUser
+          ? data.filter(project => project.supervisorEmail === currentUser.email)
+          : [];
+
+        this.projects.set(supervisorProjects);
         this.loadingProjects.set(false);
       },
       error: (err) => {
