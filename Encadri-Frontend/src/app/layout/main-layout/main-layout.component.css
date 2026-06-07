@@ -66,15 +66,18 @@
     position: fixed;
     top: 0;
     left: 0;
-    height: 100vh;
+    height: 100vh; /* Fallback for older browsers */
+    height: 100dvh; /* Dynamic viewport height for iOS Safari */
     width: 280px;
     max-width: 85vw;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
     transform: translateX(0);
     z-index: 1000;
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden; /* Changed from overflow-y: auto */
+    overflow: hidden; /* Prevent sidebar itself from scrolling */
     -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
   }
 
   .sidebar.closed {
@@ -182,8 +185,9 @@
   flex-direction: column;
   gap: var(--spacing-1);
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   min-height: 0; /* Important for proper flexbox scrolling */
+  overscroll-behavior: contain; /* Prevent scroll chaining on mobile */
 }
 
 /* Better scrollbar styling for nav-links */
@@ -243,7 +247,7 @@
   padding: var(--spacing-4);
   border-top: 1px solid var(--slate-100);
   background-color: var(--slate-50);
-  flex-shrink: 0; /* Prevent shrinking - always visible */
+  flex-shrink: 0; /* Prevent shrinking - always visible at bottom */
   position: relative;
   z-index: 10; /* Stay above nav-links */
 }
@@ -253,6 +257,8 @@
   .user-area {
     padding-bottom: calc(var(--spacing-4) + env(safe-area-inset-bottom, 20px));
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05); /* Subtle shadow to show it's above */
+    flex-shrink: 0; /* Critical: ensure it stays at bottom */
+    margin-top: auto; /* Push to bottom of flex container */
   }
 }
 
