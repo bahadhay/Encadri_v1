@@ -453,10 +453,17 @@ export class EvaluationsPageComponent implements OnInit {
 
   loadAllEvaluations() {
     this.loading.set(true);
+    const currentUser = this.authService.currentUser();
+
     // Call getEvaluations without projectId to get all evaluations
     this.evaluationService.getEvaluations().subscribe({
       next: (data) => {
-        this.evaluations.set(data);
+        // Filter evaluations to only show those created by the current user
+        const userEvaluations = currentUser
+          ? data.filter(evaluation => evaluation.evaluatorEmail === currentUser.email)
+          : [];
+
+        this.evaluations.set(userEvaluations);
         this.loading.set(false);
       },
       error: (err) => {
