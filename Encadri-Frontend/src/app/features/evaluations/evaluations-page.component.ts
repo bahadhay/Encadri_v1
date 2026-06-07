@@ -109,7 +109,7 @@ import { ModalComponent } from '../../shared/components/modal/modal.component';
     </div>
 
     <!-- Project Selection Modal -->
-    <app-modal [isOpen]="isModalOpen()" (closeModal)="closeModal()" title="Select Project to Evaluate">
+    <app-modal [isOpen]="isModalOpen()" (close)="closeModal()" title="Select Project to Evaluate">
       <div class="modal-content-body">
         <p class="modal-description">Choose a project to create an evaluation for:</p>
 
